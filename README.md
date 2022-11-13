@@ -1,0 +1,2 @@
+# SKP
+Projekt zespołowy
