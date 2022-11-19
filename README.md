@@ -7,3 +7,4 @@ Ważne linki: <br>
 [JIRA](https://syskopo.atlassian.net/jira/software/projects/SKP/boards/1)<br>
 [Confluence(pracuję nad tym)](https://syskopo.atlassian.net/wiki/spaces/SKP/overview?homepageId=163843)<br>
 [Car License Plate Detection](https://www.kaggle.com/datasets/andrewmvd/car-plate-detection?fbclid=IwAR2Jelhe944Y5rgVW_zfEdjmrSybMzMygF_ShegSG_ITz0KTcAk0Dhm_mnc)
+[WBS](https://miro.com/app/board/uXjVPBiZZL0=/)
