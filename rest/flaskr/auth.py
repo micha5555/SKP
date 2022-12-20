@@ -1,5 +1,6 @@
 import functools
 
+
 from flask import (
     Blueprint,
     flash, 
@@ -10,7 +11,8 @@ from flask import (
     session, 
     url_for
 )
-from flaskr.db import get_db, select_user_by_id, add_user
+from flaskr.db import get_db, select_user_by_id, add_user,checkPassword
+from flaskr.validate import validateUsernameAndPassword
 
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
@@ -48,8 +50,25 @@ def register():
         flash(error)
 
     return render_template('auth/register.html')
+    
 
 @bp.route('/logout')
 def logout():
     session.clear()
     return redirect(url_for('index'))
+
+    
+@bp.route('/login', methods=('GET', 'POST'))
+def index():
+    return render_template("auth/login.html")
+
+
+@bp.route('/loginAuth' , methods=('GET', 'POST'))
+def login():    
+    username = request.form['username']
+    password = request.form['password']
+    db = get_db()
+    if(validateUsernameAndPassword(username,password)):
+        if(checkPassword(db,username,password)):
+            return "Authorized"
+    return "not Authorized"

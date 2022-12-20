@@ -18,6 +18,14 @@ def select_user_by_id(id):
     ).fetchone()
 
 
+def checkPassword(db,username:str,password:str):
+    user= db.execute(
+        "SELECT * FROM user WHERE username = ?", (username,)
+    ).fetchone()
+    isRight=check_password_hash(user[2],password)
+    return isRight
+
+
 def get_db():
     if 'db' not in g:
         g.db = sqlite3.connect(

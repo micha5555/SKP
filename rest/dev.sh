@@ -1,1 +1,1 @@
-python3 -m flask --app flaskr --debug run
+python.exe -m flask --app flaskr --debug run
