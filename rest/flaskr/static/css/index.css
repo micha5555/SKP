@@ -1,0 +1,11 @@
+div.nogrow {
+  flex-grow: 0;
+}
+
+.bgc {
+  background-color: rgb(31, 31, 31);
+}
+
+.white {
+  color: white !important;
+}
