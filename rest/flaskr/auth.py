@@ -11,7 +11,7 @@ from flask import (
     session, 
     url_for
 )
-from flaskr.db import get_db, select_user_by_id, add_user,checkPassword
+from flaskr.db import get_db, select_user_by_id, add_user,checkPassword,getID
 from flaskr.validate import validateUsernameAndPassword
 
 
@@ -70,5 +70,6 @@ def login():
     db = get_db()
     if(validateUsernameAndPassword(username,password)):
         if(checkPassword(db,username,password)):
+            session[username] = getID(db,username)
             return "Authorized"
     return "not Authorized"

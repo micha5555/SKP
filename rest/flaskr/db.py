@@ -17,11 +17,19 @@ def select_user_by_id(id):
         'SELECT * FROM user WHERE id = ?', (user_id,)
     ).fetchone()
 
+def getID(db,username:str):
+    user= db.execute(
+        "SELECT * FROM user WHERE username = ?", (username,)
+    ).fetchone()
+    return user[0]
+
 
 def checkPassword(db,username:str,password:str):
     user= db.execute(
         "SELECT * FROM user WHERE username = ?", (username,)
     ).fetchone()
+    if(user[2]==None):
+        return False
     isRight=check_password_hash(user[2],password)
     return isRight
 
