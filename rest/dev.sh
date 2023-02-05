@@ -1,1 +1,0 @@
-python.exe -m flask --app flaskr --debug run

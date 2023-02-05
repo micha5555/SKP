@@ -1,0 +1,130 @@
+/* TITLE */
+.title {
+	width: 100%;
+	height: 80px;
+	background-color: #092669;   
+}
+
+.title span {
+	font-size: 32px;
+	text-indent: 25px;
+}
+
+/* BUTTON */
+.button {
+	width: 200px;
+	height: 50px;
+	border-radius: 25px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.button span {
+	font-size: 24px;
+	color: white;
+}
+
+.button.loud {
+	background-color: #f11818;
+}
+
+.button.neutral {
+	background-color: #3C61ED;
+}
+
+.button.silent {
+	background-color: #D5DBFC;
+	color: #636363;
+}
+
+.button.quiet {
+	background-color: #fff;
+	color: #777777;
+	border: 1px #777777 solid;
+}
+
+/* CELL */
+.cell {
+	width: 150px;
+	height: 40px;
+	font-size: 16px;
+	border: 1px solid black;
+}
+
+.cell span {
+	color: black;
+}
+
+.cell.title {
+	color: white;
+	background-color: #1E49EA;
+}
+
+.cell.nr1 {
+	background-color: #D5DBFC;
+}
+
+.cell.nr2 {
+	background-color: #F3F3FF;
+}
+
+/* INPUT */
+.input {
+	width: 160px;
+	height: 30px;
+	text-indent: 12px;
+	font-size: 16px;
+	border: 1px solid black;
+	background-color: #fff;
+}
+
+/* LABEL */
+.label {
+	width: 160px;
+	height: 30px;
+	text-indent: 12px;
+	font-size: 16px;
+}
+
+/* ALERT */
+.alert {
+	width: 350px;
+	height: 100px;
+	background-color: #FD5D55;
+	border: 1px solid black;
+	border-radius: 20px;
+}
+
+/* NAVELEM */
+.navElem {
+	width: 250px;
+	height: 60px;
+	border-bottom: 1px solid black;
+	background-color: #D5DBFC;
+}
+
+.navElem.active {
+	background-color: #98AAF6;
+}
+
+/* LOGINBUTTON */
+.loginButton {
+	width: 150px;
+	height: 50px;
+	color: #fff;
+	background-color: #98AAF6;
+}
+
+.loginButton:hover {
+	background-color: #F3F3FF;
+	color: #000;
+}
+
+/* SUBTITLE */
+.subTitle {
+	width: 450px;
+	height: 40px;
+	text-align: center;
+	font-size: 20px;
+}
