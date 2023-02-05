@@ -8,11 +8,11 @@ import React from "react";
 const Button = ({
   text, 
   type = NEUTRAL, 
-  handleClick = () => {console.log('brak komendy')}
+  click,
 }) => {
   return <button
     className={`button ${type}`}
-    onClick={handleClick}  
+    onClick={click}  
   >
     <span>{text}</span>
   </button>

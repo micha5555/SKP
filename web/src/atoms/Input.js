@@ -1,12 +1,15 @@
 import React from "react";
 
-const Input = ({value, setValue, placeholder, type}) => {
+const Input = ({value, setValue, placeholder}) => {
+  const handleChange = (e) => {
+    setValue(e.target.value);
+  }
+  
   return <input 
     className="input"
-    type={type}
     placeholder={placeholder}
     value={value}
-    onChange={setValue}
+    onChange={handleChange}
   />
 }
 

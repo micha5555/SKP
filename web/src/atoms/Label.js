@@ -1,6 +1,6 @@
 import React from "react";
 
-const Input = ({value}) => {
+const Label = ({value}) => {
   return <span
     className="label"
   >
@@ -8,4 +8,4 @@ const Input = ({value}) => {
   </span>
 }
 
-export default Input;
+export default Label;

@@ -11,3 +11,5 @@ const Cell = ({type = NR1, text = ''}) => {
     <span>{text}</span>
   </div>
 }
+
+export default Cell;
