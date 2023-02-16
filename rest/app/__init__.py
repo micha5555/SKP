@@ -1,13 +1,14 @@
 from flask import Flask
 from app.db import db
-import os
-
+import json
 
 def create_app():
-    template_dir = os.path.abspath('app/public/templates')
-
     app = Flask(__name__)
-    
+    app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///app.db'
     db.init_app(app)
 
+    @app.route("/test", methods=['GET'])
+    def test():
+        return json.dumps("test")
+    
     return app
