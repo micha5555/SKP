@@ -1,5 +1,6 @@
-import { title } from "process";
 import React from "react";
+
+import './css/title.css';
 
 const Title = () => {
   return <div className="title">

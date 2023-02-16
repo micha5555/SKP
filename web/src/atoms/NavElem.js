@@ -1,11 +1,10 @@
 import React from "react";
 
-export const ACTIVE = 'active';
-export const NOTACTIVE = '';
+import './css/navElem.css';
 
 const NavElem = ({text, type}) => {
   return <div
-    className={`navElem ${type}`}
+    className={`navElem`}
   >
     <span>{text}</span>
   </div>

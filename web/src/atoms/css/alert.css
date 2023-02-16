@@ -1,0 +1,7 @@
+.alert {
+	width: 100%;
+	height: 100px;
+	background-color: #FD5D55;
+	border: 1px solid black;
+	border-radius: 20px;
+}

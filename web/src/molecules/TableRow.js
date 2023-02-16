@@ -1,6 +1,7 @@
 import React from "react";
-
 import Cell from "../atomes/Cell";
+
+import './css/tableRow.css';
 
 function TableRow({
   rowContent, rowType,
@@ -14,3 +15,5 @@ function TableRow({
     {cells}
   </div>;
 }
+
+export default TableRow;

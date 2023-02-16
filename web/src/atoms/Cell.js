@@ -1,5 +1,7 @@
 import React from "react";
 
+import './css/cell.css';
+
 export const TITLE = 'title';
 export const NR1 = 'nr1';
 export const NR2 = 'nr2';

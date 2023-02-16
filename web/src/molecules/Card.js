@@ -1,6 +1,7 @@
 import React from "react";
-
 import Button, {LOUG} from "../atoms/Button";
+
+import './css/card.css';
 
 const Card = ({
   content,
@@ -10,10 +11,18 @@ const Card = ({
   return <div
     className="card"
   >
-    <div>
+    <div
+      className="content"
+    >
       {content}
     </div>
-    <Button text='Anuluj' type={LOUG} click={onCanel}/>
-    <Button text='Zatwierdz' click={onSave}/>
+    <div
+      className="buttonContainer"
+    >
+      <Button text='Anuluj' type={LOUG} click={onCanel}/>
+      <Button text='Zatwierdz' click={onSave}/>
+    </div>
   </div>
 }
+
+export default Card;

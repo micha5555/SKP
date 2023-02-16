@@ -1,0 +1,17 @@
+.navElem {
+	width: 100%;
+	line-height: 20px;
+	padding: 20px 20px;
+	font-size: 1rem;
+	border-bottom: 1px solid black;
+	background-color: #D5DBFC;
+	transition: .1s;
+}
+
+.navElem:hover {
+	font-size: 1.1rem;
+}
+
+.navElem.active {
+	background-color: #98AAF6;
+}

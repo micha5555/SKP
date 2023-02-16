@@ -1,20 +1,20 @@
-import { placeholder } from "@babel/types";
 import React, { useState } from "react";
-
 import Input from "../atoms/Input";
-import Label from '../atoms/Label'
+import Label from '../atoms/Label';
+
+import "./css/inputLabel.css";
 
 const InputLabel = ({
   labelValue,
   inputValue,
+  setInputValue,
   placeholder,
 }) => {
-  const [inputValue, setInputValue] = useState(inputValue);
 
   return <div
-    className="inputValue"
+    className="inputLabel"
   >
-    <Label value={labelValue} />
+    <Label value={labelValue + ":"} />
     <Input value={inputValue} setValue={setInputValue} placeholder={placeholder} />
   </div>
 }
