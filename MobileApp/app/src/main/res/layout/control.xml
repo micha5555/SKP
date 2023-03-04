@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:layout_width="535dp"
+        android:layout_height="1026dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:srcCompat="@drawable/decision_menu_control"
+        tools:layout_editor_absoluteY="-83dp" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/ellipse_3"
+        tools:layout_editor_absoluteX="314dp"
+        tools:layout_editor_absoluteY="7dp"
+        tools:ignore="MissingConstraints" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/ellipse_1"
+        tools:layout_editor_absoluteX="-112dp"
+        tools:layout_editor_absoluteY="-84dp"
+        tools:ignore="MissingConstraints" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/ellipse_2"
+        tools:layout_editor_absoluteX="26dp"
+        tools:layout_editor_absoluteY="-83dp"
+        tools:ignore="MissingConstraints" />
+
+    <ImageButton
+        android:id="@+id/start_control_button_on_control_panel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="transparent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/button_shape"
+        tools:layout_editor_absoluteY="600dp"
+        tools:ignore="MissingConstraints" />
+
+    <TextView
+        android:id="@+id/start_control_text_on_control_panel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Rozpocznij kontrolę"
+        android:textSize="25sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/start_control_button_on_control_panel"
+        app:layout_constraintEnd_toEndOf="@+id/start_control_button_on_control_panel"
+        app:layout_constraintStart_toStartOf="@+id/start_control_button_on_control_panel"
+        app:layout_constraintTop_toTopOf="@+id/start_control_button_on_control_panel" />
+
+    <ImageButton
+        android:id="@+id/back_button_on_control_panel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="transparent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.504"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/start_control_text_on_control_panel"
+        app:srcCompat="@drawable/button_shape" />
+
+    <TextView
+        android:id="@+id/back_button_text_on_control_panel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Wstecz"
+        android:textSize="25sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/back_button_on_control_panel"
+        app:layout_constraintEnd_toEndOf="@+id/back_button_on_control_panel"
+        app:layout_constraintStart_toStartOf="@+id/back_button_on_control_panel"
+        app:layout_constraintTop_toTopOf="@+id/back_button_on_control_panel" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
