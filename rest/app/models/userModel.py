@@ -15,9 +15,6 @@ class User(db.Model):
     is_admin = db.Column(db.Boolean, unique=False, default=False)
     is_controller = db.Column(db.Boolean, unique=False, default=False)
     
-    not_paid_cases = db.relationship("NotPaidCase", secondary=user_notPaidCase)
-    not_paid_cases = db.relationship("ProblematicCase", secondary=user_problematicCase)
-    
     def __init__(self, first_name, last_name, login, password, is_admin = False, is_controller = False):
         self.first_name = first_name
         self.last_name = last_name
