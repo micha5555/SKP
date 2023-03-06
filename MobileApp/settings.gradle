@@ -15,3 +15,4 @@ dependencyResolutionManagement {
 rootProject.name = "SKP"
 include ':app'
 include ':OpenCV-4.7.0'
+//project('OpenCV-4.7.0').projectDir = new File('./OpenCV-4.7.0/sdk')
