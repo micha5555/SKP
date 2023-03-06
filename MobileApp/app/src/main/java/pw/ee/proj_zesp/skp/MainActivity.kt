@@ -40,7 +40,7 @@ class MainActivity : AppCompatActivity(), CameraBridgeViewBase.CvCameraViewListe
             ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
         }
 
-        viewFinder.setCameraPermissionGranted()5
+        viewFinder.setCameraPermissionGranted()
         viewFinder.visibility = SurfaceView.VISIBLE
         viewFinder.setCameraIndex(CameraCharacteristics.LENS_FACING_FRONT)
         viewFinder.setCvCameraViewListener(this)
