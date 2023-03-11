@@ -1,8 +1,14 @@
+import re
 def validateLogin(login):
-    pass
+    if(re.fullmatch(r'[A-Za-z0-9]{1,}',login)):
+        return True
+    return False
 
 def validatePassword(password):
-    pass
+    passwdPattern="^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,20}$"
+    if (re.match(passwdPattern,password)):
+        return True
+    return False
 
 def validateFileName(filename):
     pass

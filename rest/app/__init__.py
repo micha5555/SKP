@@ -7,6 +7,9 @@ def create_app(config = Config):
     app.config.from_object(config)
     db.init_app(app)
 
+    from app.user import bp as user_bp
+    app.register_blueprint(user_bp)
+
     @app.route("/", methods=['GET'])
     def test():
         return "test"
