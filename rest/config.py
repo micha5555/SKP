@@ -5,3 +5,9 @@ class Config:
   UPLOAD_FOLDER = '/'
   STATIC_URL_PATH = ''
   STATIC_FOLDER = 'static'
+
+  # state of problematic case
+  NOT_CHECKED = 'NCH' # waiting to checked
+  CHECKED_TO_PAID = 'CTP' # check and not paid  
+  CHECKED_OK = 'COK' # checked and paid
+  CHECKED_NOT_CONFIRMED = 'CNC' # check and not possible to checked

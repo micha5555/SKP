@@ -14,6 +14,9 @@ class User(db.Model):
     password = db.Column(db.String(255), unique=False, nullable=False)
     is_admin = db.Column(db.Boolean, unique=False, default=False)
     is_controller = db.Column(db.Boolean, unique=False, default=False)
+
+    problematic_case_controller = db.relationship('problematic_case', backref='controller_number', lazy=True)
+    problematic_case_admin = db.relationship('problematic_case', backref='admin_number', lazy=True)
     
     def __init__(self, first_name, last_name, login, password, is_admin = False, is_controller = False):
         self.first_name = first_name
