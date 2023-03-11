@@ -1,14 +1,14 @@
 from flask import Flask
+from config import Config
 from app.db import db
-import json
 
-def create_app():
+def create_app(config = Config):
     app = Flask(__name__)
-    app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///app.db'
+    app.config.from_object(config)
     db.init_app(app)
 
-    @app.route("/test", methods=['GET'])
+    @app.route("/", methods=['GET'])
     def test():
-        return json.dumps("test")
+        return "test"
     
     return app

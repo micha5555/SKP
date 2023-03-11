@@ -11,6 +11,7 @@ def createDb():
     user = User("test", "test", "test", "test", True, True)
     db.session.add(user)
     db.session.commit()
+    db.create_all() 
     
 def deleteDB():
     db.drop_all()

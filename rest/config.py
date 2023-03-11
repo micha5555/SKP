@@ -1,0 +1,7 @@
+class Config:
+  SECRET_KEY = '52829798f03c4410b085a4b385b1fa6d'
+  SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:root@172.23.23.23:3306/skp_test'
+  SQLALCHEMY_TRACK_MODIFICATIONS = False
+  UPLOAD_FOLDER = '/'
+  STATIC_URL_PATH = ''
+  STATIC_FOLDER = 'static'
