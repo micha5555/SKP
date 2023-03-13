@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask import request,make_response
 from app.models.userModel import User
 from app.validators import validateLogin, validatePassword
-from app.extensions import createToken,checkPassword,checkLoginData,checkRegistrationData,toBoolean
+from app.extensions import createToken,checkPassword,checkLoginData,checkRegistrationData,toBoolean,checkGetData
 from app.db import db
 
 @bp.route('/login',methods=["POST"])
@@ -29,10 +29,23 @@ def login():
         else:
             return {"error":"Haslo niepoprawne"},404
 
-@bp.route('/user/get')
+@bp.route('/user/get',methods=["GET"])
 def get():
-    pass
-
+    if request.method == "GET":
+        data=request.args
+        if not checkGetData(data):
+            return {"error":"zadanie nie zawiera wymaganych elementow"},400
+        login = data.get("login")
+        if not validateLogin(login):
+            return {"error":"Login nie przeszedł walidacji"},404
+        user = User.query.filter_by(login=login).first()
+        if user is None:
+            return {"error":"nie znaleziono uzytkownika"},404
+        else:
+            response_data = User.json(user)
+            response = make_response(response_data)
+            response.headers['Content-Type'] = 'application/json'
+            return response,200
 
 @bp.route('/user/add' ,methods=["POST"])
 def create():

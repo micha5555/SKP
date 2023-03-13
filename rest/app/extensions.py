@@ -35,16 +35,19 @@ def checkPassword(password,pwhash):
     return check_password_hash(pwhash,password)
 
 def checkLoginData(data):
-    if not "login" in data:
+    if not checkGetData(data):
         return False
     if not "password" in data:
         return False
     return True
 
-def checkRegistrationData(data):
+def checkGetData(data):
     if not "login" in data:
         return False
-    if not "password" in data:
+    return True
+
+def checkRegistrationData(data):
+    if not checkLoginData(data):
         return False
     if not "first_name" in data:
         return False
