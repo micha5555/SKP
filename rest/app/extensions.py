@@ -46,6 +46,19 @@ def checkGetData(data):
         return False
     return True
 
+def checkEditData(data):
+    if not checkGetData(data):
+        return False
+    if not "first_name" in data:
+        return False
+    if not "last_name" in data:
+        return False
+    if not "is_admin" in data:
+        return False
+    if not "is_controller" in data:
+        return False
+    return True
+
 def checkRegistrationData(data):
     if not checkLoginData(data):
         return False
