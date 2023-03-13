@@ -1,73 +1,68 @@
 from app.user import bp
 from flask_sqlalchemy import SQLAlchemy
-from flask import redirect, render_template, request, url_for
+from flask import request,make_response
 from app.models.userModel import User
-from datetime import datetime
 from app.validators import validateLogin, validatePassword
-from app.user.auth import generate_jwt
-import bcrypt
+from app.extensions import createToken,checkPassword,checkLoginData,checkRegistrationData,toBoolean
+from app.db import db
 
-db = SQLAlchemy()
-
-@bp.route('/login',methods=["GET", "POST"])
+@bp.route('/login',methods=["POST"])
 def login():
-    if request.method == "GET":
-        return "Tamplatka"
     if request.method == "POST":
-        login = request.form["login"]
-        password = request.form["password"]
-    if not (validateLogin(login) or validatePassword(password)):
-        return {"error":"Login i hasło nie przeszły walidacji"},404
-    user = User.query.filter_by(login=login).first()
-    if user is None:
+        data=request.args
+        if not checkLoginData(data):
+            return {"error":"zadanie nie zawiera wymaganych elementow"},400
+        login = data.get("login")
+        password = data.get("password")
+        if not validateLogin(login) or not validatePassword(password):
+            return {"error":"Login i hasło nie przeszły walidacji"},404
+        user = User.query.filter_by(login=login).first()
+        if user is None:
             return {"error":"nie znaleziono uzytkownika"},404
-    if(bcrypt.using(rounds=10).verify(password,user.password)):
-        payload = {
-            'login': user.login,
-            'id': user.id,
-            'is_admin': user.is_admin,
-            'is_controller': user.is_controller,
-            'current_time': datetime.now()
-         }
-        auth_token=generate_jwt(payload=payload,lifetime=60)
-        return {"access_token": auth_token[0],"refresh_token":auth_token[1]}, 200
+        if(checkPassword(password,user.password)):
+            payload=User.generatePayload(user)
+            auth_token=createToken(payload=payload,lifetime=60)
+            response_data = {'auth_token': auth_token[0], 'refresh_token': auth_token[1]}
+            response = make_response(response_data)
+            response.headers['Content-Type'] = 'application/json'
+            return response,200
+        else:
+            return {"error":"Haslo niepoprawne"},404
 
 @bp.route('/user/get')
 def get():
     pass
 
 
-@bp.route('/user/add' ,methods=["GET", "POST"])
+@bp.route('/user/add' ,methods=["POST"])
 def create():
-    if request.method == "GET":
-        return "Tamplatka"
     if request.method == "POST":
-        login = request.form["login"]
-        password = request.form["password"]
-        if not (validateLogin(login) or validatePassword(password)):
+        data=request.args
+        if not checkRegistrationData(data):
+            return {"error":"zadanie nie zawiera wymaganych elementow"},400
+        login = data.get("login")
+        password = data.get("password")
+        if not validateLogin(login) or  not validatePassword(password):
             return {"error":"Login i hasło nie przeszły walidacji"},404
         user = User(
-            first_name=request.form["first_name"],
-            last_name=request.form["last_name"],
-            login=request.form["login"],
-            password=bcrypt.using(rounds=10).hash(password),
-            is_admin=request.form["is_admin"],
-            is_controller=request.form["is_controller"],
+            first_name=data.get("first_name"),
+            last_name=data.get("last_name"),
+            login=data.get("login"),
+            password=data.get("password"),
+            is_admin=toBoolean(data.get("is_admin")),
+            is_controller=toBoolean(data.get("is_controller")),
         )
-        newUser = User.query.filter_by(login=login).first()
-        if newUser is not None:
+        checkUserExistence = User.query.filter_by(login=login).first()
+        if checkUserExistence is not None:
             return {"error":"login zajęty"},404
         db.session.add(user)
         db.session.commit()
-        payload = {
-            'login': user.login,
-            'id': user.id,
-            'is_admin': user.is_admin,
-            'is_controller': user.is_controller,
-            'current_time': datetime.now()
-        }
-        auth_token=generate_jwt(payload=payload,lifetime=60)
-        return {"access_token": auth_token[0],"refresh_token":auth_token[1]}, 200
+        payload=User.generatePayload(user)
+        auth_token=createToken(payload=payload,lifetime=60)
+        response_data = {'auth_token': auth_token[0], 'refresh_token': auth_token[1]}
+        response = make_response(response_data)
+        response.headers['Content-Type'] = 'application/json'
+        return response,200
 
 
 @bp.route('/user/edit')

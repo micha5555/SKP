@@ -1,11 +1,11 @@
 import re
 def validateLogin(login):
-    if(re.fullmatch(r'[A-Za-z0-9]{1,}',login)):
+    if(re.fullmatch(r'[A-Za-z0-9]{6,40}',login)):
         return True
     return False
 
 def validatePassword(password):
-    passwdPattern="^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,20}$"
+    passwdPattern= r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,40}$'
     if (re.match(passwdPattern,password)):
         return True
     return False
