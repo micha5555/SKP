@@ -37,38 +37,38 @@ def checkPassword(password,pwhash):
 def checkLoginData(data):
     if not checkGetData(data):
         return False
-    if not "password" in data:
+    if "password" not in data:
         return False
     return True
 
 def checkGetData(data):
-    if not "login" in data:
+    if "login" not in data:
         return False
     return True
 
 def checkEditData(data):
     if not checkGetData(data):
         return False
-    if not "first_name" in data:
+    if "first_name" not in data:
         return False
-    if not "last_name" in data:
+    if "last_name" not in data:
         return False
-    if not "is_admin" in data:
+    if "is_admin" not in data:
         return False
-    if not "is_controller" in data:
+    if "is_controller" not in data:
         return False
     return True
 
 def checkRegistrationData(data):
     if not checkLoginData(data):
         return False
-    if not "first_name" in data:
+    if "first_name" not in data:
         return False
-    if not "last_name" in data:
+    if "last_name" not in data:
         return False
-    if not "is_admin" in data:
+    if  "is_admin" not in data:
         return False
-    if not "is_controller" in data:
+    if "is_controller" not in data:
         return False
     return True
 

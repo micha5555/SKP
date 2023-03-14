@@ -10,6 +10,11 @@ def validatePassword(password):
         return True
     return False
 
+def validateName(name):
+    if(re.fullmatch(r'[A-Za-z]{1,40}',name)):
+        return True
+    return False
+
 def validateFileName(filename):
     pass
 

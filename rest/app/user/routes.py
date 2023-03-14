@@ -5,15 +5,16 @@ from app.models.userModel import User
 from app.validators import validateLogin, validatePassword,validateName
 from app.extensions import createToken,checkPassword,checkLoginData,checkRegistrationData,toBoolean,checkGetData,checkEditData
 from app.db import db
+import json
 
 @bp.route('/login',methods=["POST"])
 def login():
     if request.method == "POST":
-        data=request.args
-        if not checkLoginData(data):
+        data=request.form
+        if not checkLoginData(json.dumps(data)):
             return {"error":"zadanie nie zawiera wymaganych elementow"},400
-        login = data.get("login")
-        password = data.get("password")
+        login = data["login"]
+        password = data["password"]
         if not validateLogin(login) or not validatePassword(password):
             return {"error":"Login i hasło nie przeszły walidacji"},404
         user = User.query.filter_by(login=login).first()
@@ -33,9 +34,9 @@ def login():
 def get():
     if request.method == "GET":
         data=request.args
-        if not checkGetData(data):
+        if not checkGetData(json.dumps(data)):
             return {"error":"zadanie nie zawiera wymaganych elementow"},400
-        login = data.get("login")
+        login = data["login"]
         if not validateLogin(login):
             return {"error":"Login nie przeszedł walidacji"},404
         user = User.query.filter_by(login=login).first()
@@ -50,22 +51,22 @@ def get():
 @bp.route('/user/add' ,methods=["POST"])
 def create():
     if request.method == "POST":
-        data=request.args
-        if not checkRegistrationData(data):
+        data=request.form
+        if not checkRegistrationData(json.dumps(data)):
             return {"error":"zadanie nie zawiera wymaganych elementow"},400
-        login = data.get("login")
-        password = data.get("password")
+        login = data["login"]
+        password = data["password"]
         if not validateLogin(login) or  not validatePassword(password):
             return {"error":"Login i hasło nie przeszły walidacji"},404
-        if not validateName(data.get("first_name")) or  not validateName(data.get("last_name")):
+        if not validateName(data["first_name"]) or  not validateName(data["last_name"]):
             return {"error":"Imie i nazwisko nie przeszły walidacji"},404
         user = User(
-            first_name=data.get("first_name"),
-            last_name=data.get("last_name"),
-            login=data.get("login"),
-            password=data.get("password"),
-            is_admin=toBoolean(data.get("is_admin")),
-            is_controller=toBoolean(data.get("is_controller")),
+            first_name=data["first_name"],
+            last_name=data["last_name"],
+            login=data["login"],
+            password=data["password"],
+            is_admin=toBoolean(data["is_admin"]),
+            is_controller=toBoolean(data["is_controller"]),
         )
         checkUserExistence = User.query.filter_by(login=login).first()
         if checkUserExistence is not None:
@@ -83,8 +84,8 @@ def create():
 @bp.route('/user/edit',methods=["POST"])
 def edit():
        if request.method == "POST":
-        data=request.args
-        if not checkEditData(data):
+        data=request.form
+        if not checkEditData(json.dumps(data)):
             return {"error":"zadanie nie zawiera wymaganych elementow"},400
         login = data.get("login")
         if not validateLogin(login):
@@ -93,11 +94,11 @@ def edit():
         if user is None:
             return {"error":"nie znaleziono uzytkownika"},404
         else: 
-            user.first_name=data.get("first_name")
-            user.last_name=data.get("last_name")
-            user.password=data.get("password")
-            user.is_admin=toBoolean(data.get("is_admin"))
-            user.is_controller=toBoolean(data.get("is_controller"))
+            user.first_name=data["first_name"]
+            user.last_name=data["last_name"]
+            user.password=data["password"]
+            user.is_admin=toBoolean(data["is_admin"])
+            user.is_controller=toBoolean(data["is_controller"])
             db.session.commit()
             return "Poprawnie zmieniono użytkownika",200
 
@@ -106,7 +107,7 @@ def edit():
 def delete():
     if request.method == "POST":
         data=request.args
-        if not checkGetData(data):
+        if not checkGetData(json.dumps(data)):
             return {"error":"zadanie nie zawiera wymaganych elementow"},400
         login = data.get("login")
         if not validateLogin(login):
@@ -118,3 +119,18 @@ def delete():
             db.session.delete(user)
             db.session.commit()
             return "użytkownik usunięty poprawnie" ,200
+
+@bp.route('/users',methods=["GET"])
+def getAll():
+    if request.method == "GET":
+        users = db.session.query(User).all()
+        users_json=[]
+        if users is None:
+            return {"error":"brak uzytkowników w bazie"},404
+        else:
+            for user in users:
+                users_json.append(user)
+            response_data =users
+            response = make_response(response_data)
+            response.headers['Content-Type'] = 'application/json'
+            return response,200
