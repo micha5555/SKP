@@ -1,14 +1,13 @@
-import uuid
-import os
-import base64
-from datetime import datetime
-from io import BytesIO
-from PIL import Image
 from flask import request
 from app.problematicCase import bp
 from app.db import db
 from app.models.problematicCaseModel import ProblematicCase
-from app.extensions import allElementsInList
+from app.extensions import \
+    allElementsInList,\
+    create_image,\
+    create_image_name,\
+    save_image_to_local,\
+    checkIfPaid
 from config import Config
 
 @bp.route('/', methods=["GET"])
@@ -41,38 +40,28 @@ def add():
         registration = data.get('registration')
         creation_time = data.get('creation_time')
         localization = data.get('localization')
-        image = base64.b64decode(data.get('image'))
+        image = create_image(data.get('image'))
         probability = data.get('probability')
-        
-        # This will be taken from token
-        # controller_id = 
+        controller_id = data.get('controller_id') 
 
         # validators 
 
-        file_uuid = uuid.uuid4()
-        now = datetime.now()
-        file_name = f"{file_uuid}_{now.strftime('%Y5m%d_%H%M%S')}"
+        file_name = create_image_name()
+        save_image_to_local(image, file_name)
 
-        with BytesIO(image) as f:
-            save_image = Image.open(f)
-            save_image.save(os.path.join(os.getcwd(), Config.UPLOAD_FOLDER, file_name), format="PNG")
+        newProblematicCase = ProblematicCase(
+            registration,
+            creation_time,
+            localization,
+            file_name,
+            probability,
+            status=Config.NOT_CHECKED
+        )
+        newProblematicCase.controller_number = controller_id
+        db.session.add(newProblematicCase)
+        db.session.commit()
 
-        if image:
-            newProblematicCase = ProblematicCase(
-                registration,
-                creation_time,
-                localization,
-                file_name,
-                probability,
-                status=Config.NOT_CHECKED
-            )
-            # newProblematicCase.controller_number = controller_id
-            newProblematicCase.controller_number = 1
-            db.session.add(newProblematicCase)
-            db.session.commit()
-
-            return {"message": "saved problematic case succesfully"},202
-        return {"error": "wrong image"},400
+        return {"message": "saved problematic case succesfully"},202
     return {"error": "wrong request type"},404
 
 @bp.route('/edit', methods=["PUT"])
@@ -83,7 +72,6 @@ def edit():
         id = request.form['id']
         registration = request.form['registration']
         administration_edit_time = request.form['administration_edit_time']
-        admin_id = request.form['admin_id']
 
         # validators 
 
@@ -91,7 +79,6 @@ def edit():
         if problematicCase:
             problematicCase.registration = registration
             problematicCase.administration_edit_time = administration_edit_time
-            problematicCase.admin_id = admin_id
             db.session.commit()
 
             return {'message': 'saved problematic case sucessfully'},200
@@ -105,14 +92,25 @@ def correctToNotPaid():
             return {"error": "request is missing"},400
         id = request.form['id']
         status = request.form['status']
+        admin_id = request.form['admin_id']
 
         # validators 
-
+        
         problematicCase = ProblematicCase.query.filter_by(id=id).first()
-        if problematicCase:
-            problematicCase.status = status
-            db.session.commit()
+        if not problematicCase:
+            return {"error": "problematic case with given id not exist"},404
 
+        problematicCase.admin_number = admin_id
+        problematicCase.correction = True
+        if status == 'not_possible_to_check':
+            problematicCase.status = Config.CHECKED_NOT_CONFIRMED
+        elif status == 'check_if_paid_again':
+            if(not checkIfPaid()):
+                problematicCase.status = Config.CHECKED_TO_PAID
+            else:
+                problematicCase.status = Config.CHECKED_OK
             return {'message': 'saved problematic case sucessfully'},200
-        return {"error": "problematic case with given id not exist"},404
+        else:
+            return {"error": "wrong status type"},404
+        return {"error": "wrong request"},404    
     return {"error": "wrong request type"},404

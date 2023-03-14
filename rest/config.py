@@ -11,3 +11,5 @@ class Config:
   CHECKED_TO_PAID = 'CTP' # check and not paid  
   CHECKED_OK = 'COK' # checked and paid
   CHECKED_NOT_CONFIRMED = 'CNC' # check and not possible to checked
+
+  TIME_AFTER_CHECK = 30 # 30 minutes

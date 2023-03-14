@@ -5,10 +5,10 @@ class ProblematicCase(db.Model):
     __tablename__ = 'problematic_case'
     id = db.Column(db.Integer(11), primary_key=True)
     registration_plate = db.Column(db.String(40), unique=False, nullable=False)
-    creation_time = db.Column(db.DateTime, default=getDatetimeNow())
-    administration_edit_time = db.Column(db.DateTime, unique=False, nullable=True)
+    detect_time = db.Column(db.DateTime, default=getDatetimeNow())
     localization = db.Column(db.String(22), unique=False, nullable=False)
     image = db.Column(db.String(56), unique=True, nullable=False)
+    administration_edit_time = db.Column(db.DateTime, unique=False, nullable=True)
     probability = db.Column(db.String(3), unique=False, nullable=False)
     status = db.Column(db.String(3), unique=False, nullbale=False)
     correction = db.Column(db.Boolean, unique=False, nullable=False)

@@ -15,6 +15,7 @@ class User(db.Model):
     is_admin = db.Column(db.Boolean, unique=False, default=False)
     is_controller = db.Column(db.Boolean, unique=False, default=False)
 
+    not_paid_case_controller = db.relationship('not_paid_case', backref='controller_number', lazy=True)
     problematic_case_controller = db.relationship('problematic_case', backref='controller_number', lazy=True)
     problematic_case_admin = db.relationship('problematic_case', backref='admin_number', lazy=True)
 
