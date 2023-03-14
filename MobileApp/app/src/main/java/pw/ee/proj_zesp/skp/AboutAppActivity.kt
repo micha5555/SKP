@@ -1,22 +1,22 @@
 package pw.ee.proj_zesp.skp
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.View
+import android.os.PersistableBundle
 import android.widget.ImageButton
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 
-class MainActivity : AppCompatActivity() {
+class AboutAppActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         getSupportActionBar()?.hide()
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.main_menu)
+        setContentView(R.layout.about_app)
 
-        val aboutAppButton: ImageButton = findViewById<ImageButton>(R.id.about_system_button)
-        aboutAppButton.setOnClickListener {
-            val intent = Intent(this, AboutAppActivity::class.java)
+        val backButton: ImageButton = findViewById<ImageButton>(R.id.back_button_on_aboutapp_view)
+        backButton.setOnClickListener {
+            val intent = Intent(this, MainActivity::class.java)
             this.startActivity(intent)
         }
     }
