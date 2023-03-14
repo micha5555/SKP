@@ -1,14 +1,14 @@
 from app.db import db
-from app.extensions import getDatetimeNow
+from app.extensions import getDatetimeNow, createDatetime
 
 class ProblematicCase(db.Model):
     __tablename__ = 'problematic_case'
     id = db.Column(db.Integer(11), primary_key=True)
-    registration = db.Column(db.String(40), unique=False, nullable=False)
+    registration_plate = db.Column(db.String(40), unique=False, nullable=False)
     creation_time = db.Column(db.DateTime, default=getDatetimeNow())
     administration_edit_time = db.Column(db.DateTime, unique=False, nullable=True)
-    localization = db.Column(db.String(60), unique=False, nullable=False)
-    image = db.Column(db.String(120), unique=True, nullable=False)
+    localization = db.Column(db.String(22), unique=False, nullable=False)
+    image = db.Column(db.String(56), unique=True, nullable=False)
     probability = db.Column(db.String(3), unique=False, nullable=False)
     status = db.Column(db.String(3), unique=False, nullbale=False)
     correction = db.Column(db.Boolean, unique=False, nullable=False)
@@ -16,8 +16,13 @@ class ProblematicCase(db.Model):
     controller_number = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     admin_number = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
-    def __init__(self, registration, localization, image, probability, status):
+    attr = ['registration', 'creation_time', 'localization', 'image', 'probability', 'controller_id']
+    attr_edit = ['id', 'registration', 'administration_edit_time', 'admin_id']
+    attr_change = ['id', 'status']
+
+    def __init__(self, registration, creation_time, localization, image, probability, status):
         self.registration = registration
+        self.creation_time = createDatetime(creation_time)
         self.localization = localization
         self.image = image
         self.probability = probability

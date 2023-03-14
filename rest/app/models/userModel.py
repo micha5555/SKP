@@ -17,7 +17,9 @@ class User(db.Model):
 
     problematic_case_controller = db.relationship('problematic_case', backref='controller_number', lazy=True)
     problematic_case_admin = db.relationship('problematic_case', backref='admin_number', lazy=True)
-    
+
+    attr = ['first_name', 'last_name', 'login', 'password']
+
     def __init__(self, first_name, last_name, login, password, is_admin = False, is_controller = False):
         self.first_name = first_name
         self.last_name = last_name

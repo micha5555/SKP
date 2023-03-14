@@ -23,3 +23,6 @@ def getDatetimeNow():
     dt_utc = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
     dt_local = dt_utc.astimezone(datetime.timezone(datetime.timedelta(hours=1)))
     return dt_local
+
+def allElementsInList(elements, lst):
+    return all(element in lst for element in elements)
