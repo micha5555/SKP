@@ -129,8 +129,8 @@ def getAll():
             return {"error":"brak uzytkowników w bazie"},404
         else:
             for user in users:
-                users_json.append(user)
-            response_data =users
+                users_json.append(User.json(user))
+            response_data =users_json
             response = make_response(response_data)
             response.headers['Content-Type'] = 'application/json'
             return response,200
