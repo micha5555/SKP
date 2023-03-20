@@ -1,13 +1,18 @@
 import cv2
 import pytesseract
 import torch
+import time
 
 def detect_license_plate():
     # Load YOLOv5 model from checkpoint file
-    model = torch.hub.load('ultralytics/yolov5', 'custom', path='best.pt', force_reload=True)
+    model = torch.hub.load('ultralytics/yolov5', 'custom', path='best_yolov5.pt', force_reload=True)
 
     # Set up video capture from default camera
     cap = cv2.VideoCapture(0)
+
+    # Initialize FPS variables
+    fps_start_time = 0
+    fps_counter = 0
 
     while True:
         # Capture frame-by-frame
@@ -34,6 +39,14 @@ def detect_license_plate():
 
         # Display the resulting frame
         cv2.imshow('License Plate Detector', frame)
+
+        # Calculate FPS
+        fps_counter += 1
+        if (time.time() - fps_start_time) > 1:
+            fps = fps_counter / (time.time() - fps_start_time)
+            print(f"FPS: {round(fps,2)}")
+            fps_start_time = time.time()
+            fps_counter = 0
 
         # Exit on 'q' keypress
         if cv2.waitKey(1) & 0xFF == ord('q'):
