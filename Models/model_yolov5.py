@@ -3,20 +3,25 @@ import pytesseract
 import torch
 import time
 
-def detect_license_plate():
+def detect_license_plate_yolov5(video_path, results_file):
     # Load YOLOv5 model from checkpoint file
     model = torch.hub.load('ultralytics/yolov5', 'custom', path='best_yolov5.pt', force_reload=True)
 
     # Set up video capture from default camera
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(video_path)
 
     # Initialize FPS variables
     fps_start_time = 0
     fps_counter = 0
+    fps_avg = []
 
     while True:
         # Capture frame-by-frame
         ret, frame = cap.read()
+
+        if not ret:
+        # End of video file
+            break
 
         # Detect license plates in the frame using YOLOv5
         results = model(frame)
@@ -44,6 +49,7 @@ def detect_license_plate():
         fps_counter += 1
         if (time.time() - fps_start_time) > 1:
             fps = fps_counter / (time.time() - fps_start_time)
+            fps_avg.append(fps)
             print(f"FPS: {round(fps,2)}")
             fps_start_time = time.time()
             fps_counter = 0
@@ -56,6 +62,14 @@ def detect_license_plate():
     cap.release()
     cv2.destroyAllWindows()
 
+    # Calculate the average of the numbers
+    average = sum(fps_avg) / len(fps_avg)
+    file  = open(results_file, "a")
+    file.write("Yolov5 average FPS: " + str(average) + '\n')
+    file.close()
+
 # Call the function to run the license plate detection on start-up
 if __name__ == '__main__':
-    detect_license_plate()
+    results = "tests_results.txt"
+    video = '/home/nebraszka/Downloads/VID_20230313_143216.mp4'
+    detect_license_plate_yolov5(video, results)

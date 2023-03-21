@@ -1,0 +1,3 @@
+
+Yolov5 average FPS: 7.133436988363864
+Yolov8 average FPS: 8.319092262260002

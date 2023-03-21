@@ -2,27 +2,34 @@ import cv2
 import pytesseract
 import torch
 import ultralytics
+import time
 
-
-def detect_license_plate():
+def detect_license_plate_yolov8(video_path, results_file):
     # Load YOLOv5 model from checkpoint file
     #model = torch.hub.load('ultralytics/yolov5', 'custom', path='best.pt', force_reload=True)
     model = ultralytics.YOLO('best_yolov8.pt')
 
     # Set up video capture from default camera
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(video_path)
     model.overrides['conf'] = 0.25  # NMS confidence threshold
     model.overrides['iou'] = 0.45  # NMS IoU threshold
+
+    # Initialize FPS variables
+    fps_start_time = 0
+    fps_counter = 0
+    fps_avg = []
 
     while True:
         # Capture frame-by-frame
         ret, frame = cap.read()
 
+        if not ret:
+        # End of video file
+            break
+
         # Detect license plates in the fra to me using YOLOv5
         results = model.predict(frame)
         
-
-
         # Draw bounding boxes around license plates
         for box in results[0].boxes:
             x1, y1, x2, y2 = box.xyxy[0]
@@ -42,6 +49,15 @@ def detect_license_plate():
         # Display the resulting frame
         cv2.imshow('License Plate Detector', frame)
 
+         # Calculate FPS
+        fps_counter += 1
+        if (time.time() - fps_start_time) > 1:
+            fps = fps_counter / (time.time() - fps_start_time)
+            fps_avg.append(fps)
+            print(f"FPS: {round(fps,2)}")
+            fps_start_time = time.time()
+            fps_counter = 0
+
         # Exit on 'q' keypress
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
@@ -50,6 +66,14 @@ def detect_license_plate():
     cap.release()
     cv2.destroyAllWindows()
 
+    # Calculate the average of the numbers
+    average = sum(fps_avg) / len(fps_avg)
+    file  = open(results_file, "a")
+    file.write("Yolov8 average FPS: " + str(average) + '\n')
+    file.close()
+
 # Call the function to run the license plate detection on start-up
 if __name__ == '__main__':
-    detect_license_plate()
+    results = "tests_results.txt"
+    video = '/home/nebraszka/Downloads/VID_20230313_143216.mp4'
+    detect_license_plate_yolov8(results_file=results, video_path=video)
