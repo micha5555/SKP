@@ -1,3 +1,21 @@
+Short video:
 
-Yolov5 average FPS: 7.133436988363864
-Yolov8 average FPS: 8.319092262260002
+OCR per every frame :
+Yolov5 average FPS: 7.152764521586399
+Yolov8 average FPS: 8.471109920010914
+
+Without OCR:
+Yolov8 average FPS: 19.68031564428686
+Yolov5 average FPS: 14.098688678419204
+
+ocr_frame_interval = 2
+Yolov5 average FPS: 8.496434562555367
+Yolov8 average FPS: 10.637817165095617
+
+ocr_frame_interval = 4
+Yolov5 average FPS: 10.382523068473526
+Yolov8 average FPS: 13.388742475144506
+
+ocr_frame_interval = 10
+Yolov5 average FPS: 11.428798984178625
+Yolov8 average FPS: 15.627143265822957
