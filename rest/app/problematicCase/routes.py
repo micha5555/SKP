@@ -37,18 +37,15 @@ def add():
         if not allElementsInList(ProblematicCase.attr, data):
             return {"error": "request is missing"},400
         
-        registration = data.get('registration')
-        creation_time = data.get('creation_time')
-        localization = data.get('localization')
+        registration = data.get('register_plate')
+        creation_time = data.get('datetime')
+        localization = data.get('location')
         image = create_image(data.get('image'))
         probability = data.get('probability')
         controller_id = data.get('controller_id') 
 
         # validators 
-
         file_name = create_image_name()
-        save_image_to_local(image, file_name)
-
         newProblematicCase = ProblematicCase(
             registration,
             creation_time,
@@ -60,6 +57,7 @@ def add():
         newProblematicCase.controller_number = controller_id
         db.session.add(newProblematicCase)
         db.session.commit()
+        save_image_to_local(image, file_name + '.png')
 
         return {"message": "saved problematic case succesfully"},202
     return {"error": "wrong request type"},404

@@ -3,20 +3,17 @@ from app.extensions import getDatetimeNow, createDatetime
 
 class ProblematicCase(db.Model):
     __tablename__ = 'problematic_case'
-    id = db.Column(db.Integer(11), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     registration_plate = db.Column(db.String(40), unique=False, nullable=False)
     detect_time = db.Column(db.DateTime, default=getDatetimeNow())
     localization = db.Column(db.String(22), unique=False, nullable=False)
     image = db.Column(db.String(56), unique=True, nullable=False)
     administration_edit_time = db.Column(db.DateTime, unique=False, nullable=True)
     probability = db.Column(db.String(3), unique=False, nullable=False)
-    status = db.Column(db.String(3), unique=False, nullbale=False)
+    status = db.Column(db.Float(), unique=False, nullable=False)
     correction = db.Column(db.Boolean, unique=False, nullable=False)
 
-    controller_number = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    admin_number = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-
-    attr = ['registration', 'creation_time', 'localization', 'image', 'probability', 'controller_id']
+    attr = ['register_plate', 'datetime', 'location', 'image', 'probability', 'controller_id']
     attr_edit = ['id', 'registration', 'administration_edit_time', 'admin_id']
     attr_change = ['id', 'status']
 

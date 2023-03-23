@@ -7,8 +7,11 @@ def create_app(config = Config):
     app.config.from_object(config)
     db.init_app(app)
 
-    @app.route("/", methods=['GET'])
-    def test():
-        return "test"
+    from app.notPaidCase import bp as notPaidCaseBP
+    app.register_blueprint(notPaidCaseBP)
+
+    # @app.route("/", methods=['GET'])
+    # def test():
+    #     return "test"
     
     return app
