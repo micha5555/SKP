@@ -6,6 +6,8 @@
     android:layout_height="match_parent">
 
 
+
+
     <ImageView
         android:id="@+id/imageView6"
         android:layout_width="wrap_content"
@@ -143,5 +145,30 @@
         app:layout_constraintEnd_toEndOf="@+id/welcome_panel"
         app:layout_constraintStart_toStartOf="@+id/welcome_panel"
         app:layout_constraintTop_toTopOf="@+id/welcome_panel" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.215"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.72" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.511"
+        app:layout_constraintStart_toEndOf="@+id/textView2"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.72" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
