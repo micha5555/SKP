@@ -16,9 +16,6 @@ def validateName(name):
         return True
     return False
 
-def validateFileName(filename):
-    pass
-
 def validateId(id):
     if isinstance(id, int):
         return True
