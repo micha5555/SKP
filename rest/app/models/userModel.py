@@ -1,9 +1,7 @@
 from app.db import db
 from werkzeug.security import generate_password_hash
-from app.models.connectors import user_notPaidCase, user_problematicCase
-from app.models.notPaidCaseModel import NotPaidCase
 from app.models.problematicCaseModel import ProblematicCase
-from app.models.reportModel import Report
+from app.models.connectors import user_not_paid_case_association, user_problematic_case_association
 
 class User(db.Model):
     __tablename__ = 'user'
@@ -14,7 +12,12 @@ class User(db.Model):
     password = db.Column(db.String(255), unique=False, nullable=False)
     is_admin = db.Column(db.Boolean, unique=False, default=False)
     is_controller = db.Column(db.Boolean, unique=False, default=False)
-    
+
+    not_paid_cases = db.relationship('NotPaidCase', secondary=user_not_paid_case_association, backref='users')
+    problematic_cases = db.relationship('ProblematicCase', secondary=user_problematic_case_association, backref='users')
+
+    attr = ['first_name', 'last_name', 'login', 'password']
+
     def __init__(self, first_name, last_name, login, password, is_admin = False, is_controller = False):
         self.first_name = first_name
         self.last_name = last_name
