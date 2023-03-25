@@ -1,6 +1,9 @@
-from app.db import db
+from json import dumps
+
 from werkzeug.security import generate_password_hash
+from app.db import db
 from app.models.problematicCaseModel import ProblematicCase
+from app.models.reportModel import Report
 from app.models.connectors import user_not_paid_case_association, user_problematic_case_association
 
 class User(db.Model):
@@ -18,20 +21,30 @@ class User(db.Model):
 
     attr = ['first_name', 'last_name', 'login', 'password']
 
-    def __init__(self, first_name, last_name, login, password, is_admin = False, is_controller = False):
+    def __init__(self, first_name, last_name, login, password, is_admin=False, is_controller=False):
         self.first_name = first_name
         self.last_name = last_name
         self.login = login
         self.password = generate_password_hash(password)
         self.is_admin = is_admin
         self.is_controller = is_controller
-        
+
     def json(self):
         return {
-			'id': self.id,
-			'first_name': self.first_name,
-			'last_name': self.last_name,
-			'login': self.login,
-			'is_admin': self.is_admin,
-			'is_controller': self.is_controller,
-		}
+            'id': self.id,
+            'first_name': self.first_name,
+            'last_name': self.last_name,
+            'login': self.login,
+            'is_admin': self.is_admin,
+            'is_controller': self.is_controller,
+        }
+
+    def generatePayload(self):
+        now=datetime.now().isoformat()
+        return {
+            'login': self.login,
+            'id': self.id,
+            'is_admin': self.is_admin,
+            'is_controller':  self.is_controller,
+            'current_time': dumps(now)
+        }

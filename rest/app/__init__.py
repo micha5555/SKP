@@ -7,6 +7,9 @@ def create_app(config = Config):
     app.config.from_object(config)
     db.init_app(app)
 
+    from app.user import bp as user_bp
+    app.register_blueprint(user_bp)
+    
     from app.notPaidCase import bp as notPaidCaseBP
     app.register_blueprint(notPaidCaseBP)
     
