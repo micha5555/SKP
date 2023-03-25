@@ -1,4 +1,5 @@
 import re
+from datetime import datetime
 def validateLogin(login):
     if(re.fullmatch(r'[A-Za-z0-9]{6,40}',login)):
         return True
@@ -19,10 +20,17 @@ def validateFileName(filename):
     pass
 
 def validateId(id):
-    pass
+    if isinstance(id, int):
+        return True
+    return False
 
 def validateBoolean(param):
-    pass
+    if isinstance(param, bool):
+        return True
+    elif isinstance(param, str) and param.lower() in ['true', 'false']:
+        return True
+    else:
+        return False
 
 def validateDate(date):
     pass

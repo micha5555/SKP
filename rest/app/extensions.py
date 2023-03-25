@@ -1,5 +1,5 @@
 import functools
-from flask import g,session, redirect, url_for
+from flask import g,session
 import jwt
 from datetime import datetime, timedelta
 from config import Config
@@ -35,7 +35,7 @@ def checkPassword(password,pwhash):
     return check_password_hash(pwhash,password)
 
 def checkLoginData(data):
-    if not checkGetData(data):
+    if "login" not in data:
         return False
     if "password" not in data:
         return False
@@ -46,20 +46,7 @@ def checkGetData(data):
         return False
     return True
 
-def checkEditData(data):
-    if not checkGetData(data):
-        return False
-    if "first_name" not in data:
-        return False
-    if "last_name" not in data:
-        return False
-    if "is_admin" not in data:
-        return False
-    if "is_controller" not in data:
-        return False
-    return True
-
-def checkRegistrationData(data):
+def checkAllData(data):
     if not checkLoginData(data):
         return False
     if "first_name" not in data:
@@ -73,9 +60,9 @@ def checkRegistrationData(data):
     return True
 
 def toBoolean(is_boolean):
-    if is_boolean in( 'true' , 'True','1'):
+    if is_boolean.lower() in( 'true' ,'1'):
         return True
-    if is_boolean in( 'false' , 'False','0'):
+    if is_boolean.lower() in( 'false','0'):
         return False
     return False
 
