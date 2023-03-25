@@ -45,6 +45,7 @@ def add():
         controller_id = data.get('controller_id') 
 
         # validators 
+        
         file_name = create_image_name()
         newProblematicCase = ProblematicCase(
             registration,

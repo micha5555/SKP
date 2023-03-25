@@ -4,9 +4,6 @@ def validateLogin(login):
 def validatePassword(password):
     pass
 
-def validateFileName(filename):
-    pass
-
 def validateId(id):
     pass
 

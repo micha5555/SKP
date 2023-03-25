@@ -43,10 +43,10 @@ def checkIfPaid(registration, detection_time):
         'datetime_to_check': detection_time
     }
     res = requests.post("http://172.29.82.240:5050/car/check", json=payload)
+    res = res.json()
     if('is_within' in res):
         if (res['is_within']):
             return True
-        return False
     return False
 
 def create_image(base64encoded):

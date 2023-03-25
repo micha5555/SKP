@@ -9,8 +9,8 @@ class ProblematicCase(db.Model):
     localization = db.Column(db.String(22), unique=False, nullable=False)
     image = db.Column(db.String(56), unique=True, nullable=False)
     administration_edit_time = db.Column(db.DateTime, unique=False, nullable=True)
-    probability = db.Column(db.String(3), unique=False, nullable=False)
-    status = db.Column(db.Float(), unique=False, nullable=False)
+    probability = db.Column(db.Float(), unique=False, nullable=False)
+    status = db.Column(db.String(4), unique=False, nullable=False)
     correction = db.Column(db.Boolean, unique=False, nullable=False)
 
     attr = ['register_plate', 'datetime', 'location', 'image', 'probability', 'controller_id']
@@ -18,8 +18,8 @@ class ProblematicCase(db.Model):
     attr_change = ['id', 'status']
 
     def __init__(self, registration, creation_time, localization, image, probability, status):
-        self.registration = registration
-        self.creation_time = createDatetime(creation_time)
+        self.registration_plate = registration
+        self.detect_time = createDatetime(creation_time)
         self.localization = localization
         self.image = image
         self.probability = probability

@@ -9,9 +9,8 @@ def create_app(config = Config):
 
     from app.notPaidCase import bp as notPaidCaseBP
     app.register_blueprint(notPaidCaseBP)
-
-    # @app.route("/", methods=['GET'])
-    # def test():
-    #     return "test"
+    
+    from app.problematicCase import bp as problematicCaseDB
+    app.register_blueprint(problematicCaseDB)
     
     return app
