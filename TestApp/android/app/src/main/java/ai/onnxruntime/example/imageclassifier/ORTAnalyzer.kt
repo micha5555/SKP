@@ -16,9 +16,9 @@ import kotlin.math.exp
 
 
 internal data class Result(
-        var detectedIndices: List<Int> = emptyList(),
-        var detectedScore: MutableList<Float> = mutableListOf<Float>(),
-        var rateFPS: Double = 0.0
+    var detectedIndices: List<Int> = emptyList(),
+    var detectedScore: MutableList<Float> = mutableListOf<Float>(),
+    var rateFPS: Double = 0.0
 ) {}
 
 
@@ -31,8 +31,8 @@ internal data class Result_Yolo_v8(
 )
 
 internal class ORTAnalyzer(
-        private val ortSession: OrtSession?,
-        private val callBack: (Result_Yolo_v8) -> Unit
+    private val ortSession: OrtSession?,
+    private val callBack: (Result_Yolo_v8) -> Unit
 ) : ImageAnalysis.Analyzer {
 
 
@@ -143,9 +143,15 @@ internal class ORTAnalyzer(
         var listOfBoxes: MutableList<YoloBox> = mutableListOf<YoloBox>()
         for (i in 0 until (tempOutput[0][0]).size)
         {
+            val x_center = tempOutput[0][0][i]/640
+            val y_center = tempOutput[0][1][i]/640
+            val width = tempOutput[0][2][i]/640
+            val height = tempOutput[0][3][i]/640
+            val probability = tempOutput[0][4][i]
+
             if(tempOutput[0][4][i] > threshold)
             {
-                var tempBox = YoloBox(tempOutput[0][0][i]/640,tempOutput[0][1][i]/640,tempOutput[0][2][i]/640,tempOutput[0][3][i]/640,tempOutput[0][4][i])
+                var tempBox = YoloBox(x_center - width/2, y_center - height/2, width, height, probability)
                 listOfBoxes.add(tempBox)
             }
         }
@@ -233,7 +239,7 @@ internal class ORTAnalyzer(
 
         val stepBitmap = imgBitmap?.let { Bitmap.createBitmap(it, startX, startY,dstSize,dstSize) }
         val rawBitmap = stepBitmap?.let { Bitmap.createScaledBitmap(it, 640, 640, false) }
-        val bitmap = rawBitmap?.rotate(90.0F)
+        val bitmap = rawBitmap?.rotate(0.0F)
 //        val bitmap = rawBitmap?.rotate(image.imageInfo.rotationDegrees.toFloat())
         canBeClose = true
 
