@@ -78,7 +78,7 @@ class MainActivity : AppCompatActivity() {
                     .setTargetResolution(Size(1080,1920))
                     .build()
                     .also {
-                        it.setSurfaceProvider(viewFinder.surfaceProvider)
+//                        it.setSurfaceProvider(viewFinder.surfaceProvider)
                     }
 
             imageCapture = ImageCapture.Builder()
@@ -92,7 +92,7 @@ class MainActivity : AppCompatActivity() {
             imageAnalysis = ImageAnalysis.Builder()
                     .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
 //                .setTargetAspectRatio(AspectRatio.RATIO_16_9)
-                    .setTargetResolution(Size(1080,1920))
+                    .setTargetResolution(Size(3840,2160))
 //                    .setTargetRotation(Surface.ROTATION_0)
                     .build()
 
@@ -100,7 +100,7 @@ class MainActivity : AppCompatActivity() {
                 cameraProvider.unbindAll()
 
                 cameraProvider.bindToLifecycle(
-                        this, cameraSelector, imagePreview, imageCapture, imageAnalysis
+                        this, cameraSelector, imageCapture, imageAnalysis
                 )
             } catch (exc: Exception) {
                 Log.e(TAG, "Use case binding failed", exc)
@@ -155,32 +155,23 @@ class MainActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     private fun updateUI(result: Result_Yolo_v8) {
         runOnUiThread{
-            //Draw boxes
-            val imageBitmap = viewFinder.bitmap ?: return@runOnUiThread
+//            val imageBitmap = viewFinder.bitmap ?: return@runOnUiThread
             newBackgroundView.setImageBitmap(result.bitmap_origin)
 
-            Log.println(Log.INFO, "viewFinder", "height = ${viewFinder.height}, width = ${viewFinder.width}")
-            Log.println(Log.INFO, "viewFinder", "height = ${viewFinder.bitmap!!.height}, width = ${viewFinder.bitmap!!.width}")
+//            Log.println(Log.INFO, "viewFinder", "height = ${viewFinder.height}, width = ${viewFinder.width}")
+//            Log.println(Log.INFO, "viewFinder", "height = ${viewFinder.bitmap!!.height}, width = ${viewFinder.bitmap!!.width}")
 
-//            val newBitmap = Bitmap.createBitmap(imageBitmap.width,imageBitmap.height, Bitmap.Config.ARGB_8888,true)
             val canvas = Canvas(result.bitmap_origin)
 
             val listRect : MutableList<RectF> = mutableListOf()
 
 
             if (result.number_of_boxes == 0) {
-                customView.drawBoxes(listRect)
-                customView.draw(canvas)
+                customView.drawBoxes(listRect, canvas)
                 return@runOnUiThread
             }
 
             var dstSize = result.bitmap_origin.width
-
-//                dstSize = if(imageBitmap.width > imageBitmap.height) {
-//                    imageBitmap.height
-//                } else {
-//                    imageBitmap.width
-//                }
                 // Creating boxes
                 for(i in 0 until result.number_of_boxes){
                     val box = result.boxes[i]
@@ -190,36 +181,19 @@ class MainActivity : AppCompatActivity() {
                     var right = box.getX2() * dstSize
                     var bottom = box.getY2() * dstSize
 
-//                    if(imageBitmap.width > imageBitmap.height)
-//                    {
-//                        left += imageBitmap.height / 2
-//                        right += imageBitmap.height / 2
-//                    }
-//                    else
-//                    {
-//                        top += imageBitmap.width / 2
-//                        bottom += imageBitmap.height / 2
-//                    }
-
-
                     Log.println(Log.INFO, "Caught box", "x = ${box.x}, y = ${box.y}, width = ${box.width}, height = ${box.height}, probability = ${box.probability}")
 
                     Log.println(Log.INFO, "INFO",
                         "$i. left = $left, top = $top, right  = $right, bottom = $bottom"
                     )
 
-                    //TODO: Move plane
-
                     val rect = RectF(left, top, right, bottom)
                     listRect.add(rect)
-//                canvas.drawRect(rect,paint)
                 }
 
                 Log.println(Log.INFO,"INFO", "Number of boxes: " + result.number_of_boxes)
 
-//                inference_time_value.text = "%.2f".format(result.currentFPS ) + " FPS"
-                customView.drawBoxes(listRect)
-                customView.draw(canvas)
+                customView.drawBoxes(listRect, canvas)
             }
 
 

@@ -26,10 +26,10 @@ class CustomView constructor(context: Context?, attributeSet: AttributeSet?) : V
 
     }
 
-    fun drawBoxes(boxes: List<RectF>) {
+    fun drawBoxes(boxes: List<RectF>, canvas: Canvas) {
         this.boxes.clear()
         this.boxes.addAll(boxes)
-        invalidate()
+        this.draw(canvas)
     }
 
     fun drawImage(bitmap: Bitmap) {
