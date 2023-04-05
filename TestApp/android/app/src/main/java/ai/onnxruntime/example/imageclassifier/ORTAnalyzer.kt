@@ -175,7 +175,7 @@ internal class ORTAnalyzer(
 
         val stepBitmap = imgBitmap?.let { Bitmap.createBitmap(it, startX, startY,dstSize,dstSize) }
         val rawBitmap = stepBitmap?.let { Bitmap.createScaledBitmap(it, 640, 640, false) }
-        val bitmap = rawBitmap?.rotate(90.0F)
+        val bitmap = rawBitmap?.rotate(0.0F)
 //        val bitmap = rawBitmap?.rotate(image.imageInfo.rotationDegrees.toFloat())
         canBeClose = true
 
