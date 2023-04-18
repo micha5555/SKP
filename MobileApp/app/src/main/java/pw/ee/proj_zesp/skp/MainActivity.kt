@@ -14,6 +14,7 @@ import java.util.*
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import pw.ee.proj_zesp.skp.utils.NavigationUtils
 import java.io.*
 
 class MainActivity : AppCompatActivity() {
@@ -68,8 +69,9 @@ class MainActivity : AppCompatActivity() {
 //        restRequestTask.execute()
 
 //        System.out.println(" C DATE is  "+currentDate)
-        val sr = SKPRequest()
-        sr.send()
+        val currentLocation = NavigationUtils.getLocation(this)
+//        val sr = SKPRequest()
+//        sr.send(currentLocation, "123", "123")
 
         val aboutAppButton: ImageButton = findViewById<ImageButton>(R.id.about_system_button)
 //        aboutAppButton.setImageBitmap(bitmap)

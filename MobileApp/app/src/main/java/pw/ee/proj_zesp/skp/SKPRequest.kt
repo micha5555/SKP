@@ -3,29 +3,31 @@ package pw.ee.proj_zesp.skp
 import android.util.Log
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import pw.ee.proj_zesp.skp.utils.NavigationUtils
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 
 class SKPRequest {
-    fun send() {
+    fun send(currentLocation: String?, probability: String?, registerPlate: String?) {
         val url = "https://10.0.2.2:5000/books"
         val client: OkHttpClient = OkHttpClient()
 
         val sdf = SimpleDateFormat("yyyy-dd-MM hh:mm:ss")
         val currentDate = sdf.format(Date())
+
         val requestBody = MultipartBody.Builder()
             .setType(MultipartBody.FORM)
             .addFormDataPart("datetime", currentDate)
-            .addFormDataPart("location", "value2")
-            .addFormDataPart("register_plate", "123")
-            .addFormDataPart("probability", "123")
-            .addFormDataPart(
-                "image",
-                "cygan.jpg",
-                RequestBody.create("image/jpeg".toMediaTypeOrNull(), File("pw/ee/proj_zesp/skp/cygan.jpg"))
-            )
+            .addFormDataPart("location", currentLocation.toString())
+            .addFormDataPart("register_plate", registerPlate.toString())
+            .addFormDataPart("probability", probability.toString())
+//            .addFormDataPart(
+//                "image",
+//                "cygan.jpg",
+//                RequestBody.create("image/jpeg".toMediaTypeOrNull(), File("pw/ee/proj_zesp/skp/cygan.jpg"))
+//            )
             .build()
 //
 //        val request = Request.Builder()
