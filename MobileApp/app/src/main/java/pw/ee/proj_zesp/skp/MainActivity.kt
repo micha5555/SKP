@@ -14,6 +14,10 @@ import android.widget.ImageView
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.*
 
 
 class MainActivity : AppCompatActivity() {
@@ -63,8 +67,12 @@ class MainActivity : AppCompatActivity() {
 //        val response = req.sendGetRequest("https://example.com/api/endpoint")
 //        Log.d("REST response", response)
 
-        val restRequestTask = SKPRequest("https://stackoverflow.com/questions/46177133/http-request-in-android-with-kotlin")
-        restRequestTask.execute()
+//        val restRequestTask = SKPRequest("https://stackoverflow.com/questions/46177133/http-request-in-android-with-kotlin")
+//        restRequestTask.execute()
+
+//        System.out.println(" C DATE is  "+currentDate)
+        val sr = SKPRequest()
+        sr.send()
 
         val aboutAppButton: ImageButton = findViewById<ImageButton>(R.id.about_system_button)
 //        aboutAppButton.setImageBitmap(bitmap)
