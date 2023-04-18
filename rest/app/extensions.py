@@ -42,29 +42,14 @@ def checkPassword(password,pwhash):
     return check_password_hash(pwhash,password)
 
 def checkLoginData(data):
-    if "login" not in data:
-        return False
-    if "password" not in data:
-        return False
-    return True
-
-def checkGetData(data):
-    if "login" not in data:
-        return False
-    return True
+    if all(key in data for key in User.loginAttr):
+        return True
+    return False
 
 def checkAllData(data):
-    if not checkLoginData(data):
-        return False
-    if "first_name" not in data:
-        return False
-    if "last_name" not in data:
-        return False
-    if  "is_admin" not in data:
-        return False
-    if "is_controller" not in data:
-        return False
-    return True
+    if all(key in data for key in user.attr):
+        return True
+    return False
 
 def toBoolean(is_boolean):
     if is_boolean.lower() in( 'true' ,'1'):

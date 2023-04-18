@@ -1,5 +1,5 @@
 from json import dumps
-
+from datetime import datetime
 from werkzeug.security import generate_password_hash
 from app.db import db
 from app.models.problematicCaseModel import ProblematicCase
@@ -19,7 +19,8 @@ class User(db.Model):
     not_paid_cases = db.relationship('NotPaidCase', secondary=user_not_paid_case_association, backref='users')
     problematic_cases = db.relationship('ProblematicCase', secondary=user_problematic_case_association, backref='users')
 
-    attr = ['first_name', 'last_name', 'login', 'password']
+    attr = ['first_name', 'last_name', 'login', 'password','is_admin','is_controller']
+    loginAttr = ['login', 'password']
 
     def __init__(self, first_name, last_name, login, password, is_admin=False, is_controller=False):
         self.first_name = first_name

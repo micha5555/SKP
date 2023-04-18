@@ -3,7 +3,7 @@ import copy
 from app import create_app
 
 def send_login_request(app,user_data,expeted_data,status_code):
-    response = app.client.post('/user/login', data=user_data)
+    response = app.client.post('/user/login', json=user_data)
     app.assertEqual(response.status_code, status_code)
     app.assertEqual(response.get_json(),expeted_data)
 
@@ -22,17 +22,17 @@ class UserTest(unittest.TestCase):
             "is_admin":"0",
             "is_controller":"1"
         }
-        self.client.post('/user/add', data=tester_data)
+        self.client.post('/user/add', json=tester_data)
 
     def tearDown(self):
         user_data = {
             "login": "tester",
         }
-        self.client.delete('/user/del', data=user_data)
+        self.client.delete('/user/del', json=user_data)
         user_data = {
             "login": "uzytkownikTestowy",
         }
-        self.client.delete('/user/del', data=user_data)
+        self.client.delete('/user/del', json=user_data)
 
 
     #login
@@ -40,14 +40,14 @@ class UserTest(unittest.TestCase):
         user_data = {
             'password': 'test_password'
         }
-        expeted_data={"error":"Zadanie nie zawiera wymaganych elementow"}
+        expeted_data={"error":"Request dont have all elements"}
         send_login_request(self,user_data,expeted_data,400)
 
     def test_request_login_without_password(self):
         user_data = {
             'login': 'testPassword'
         }
-        expeted_data={"error":"Zadanie nie zawiera wymaganych elementow"}
+        expeted_data={"error":"Request dont have all elements"}
         send_login_request(self,user_data,expeted_data,400)
 
     def test_request_login_with_inappropriate_login(self):
@@ -55,7 +55,7 @@ class UserTest(unittest.TestCase):
             "login": "",
             "password": "testPassword123"
         }
-        expeted_data={"error":"Login i haslo nie przeszly walidacji"}
+        expeted_data={"error":"Login or password is not safe"}
         send_login_request(self,user_data,expeted_data,404)
 
     def test_request_login_with_inappropriate_password(self):
@@ -63,7 +63,7 @@ class UserTest(unittest.TestCase):
             "login": "loginBardzoFajny",
             "password": ""
         }
-        expeted_data={"error":"Login i haslo nie przeszly walidacji"}
+        expeted_data={"error":"Login or password is not safe"}
         send_login_request(self,user_data,expeted_data,404)
     
     def test_request_login_when_login_not_exist(self):
@@ -71,7 +71,7 @@ class UserTest(unittest.TestCase):
             "login": "loginBardzoFajny",
             "password": "Haslo123"
         }
-        expeted_data={"error":"Nie znaleziono uzytkownika"}
+        expeted_data={"error":"User not found"}
         send_login_request(self,user_data,expeted_data,404)
     
     def test_request_login_when_password_is_wrong(self):
@@ -80,7 +80,7 @@ class UserTest(unittest.TestCase):
             "login": "tester",
             "password": "Haslo123"
         }
-        expeted_data={"error":"Haslo niepoprawne"}
+        expeted_data={"error":"Incorrect password"}
         send_login_request(self,user_data,expeted_data,404)
 
     def test_requestSuccessfullyLoginWhenUserExists(self):
@@ -89,7 +89,7 @@ class UserTest(unittest.TestCase):
             "login": "tester",
             "password": "Admin123"
         }
-        response = self.client.post('/user/login', data=user_data)
+        response = self.client.post('/user/login', json=user_data)
         self.assertEqual(response.status_code, 200)
 
     #user get
@@ -104,7 +104,7 @@ class UserTest(unittest.TestCase):
     def test_requestGetNotExistingUser(self):
         response = self.client.get('/user/get/10000')
         self.assertEqual(response.status_code, 404)
-        self.assertEqual(response.get_json(),{"error":"Nie znaleziono uzytkownika"})
+        self.assertEqual(response.get_json(),{"error":"User not found"})
 
     #user add
     def test_requestSuccessfullyAddNewUserAndTryToAddHimAgain(self):
@@ -116,11 +116,11 @@ class UserTest(unittest.TestCase):
             "is_admin":"1",
             "is_controller":"0"
         }
-        response = self.client.post('/user/add', data=user_data)
+        response = self.client.post('/user/add', json=user_data)
         self.assertEqual(response.status_code, 200)
-        responseNext = self.client.post('/user/add', data=user_data)
+        responseNext = self.client.post('/user/add', json=user_data)
         self.assertEqual(responseNext.status_code, 404)
-        self.assertEqual(responseNext.get_json(),{"error":"Login zajety"})
+        self.assertEqual(responseNext.get_json(),{"error":"Login already exist"})
 
     def test_requestShouldNotAddUserWithoutNecessaryElemensts(self):
         user_data = {
@@ -134,9 +134,9 @@ class UserTest(unittest.TestCase):
         for x in user_data:
             new_data=copy.deepcopy(user_data)
             del new_data[x]
-            response = self.client.post('/user/add', data=new_data)
+            response = self.client.post('/user/add', json=new_data)
             self.assertEqual(response.status_code, 400)
-            self.assertEqual(response.get_json(),{"error":"Zadanie nie zawiera wymaganych elementow"})
+            self.assertEqual(response.get_json(),{"error":"Request dont have all elements"})
 
     def test_requestShouldNotAddUserwithoutValidateAllElems(self):
         user_data = {
@@ -150,16 +150,16 @@ class UserTest(unittest.TestCase):
         for x in user_data:
             new_data=copy.deepcopy(user_data)
             new_data[x]=""
-            response = self.client.post('/user/add', data=new_data)
+            response = self.client.post('/user/add', json=new_data)
             if(x == "login" or x == "password"):
-                self.assertEqual(response.get_json(),{"error":"Login i haslo nie przeszly walidacji"})
+                self.assertEqual(response.get_json(),{"error":"Login or password is not safe"})
                 self.assertEqual(response.status_code, 404)
             elif(x == "first_name" or x == "last_name"):
-                self.assertEqual(response.get_json(),{"error":"Imie i nazwisko nie przeszly walidacji"})
+                self.assertEqual(response.get_json(),{"error":"Firstname or surname is not correct"})
                 self.assertEqual(response.status_code, 404)
             elif(x == "is_admin" or x == "is_controller"):
                 self.assertEqual(response.status_code, 200)
-                self.client.delete('/user/del', data={"login":"tester"})
+                self.client.delete('/user/del', json={"login":"tester"})
     #edit
     def test_request_successfully_edit_user(self):
         self.addTester()
@@ -171,7 +171,7 @@ class UserTest(unittest.TestCase):
             "is_admin":"0",
             "is_controller":"1"
         }
-        response = self.client.patch('/user/edit', data=user_data)
+        response = self.client.patch('/user/edit/1', json=user_data)
         self.assertEqual(response.status_code, 200)
 
     def test_requestShouldNotEditUserwithoutValidateAllElems(self):
@@ -187,12 +187,12 @@ class UserTest(unittest.TestCase):
         for x in user_data:
             new_data=copy.deepcopy(user_data)
             new_data[x]=""
-            response = self.client.patch('/user/edit', data=new_data)
+            response = self.client.patch('/user/edit', json=new_data)
             if(x == "login" or x == "password"):
-                self.assertEqual(response.get_json(),{"error":"Login i haslo nie przeszly walidacji"})
+                self.assertEqual(response.get_json(),{"error":"Login or password is not safe"})
                 self.assertEqual(response.status_code, 404)
             elif(x == "first_name" or x == "last_name"):
-                self.assertEqual(response.get_json(),{"error":"Imie i nazwisko nie przeszly walidacji"})
+                self.assertEqual(response.get_json(),{"error":"Firstname or surname is not correct"})
                 self.assertEqual(response.status_code, 404)
             elif(x == "is_admin" or x == "is_controller"):
                 self.assertEqual(response.status_code, 200)
@@ -209,44 +209,24 @@ class UserTest(unittest.TestCase):
         for x in user_data:
             new_data=copy.deepcopy(user_data)
             del new_data[x]
-            response = self.client.patch('/user/edit', data=new_data)
+            response = self.client.patch('/user/edit', json=new_data)
             self.assertEqual(response.status_code, 400)
-            self.assertEqual(response.get_json(),{"error":"Zadanie nie zawiera wymaganych elementow"})
+            self.assertEqual(response.get_json(),{"error":"Request dont have all elements"})
         
     #del
     def test_requestSuccessfullyDeleteUser(self):
         self.addTester()
-        user_data = {
-            "login": "tester",
-        }
-        response = self.client.delete('/user/del', data=user_data)
+        response = self.client.delete('/user/del/2', json=user_data)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.get_json(),{"message":"Uzytkownik usuniety poprawnie"})
-
-    def test_requestShouldNotDeleteUserWithInappropiateLogin(self):
-        self.addTester()
-        user_data = {
-            "login": "",
-        }
-        response = self.client.delete('/user/del', data=user_data)
-        self.assertEqual(response.status_code, 404)
-        self.assertEqual(response.get_json(),{"error":"Login nie przeszedł walidacji"})
-
-    def test_requestShouldNotDeleteUserWithoutLogin(self):
-        self.addTester()
-        user_data = {
-        }
-        response = self.client.delete('/user/del', data=user_data)
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.get_json(),{"error":"Zadanie nie zawiera wymaganych elementow"})
+        self.assertEqual(response.get_json(),{"message":"User removed"})
 
     def test_requestShouldNotDeleteUserWhenUserDontExist(self):
         user_data = {
             "login": "tester",
         }
-        response = self.client.delete('/user/del', data=user_data)
+        response = self.client.delete('/user/del/10000', json=user_data)
         self.assertEqual(response.status_code, 404)
-        self.assertEqual(response.get_json(),{"error":"Nie znaleziono uzytkownika"})
+        self.assertEqual(response.get_json(),{"error":"User not found"})
 
 if __name__ == '__main__':
     unittest.main()

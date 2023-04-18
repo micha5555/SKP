@@ -29,7 +29,7 @@ class ProblematicCase(db.Model):
     def json(self):
         return {
 			'id': self.id,
-            'registratiom': self.registration,
+            'registration': self.registration,
             'creation_time': self.creation_time,
             'localization': self.localization,
             'image': self.image,
