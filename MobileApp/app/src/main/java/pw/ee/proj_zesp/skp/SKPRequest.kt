@@ -29,11 +29,7 @@ class SKPRequest {
 //                RequestBody.create("image/jpeg".toMediaTypeOrNull(), File("pw/ee/proj_zesp/skp/cygan.jpg"))
 //            )
             .build()
-//
-//        val request = Request.Builder()
-//            .url(url)
-//            .post(requestBody)
-//            .build()
+
         val request = Request.Builder()
             .url(url)
             .post(requestBody)

@@ -14,7 +14,6 @@
         app:layout_constraintTop_toTopOf="parent" />
 
 
-
     <ImageView
         android:id="@+id/imageView6"
         android:layout_width="wrap_content"
@@ -76,7 +75,7 @@
 
     <ImageButton
         android:id="@+id/start_control_button_on_menuview"
-        android:layout_width="wrap_content"
+        android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
         app:layout_constraintBottom_toTopOf="@+id/about_system_button"
@@ -101,9 +100,11 @@
         app:layout_constraintTop_toTopOf="@+id/start_control_button_on_menuview" />
 
     <ImageButton
+        app:layout_constraintHeight_percent="0.07"
+        app:layout_constraintWidth_percent="0.7"
         android:id="@+id/about_system_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:background="@android:color/transparent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -113,7 +114,7 @@
         app:layout_constraintTop_toTopOf="@+id/imageView2"
         app:layout_constraintVertical_bias="0.8"
 
-        app:srcCompat="@drawable/button_shape"
+        app:srcCompat="@null"
         tools:ignore="ContentDescription,MissingConstraints,ImageContrastCheck,SpeakableTextPresentCheck" />
 
     <TextView
@@ -153,5 +154,19 @@
         app:layout_constraintEnd_toEndOf="@+id/welcome_panel"
         app:layout_constraintStart_toStartOf="@+id/welcome_panel"
         app:layout_constraintTop_toTopOf="@+id/welcome_panel" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_end="391dp" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="20dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
