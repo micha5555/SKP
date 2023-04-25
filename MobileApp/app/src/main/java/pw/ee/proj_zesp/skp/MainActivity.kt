@@ -42,7 +42,7 @@ class MainActivity : AppCompatActivity() {
         val aboutAppButton: ImageButton = findViewById<ImageButton>(R.id.about_system_button)
 //        val sth: ImageView = findViewById<ImageButton>(R.id.imageView6)
 //        val drawable = aboutAppButton.drawable
-      val drawable: Drawable = ContextCompat.getDrawable(this, R.drawable.button_shape)!!
+//      val drawable: Drawable = ContextCompat.getDrawable(this, R.drawable.button_shape)!!
 //        aboutAppButton.setImageDrawable(sth.drawable)
 
 //        val resized = Bitmap.createScaledBitmap((drawable as BitmapDrawable).bitmap, 400, 400, true)
@@ -50,7 +50,7 @@ class MainActivity : AppCompatActivity() {
 
 //        drawable.setBounds(0, 0, desiredDrawableWidthPx, desiredDrawableWidthPx)
 //        aboutAppButton.setBackgroundResource(0)
-        aboutAppButton.setBackgroundDrawable(drawable)
+//        aboutAppButton.setBackgroundDrawable(drawable)
 //        Log.i("newsize", aboutAppButton.drawable.)
 
         val location = NavigationUtils.getLocation(this)
