@@ -1,16 +1,45 @@
 package pw.ee.proj_zesp.skp.utils
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
+import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 
 class NavigationUtils {
 
     companion object {
+
+        public fun requestLocationPermissions(context: Context) {
+            if (ContextCompat.checkSelfPermission(context,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) !==
+                PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(
+                        context as Activity,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    )) {
+                    ActivityCompat.requestPermissions(context,
+                        arrayOf(
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION
+                        ), 1)
+                } else {
+                    ActivityCompat.requestPermissions(context,
+                        arrayOf(
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION
+                        ), 1)
+                }
+            }
+        }
         @SuppressLint("MissingPermission")
         fun getLocation(context: Context): String? {
             // Get the location manager and check if location services are enabled
