@@ -8,13 +8,14 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatDelegate
+import pw.ee.proj_zesp.skp.utils.NavigationUtils
 import java.io.*
 
 class MainActivity : AppCompatActivity() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
-
+        NavigationUtils.requestLocationPermissions(this)
         getSupportActionBar()?.hide()
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         super.onCreate(savedInstanceState)
