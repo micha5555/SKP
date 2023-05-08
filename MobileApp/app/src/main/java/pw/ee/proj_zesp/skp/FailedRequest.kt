@@ -1,5 +1,8 @@
 package pw.ee.proj_zesp.skp
 
+import java.util.*
+import kotlin.collections.ArrayList
+
 class FailedRequest(currentLocation: String?, probability: String?, registerPlate: String?, currentDate: String?) {
 
     val currentLocation: String? = currentLocation
@@ -28,6 +31,17 @@ class FailedRequest(currentLocation: String?, probability: String?, registerPlat
 
     companion object {
         private var failedRequests: ArrayList<FailedRequest> = ArrayList()
+        var timer : Timer = Timer()
+
+        object timerTask : TimerTask() {
+            override fun run() {
+                if(failedRequests.size > 0) {
+                    resendFailedRequests()
+                } else {
+                    println("There aren`t failed requests")
+                }
+            }
+        }
 
         fun resendFailedRequests() {
             for (request in failedRequests) {
@@ -36,9 +50,21 @@ class FailedRequest(currentLocation: String?, probability: String?, registerPlat
                     skpRequest.send()
                     failedRequests.remove(request)
                 } catch (e: Exception){
-//
+                    e.printStackTrace()
                 }
             }
+        }
+
+        fun startSendingFailedRequestsAtIntervals(intervalInMiliseconds: Long) {
+            if(timer == null) {
+                timer = Timer()
+            }
+            timer.scheduleAtFixedRate(timerTask, 0, intervalInMiliseconds)
+        }
+
+        fun stopSendingFailedRequests() {
+            timerTask.cancel()
+            timer.cancel()
         }
 
         fun addFailedRequest(failedRequest: FailedRequest) {
