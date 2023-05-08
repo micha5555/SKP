@@ -9,17 +9,39 @@ import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 
-class SKPRequest {
-    fun send(currentLocation: String?, probability: String?, registerPlate: String?) {
+class SKPRequest(currentLocation: String?, probability: String?, registerPlate: String?, currentDate: String?) {
+
+    val currentLocation: String? = currentLocation
+        get() {
+            return field
+        }
+
+    val probability: String? = probability
+        get() {
+            return field
+        }
+
+    val registerPlate: String? = registerPlate
+        get() {
+            return field
+        }
+
+    val currentDate: String? = registerPlate
+        get() {
+            return field
+        }
+    fun send() {
         val url = "https://10.0.2.2:5000/books"
         val client: OkHttpClient = OkHttpClient()
 
         val sdf = SimpleDateFormat("yyyy-dd-MM hh:mm:ss")
-        val currentDate = sdf.format(Date())
+        if(currentDate == null) {
+            val currentDate = sdf.format(Date())
+        }
 
         val requestBody = MultipartBody.Builder()
             .setType(MultipartBody.FORM)
-            .addFormDataPart("datetime", currentDate)
+            .addFormDataPart("datetime", currentDate!!)
             .addFormDataPart("location", currentLocation.toString())
             .addFormDataPart("register_plate", registerPlate.toString())
             .addFormDataPart("probability", probability.toString())
@@ -36,6 +58,7 @@ class SKPRequest {
             .build()
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
+                throw Exception("Request failed")
                 e.printStackTrace()
             }
 
