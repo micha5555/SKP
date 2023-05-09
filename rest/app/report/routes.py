@@ -46,10 +46,10 @@ def create():
         print(start_peroid)
         notPaidCases = NotPaidCase.query.filter(
          NotPaidCase.detect_time <= end_peroid,NotPaidCase.detect_time>= start_peroid).all()
-        #problematicCases = problematicCase.query.filter(
-        #    problematicCase.detect_time >= start_peroid, problematicCase.detect_time <= end_peroid).all()
+        problematicCases = ProblematicCase.query.filter(
+            ProblematicCase.detect_time >= start_peroid, ProblematicCase.detect_time <= end_peroid).all()
 
-        filename = data['start_peroid']+"-"+data['end_peroid'] # Pewnie zmiana filename
+        filename = start_peroid.strftime("%d%m%Y")+"-"+end_peroid.strftime("%d%m%Y")# Pewnie zmiana filename
         description = data['start_peroid']+":"+data['end_peroid']
         report = Report(filename, description)
         print("generate pdf")
@@ -60,14 +60,16 @@ def create():
         pdf.set_font('Arial', '', 16)
         txt = "Number of not paid cases: "+str(len(notPaidCases))
         pdf.cell(w=0, h=10, txt=txt, ln=1)
-        #txt = "Number of problematic cases: "+len(problematicCases)
-        #pdf.cell(w=0, h=10, txt=txt, ln=1)
-        pdf.output('F','report/' + pdfFilename)
+        txt = "Number of problematic cases: "+str(len(problematicCases))
+        pdf.cell(w=0, h=10, txt=txt, ln=1)
+        pdfDest='reports/'+pdfFilename
+        pdf.output(pdfDest,'F')
 
         # generowanie XLSX
         print("generate xlsx")
         xlsxFilename = filename+'.xlsx'
-        xlsx = xlsxwriter.Workbook(xlsxFilename)
+        xlsxDest='reports/'+xlsxFilename
+        xlsx = xlsxwriter.Workbook(xlsxDest)
         worksheet = xlsx.add_worksheet("Not paid cases")
         row = 0
         col = 0
@@ -84,28 +86,29 @@ def create():
             worksheet.write(row, col+3, notPaid.localization)
             worksheet.write(row, col+4, notPaid.image)
             row += 1
-        # worksheet = xlsx.add_worksheet("Problematic cases")
-        # row = 0
-        # col = 0
-        # worksheet.write(row, col, "id")
-        # worksheet.write(row, col+1, "registration")
-        # worksheet.write(row, col+2, "detect time")
-        # worksheet.write(row, col+3, "localization")
-        # worksheet.write(row, col+4, "image name")
-        # worksheet.write(row, col+5, "edit time")
-        # worksheet.write(row, col+6, "probability")
-        # worksheet.write(row, col+7, "status")
-        # worksheet.write(row, col+8, "correction")
-        # for problematic in problematicCases:
-        #     worksheet.write(row, col, notPaid.id)
-        #     worksheet.write(row, col+1, notPaid.registration_plate)
-        #     worksheet.write(row, col+2, notPaid.detect_time)
-        #     worksheet.write(row, col+3, notPaid.localization)
-        #     worksheet.write(row, col+4, notPaid.image)
-        #     worksheet.write(row, col+5, notPaid.administration_edit_time)
-        #     worksheet.write(row, col+6, notPaid.probability)
-        #     worksheet.write(row, col+7, notPaid.status)
-        #     worksheet.write(row, col+8, notPaid.correction)
-        #     row += 1
+        worksheet = xlsx.add_worksheet("Problematic cases")
+        row = 0
+        col = 0
+        worksheet.write(row, col, "id")
+        worksheet.write(row, col+1, "registration")
+        worksheet.write(row, col+2, "detect time")
+        worksheet.write(row, col+3, "localization")
+        worksheet.write(row, col+4, "image name")
+        worksheet.write(row, col+5, "edit time")
+        worksheet.write(row, col+6, "probability")
+        worksheet.write(row, col+7, "status")
+        worksheet.write(row, col+8, "correction")
+        row+=1
+        for problematic in problematicCases:
+            worksheet.write(row, col, problematic.id)
+            worksheet.write(row, col+1, problematic.registration_plate)
+            worksheet.write(row, col+2, problematic.detect_time)
+            worksheet.write(row, col+3, problematic.localization)
+            worksheet.write(row, col+4, problematic.image)
+            worksheet.write(row, col+5, problematic.administration_edit_time)
+            worksheet.write(row, col+6, problematic.probability)
+            worksheet.write(row, col+7, problematic.status)
+            worksheet.write(row, col+8, problematic.correction)
+            row += 1
         xlsx.close()
         return {"xslx_name": xlsxFilename, "pdf_name": pdfFilename}, 200
