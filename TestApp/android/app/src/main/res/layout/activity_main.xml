@@ -6,43 +6,60 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-<!--    <androidx.camera.view.PreviewView-->
-<!--        android:id="@+id/viewFinder"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="match_parent"-->
-<!--        app:scaleType="fillStart"-->
-<!--        app:layout_constraintTop_toTopOf="parent" />-->
+    <!--    <androidx.camera.view.PreviewView-->
+    <!--        android:id="@+id/viewFinder"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="match_parent"-->
+    <!--        app:scaleType="fillStart"-->
+    <!--        app:layout_constraintTop_toTopOf="parent" />-->
 
     <ImageView
         android:id="@+id/newBackgroundView"
-        android:layout_height="match_parent"
         android:layout_width="match_parent"
-        app:scaleType="fitCenter"
-        android:contentDescription="Background">
+        android:layout_height="match_parent"
+        android:contentDescription="Background"
+        app:scaleType="fitCenter">
+
+    </ImageView>
+
+    <ImageView
+        android:id="@+id/boxView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="Background"
+        app:scaleType="fitCenter">
 
     </ImageView>
 
     <ai.onnxruntime.example.imageclassifier.CustomView
         android:id="@+id/customView"
-        android:layout_height="match_parent"
         android:layout_width="match_parent"
-        app:scaleType="fitCenter"/>
-
-
-
+        android:layout_height="match_parent"
+        app:scaleType="fitCenter" />
 
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        app:layout_constraintTop_toTopOf="parent"
-        android:background="@color/semi_transparent_white">
+        android:background="@color/semi_transparent_white"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:ignore="MissingConstraints">
 
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/logo_36" />
     </androidx.appcompat.widget.Toolbar>
+
+    <TextView
+        android:id="@+id/textView5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="28dp"
+        android:text="TextView"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:layout_editor_absoluteY="73dp"
+        tools:ignore="MissingConstraints" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

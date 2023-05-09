@@ -4,26 +4,22 @@
 package ai.onnxruntime.example.imageclassifier
 
 import ai.onnxruntime.*
+import ai.onnxruntime.example.imageclassifier.Analyzer.ORTAnalyzer
+import ai.onnxruntime.example.imageclassifier.Analyzer.Result_Yolo_v8
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.graphics.*
-import android.hardware.camera2.CameraMetadata
-import android.hardware.camera2.CaptureRequest
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.util.Size
-import android.view.Surface
+import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.interop.Camera2Interop
-import androidx.camera.camera2.interop.Camera2Interop.Extender
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.constraintlayout.solver.widgets.Rectangle
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_main.*
@@ -42,12 +38,14 @@ class MainActivity : AppCompatActivity() {
     private var imageAnalysis: ImageAnalysis? = null
     private var imagePreview: Preview? = null
     private var enableQuantizedModel: Boolean = false
+    private var textBox : TextView? = null;
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         ortEnv = OrtEnvironment.getEnvironment()
+
         // Request Camera permission
         if (allPermissionsGranted()) {
             startCamera()
@@ -56,6 +54,7 @@ class MainActivity : AppCompatActivity() {
                     this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS
             )
         }
+        textBox = findViewById<TextView>(R.id.textView5);
 
     }
 
@@ -63,12 +62,6 @@ class MainActivity : AppCompatActivity() {
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
 
-
-//        ProcessCameraProvider.configureInstance(
-//            CameraXConfig.Builder.fromConfig(Camera2Config.defaultConfig())
-//                .build()
-//
-//        );
         cameraProviderFuture.addListener(Runnable {
             val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
 
@@ -114,15 +107,6 @@ class MainActivity : AppCompatActivity() {
         ContextCompat.checkSelfPermission(baseContext, it) == PackageManager.PERMISSION_GRANTED
     }
 
-//    @SuppressLint("UnsafeOptInUsageError")
-//    fun buildImageAnalysis() : ImageAnalysis {
-//        val builder = ImageAnalysis.Builder()
-//        val camera2InterOp = Extender(builder)
-//        camera2InterOp.setCaptureRequestOption(CaptureRequest.SENSOR_FRAME_DURATION, 2500000000)
-////        camera2InterOp.setCaptureRequestOption(CaptureRequest.SENSOR_EXPOSURE_TIME, EXPOSURE_TIME_LIMIT_NS)
-//        return builder.build()
-//    }
-
     override fun onDestroy() {
         super.onDestroy()
         backgroundExecutor.shutdown()
@@ -155,19 +139,21 @@ class MainActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     private fun updateUI(result: Result_Yolo_v8) {
         runOnUiThread{
+            textBox?.text = "FPS: "+ result.currentFPS.toString();
 //            val imageBitmap = viewFinder.bitmap ?: return@runOnUiThread
-            newBackgroundView.setImageBitmap(result.bitmap_origin)
+            val bitmapDrawable = result.bitmap_origin.copy(Bitmap.Config.ARGB_8888, true)
+            val boxBitmap = Bitmap.createBitmap(bitmapDrawable.width, bitmapDrawable.height, Bitmap.Config.ARGB_8888, true);
+//            val bit : Bitmap = Bitmap.createBitmap(bitmapDrawable.width, bitmapDrawable.height, Bitmap.Config.ALPHA_8, true)
+            newBackgroundView.setImageBitmap(bitmapDrawable)
+            boxView.setImageBitmap(boxBitmap)
 
 //            Log.println(Log.INFO, "viewFinder", "height = ${viewFinder.height}, width = ${viewFinder.width}")
 //            Log.println(Log.INFO, "viewFinder", "height = ${viewFinder.bitmap!!.height}, width = ${viewFinder.bitmap!!.width}")
 
-            val canvas = Canvas(result.bitmap_origin)
-
+            val canvas = Canvas(boxBitmap)
             val listRect : MutableList<RectF> = mutableListOf()
 
-
             if (result.number_of_boxes == 0) {
-                customView.drawBoxes(listRect, canvas)
                 return@runOnUiThread
             }
 
@@ -193,30 +179,19 @@ class MainActivity : AppCompatActivity() {
 
                 Log.println(Log.INFO,"INFO", "Number of boxes: " + result.number_of_boxes)
 
-                customView.drawBoxes(listRect, canvas)
+//                customView.drawBoxes(listRect, canvas)
+                val paint = Paint().apply {
+                color = Color.RED  // Set the box color to red
+                style = Paint.Style.STROKE  // Set the paint style to stroke
+                strokeWidth = 5f  // Set the stroke width to 4 pixels
             }
 
-
+                for (rect in listRect)
+                {
+                    canvas.drawRect(rect, paint)
+                }
+            }
         }
-
-//        runOnUiThread {
-//            percentMeter.progress = (result.detectedScore[0] * 100).toInt()
-////            detected_item_1.text = labelData[result.detectedIndices[0]]
-//            detected_item_value_1.text = "%.2f%%".format(result.detectedScore[0] * 100)
-//
-//            if (result.detectedIndices.size > 1) {
-////                detected_item_2.text = labelData[result.detectedIndices[1]]
-//                detected_item_value_2.text = "%.2f%%".format(result.detectedScore[1] * 100)
-//            }
-//
-//            if (result.detectedIndices.size > 2) {
-////                detected_item_3.text = labelData[result.detectedIndices[2]]
-//                detected_item_value_3.text = "%.2f%%".format(result.detectedScore[2] * 100)
-//            }
-//
-//            inference_time_value.text = "%.2f".format(result.rateFPS ) + " FPS"
-//        }
-
 
     // Read MobileNet V2 classification labels
     private fun readLabels(): List<String> {
@@ -226,7 +201,7 @@ class MainActivity : AppCompatActivity() {
     // Read ort model into a ByteArray, run in background
     private suspend fun readModel(): ByteArray = withContext(Dispatchers.IO) {
         val modelID =
-            if (enableQuantizedModel) R.raw.yolov8_best else R.raw.yolov8_best
+            if (enableQuantizedModel) R.raw.yolov8_320 else R.raw.yolov8_320
         resources.openRawResource(modelID).readBytes()
     }
 

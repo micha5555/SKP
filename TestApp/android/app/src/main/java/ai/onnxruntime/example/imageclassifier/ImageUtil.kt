@@ -23,8 +23,8 @@ import java.nio.FloatBuffer
 
 const val DIM_BATCH_SIZE = 1;
 const val DIM_PIXEL_SIZE = 3;
-const val IMAGE_SIZE_X = 640;
-const val IMAGE_SIZE_Y = 640;
+const val IMAGE_SIZE_X = 320;
+const val IMAGE_SIZE_Y = 320;
 
 fun preProcess(bitmap: Bitmap): FloatBuffer {
     val imgData = FloatBuffer.allocate(
