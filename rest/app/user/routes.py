@@ -2,7 +2,7 @@ from app.user import bp
 from flask import request,make_response,session
 from app.models.userModel import User
 from app.validators import validateLogin, validatePassword,validateName
-from app.extensions import createToken,checkPassword,checkLoginData,checkAllData,toBoolean
+from app.extensions import createToken,checkPassword,checkLoginData,checkAllData,toBoolean,allElementsInList
 from app.db import db
 import json
 
@@ -10,12 +10,11 @@ import json
 def login():
     if request.method == "POST":
         data=request.get_json()
-        if not checkLoginData(json.dumps(data)):
+        if not allElementsInList(data,User.loginAttr):
             return {"error":"Request dont have all elements"},400
-        login = data["login"]
-        password = data["password"]
-        if not validateLogin(login) or not validatePassword(password):
+        if not validateLogin(data["login"]) or not validatePassword(data["password"]):
             return {"error":"Login or password is not safe"},404
+        login = data["login"]
         user = User.query.filter_by(login=login).first()
         if user is None:
             return {"error":"User not found"},404
@@ -31,7 +30,7 @@ def login():
             return {"error":"Incorrect password"},404
 
 @bp.route('/get/<int:id>',methods=["GET"])
-def get(id):
+def get(id:int):
     if request.method == "GET":
         user = User.query.filter_by(id=id).first()
         if user is None:
@@ -46,11 +45,9 @@ def get(id):
 def create():
     if request.method == "POST":
         data=request.get_json()
-        if not checkAllData(json.dumps(data)):
+        if not allElementsInList(data,User.attr):
             return {"error":"Request dont have all elements"},400
-        login = data["login"]
-        password = data["password"]
-        if not validateLogin(login) or not validatePassword(password):
+        if not validateLogin(data["login"]) or not validatePassword(data["password"]):
             return {"error":"Login or password is not safe"},404
         if not validateName(data["first_name"]) or not validateName(data["last_name"]):
             return {"error":"Firstname or surname is not correct"},404
@@ -76,17 +73,17 @@ def create():
 
 
 @bp.route('/edit/<int:id>',methods=["PUT"])
-def edit():
+def edit(id:int):
        if request.method == "PUT":
         data=request.get_json()
-        login = data.get("login")
-        if not checkAllData(json.dumps(data)):
+        if not allElementsInList(data,User.attr):
             return {"error":"Request dont have all elements"},400
         if not validateName(data["first_name"]) or not validateName(data["last_name"]):
             return {"error":"Firstname or surname is not correct"},404
         if not validatePassword(data["password"]):
             return {"error":"New password is not safe"},404
         else: 
+            user = User.query.filter_by(id=id).first()
             user.first_name=data["first_name"]
             user.last_name=data["last_name"]
             user.password=data["password"]
@@ -97,7 +94,7 @@ def edit():
 
 
 @bp.route('/del/<int:id>',methods=["DELETE"])
-def delete():
+def delete(id:int):
     if request.method == "DELETE":
         user = User.query.filter_by(id=id).first()
         if user is None:

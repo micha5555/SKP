@@ -16,4 +16,6 @@ def create_app(config = Config):
     from app.problematicCase import bp as problematicCaseDB
     app.register_blueprint(problematicCaseDB)
     
+    from app.report import bp as reportBP
+    app.register_blueprint(reportBP)
     return app

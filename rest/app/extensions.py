@@ -47,7 +47,7 @@ def checkLoginData(data):
     return False
 
 def checkAllData(data):
-    if all(key in data for key in user.attr):
+    if all(key in data for key in User.attr):
         return True
     return False
 
@@ -71,7 +71,7 @@ def getDatetimeNow():
     return dt_local
 
 def allElementsInList(elements, lst):
-    return all(element in lst for element in elements)
+    return all(element in elements for element in lst)
 
 def checkIfPaid(registration, detection_time):
     # here will be created element which will check if element was paid or not 

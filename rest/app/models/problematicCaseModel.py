@@ -29,8 +29,8 @@ class ProblematicCase(db.Model):
     def json(self):
         return {
 			'id': self.id,
-            'registration': self.registration,
-            'creation_time': self.creation_time,
+            'registration': self.registration_plate,
+            'creation_time': self.detect_time ,
             'localization': self.localization,
             'image': self.image,
             'probability': self.probability,
