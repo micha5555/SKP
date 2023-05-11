@@ -5,6 +5,13 @@ from app.models.notPaidCaseModel import NotPaidCase
 from app.db import db
 from config import Config
 
+@bp.route('/', methods=["GET"])
+def get():
+    if request.method == "GET":
+        return NotPaidCase.query\
+            .order_by(NotPaidCase.detect_time.asc())\
+            .all()
+
 @bp.route('/add', methods=["POST"])
 def add():
     if request.method == "POST":

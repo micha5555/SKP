@@ -16,17 +16,17 @@ def get():
     if request.method == "GET":
         return ProblematicCase.query\
             .filter_by(status=Config.NOT_CHECKED)\
-            .order_by(ProblematicCase.creation_time.asc())\
+            .order_by(ProblematicCase.detect_time.asc())\
             .all()
 
-@bp.route('/<int:id>', methods=["GET"])
+@bp.route('/<int:id_p>', methods=["GET"])
 def get_id(id_p):
     if request.method == "GET":
         return ProblematicCase.query\
-            .filter(id=id_p)\
-            .filter(status=Config.NOT_CHECKED)\
-            .order_by(ProblematicCase.creation_time.asc())\
-            .first()
+            .filter(ProblematicCase.id==id_p)\
+            .filter(ProblematicCase.status==Config.NOT_CHECKED)\
+            .order_by(ProblematicCase.detect_time.asc())\
+            .first().json()
 
 @bp.route('/add', methods=["POST"])
 def add():
