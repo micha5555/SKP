@@ -13,3 +13,9 @@ class Config:
   CHECKED_NOT_CONFIRMED = 'CNC' # check and not possible to checked
 
   TIME_AFTER_CHECK = 30 # 30 minutes
+
+class Dev_Config(Config):
+  SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:root@172.23.23.23:3306/skp_test'
+
+class Prod_Config(Config):
+  SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:root@172.23.23.23:3306/skp_prod'

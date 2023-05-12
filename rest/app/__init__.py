@@ -3,7 +3,6 @@ from config import Config
 from app.db import db
 
 app = Flask(__name__)
-app.config.from_object(Config)
 db.init_app(app)
 
 from app.user import bp as user_bp
