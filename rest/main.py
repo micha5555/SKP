@@ -1,5 +1,6 @@
 from app import app
 from app.db import createDb, deleteDB
+from keys.generateKeys import generateKeys
 import sys
 
 def message():
@@ -8,6 +9,7 @@ def message():
         -d : development
         -db-c : create database
         -db-d : delete database
+        -keys-g : generate new ssl keys
         """)
     exit()
 
@@ -28,5 +30,8 @@ if __name__ == "__main__":
     elif mode == '-db-d':
         with app.app_context():
             deleteDB()
+    elif mode == '-keys-g':
+        generateKeys()
     else:
         message()
+    exit()

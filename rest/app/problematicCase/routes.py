@@ -1,4 +1,4 @@
-from flask import request, make_request
+from flask import request, make_response
 from app.problematicCase import bp
 from app.db import db
 from app.models.problematicCaseModel import ProblematicCase
