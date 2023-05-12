@@ -4,10 +4,12 @@ from app.models.reportModel import Report
 from app.models.notPaidCaseModel import NotPaidCase
 from app.models.problematicCaseModel import ProblematicCase
 from flask import request, make_response, send_file
-import json
+from app.validators import *
+from app.extensions import *
 from datetime import datetime
 from fpdf import FPDF
 import xlsxwriter
+from config import Config
 
 
 @bp.route('/', methods=["GET"])
@@ -25,10 +27,11 @@ def get():
         return response, 200
 
 
-@bp.route('/download/<int:id>')
-def download():
+@bp.route('/download/<id>')
+def download(id):
+    if not validateId(id):
+        return {"error": "Element does not exists"}, 404
     report = Report.query.filter_by(id=id).first()
-    # prawdopodobnie będzie problem ze ścieżką,jak coś nie działa to pewnie to
     return send_file(report.file_name, as_attachment=True)
 
 
@@ -36,23 +39,27 @@ def download():
 def create():
     if request.method == "POST":
         # walidacja dat i jakie nazwy na razie daje start_peroid i end_peroid i datetime z tego trzeba utworzyć
-        print(" 0")
-        data = request.get_json()
+        data = getRequestData()
         if data is None:
-            return {"error": "json is null"}, 404
-        print(" 1")
+            return {"error": "request is null"}, 404
+        
         start_peroid = datetime.strptime(data['start_peroid'], '%Y-%m-%dT%H:%M:%SZ')
         end_peroid = datetime.strptime(data['end_peroid'], '%Y-%m-%dT%H:%M:%SZ')
-        print(start_peroid)
+        
         notPaidCases = NotPaidCase.query.filter(
-         NotPaidCase.detect_time <= end_peroid,NotPaidCase.detect_time>= start_peroid).all()
+            NotPaidCase.detect_time <= end_peroid, 
+            NotPaidCase.detect_time>= start_peroid
+        ).all()
+        
         problematicCases = ProblematicCase.query.filter(
-            ProblematicCase.detect_time >= start_peroid, ProblematicCase.detect_time <= end_peroid).all()
+            ProblematicCase.detect_time >= start_peroid, 
+            ProblematicCase.detect_time <= end_peroid
+        ).all()
 
         filename = start_peroid.strftime("%d%m%Y")+"-"+end_peroid.strftime("%d%m%Y")# Pewnie zmiana filename
         description = data['start_peroid']+":"+data['end_peroid']
         report = Report(filename, description)
-        print("generate pdf")
+
         # generowanie PDF
         pdf = FPDF()
         pdf.add_page()
