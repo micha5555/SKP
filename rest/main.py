@@ -1,8 +1,5 @@
-from app import app
-from app.db import createDb, deleteDB
-from keys.generateKeys import generateKeys
 import sys
-from config import Dev_Config, Prod_Config
+from config import Config, DBConfig
 
 def message():
     print("""Podaj tryb uruchamiana programu:
@@ -22,18 +19,25 @@ if __name__ == "__main__":
     mode = sys.argv[1]
 
     if mode == '-p':
-        app.config.from_object(Prod_Config)
+        Config.SQLALCHEMY_DATABASE_URI = DBConfig.SQLALCHEMY_DATABASE_URI_PROD
+        from app import app
         app.run(ssl_context=context, host='0.0.0.0', debug=False)
     elif mode == '-d':
-        app.config.from_object(Dev_Config)
+        Config.SQLALCHEMY_DATABASE_URI = DBConfig.SQLALCHEMY_DATABASE_URI_DEV
+        from app import app
         app.run(ssl_context=context, host='0.0.0.0', debug=True)
     elif mode == '-db-c':
+        from app.db import createDb
+        from app import app
         with app.app_context():
             createDb()
     elif mode == '-db-d':
+        from app.db import deleteDB
+        from app import app
         with app.app_context():
             deleteDB()
     elif mode == '-keys-g':
+        from keys.generateKeys import generateKeys
         generateKeys()
     else:
         message()

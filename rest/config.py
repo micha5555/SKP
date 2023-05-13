@@ -14,8 +14,7 @@ class Config:
 
   TIME_AFTER_CHECK = 30 # 30 minutes
 
-class Dev_Config(Config):
-  SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:root@172.23.23.23:3306/skp_test'
 
-class Prod_Config(Config):
-  SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:root@172.23.23.23:3306/skp_prod'
+class DBConfig:
+  SQLALCHEMY_DATABASE_URI_DEV = 'mysql+pymysql://dev:dev@172.23.23.23:3306/skp_test'
+  SQLALCHEMY_DATABASE_URI_PROD = 'mysql+pymysql://prod:prod@172.23.23.23:3306/skp_prod'
