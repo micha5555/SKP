@@ -18,7 +18,7 @@ def get():
         response.headers['Content-Type'] = 'application/json'
         return response, 200
 
-@bp.route('/id>', methods=["GET"])
+@bp.route('/<id>', methods=["GET"])
 def get_id(id):
     if request.method == "GET":
         if not validateId(id):
