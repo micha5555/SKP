@@ -34,7 +34,7 @@ def login():
         else:
             return {"error":"Incorrect password"}, 404
 
-@bp.route('/users', methods=["GET"])
+@bp.route('/user', methods=["GET"])
 def getAll():
     if request.method == "GET":
         users = User.query.all()

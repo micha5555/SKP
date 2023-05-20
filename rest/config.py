@@ -14,7 +14,9 @@ class Config:
 
   TIME_AFTER_CHECK = 30 # 30 minutes
 
+  CERT_FILE = 'keys/apiCert.pem'
+  KEY_FILE = 'keys/apiPrivateKey.pem'
 
 class DBConfig:
-  SQLALCHEMY_DATABASE_URI_DEV = 'mysql+pymysql://dev:dev@172.23.23.23:3306/skp_test'
+  SQLALCHEMY_DATABASE_URI_DEV = 'mysql+pymysql://root:root@172.23.23.23:3306/skp_test'
   SQLALCHEMY_DATABASE_URI_PROD = 'mysql+pymysql://prod:prod@172.23.23.23:3306/skp_prod'

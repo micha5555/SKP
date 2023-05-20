@@ -18,7 +18,7 @@ def get():
         response.headers['Content-Type'] = 'application/json'
         return response, 200
 
-@bp.route('/id>', methods=["GET"])
+@bp.route('/<id>', methods=["GET"])
 def get_id(id):
     if request.method == "GET":
         if not validateId(id):
@@ -33,7 +33,7 @@ def get_id(id):
 @bp.route('/add', methods=["POST"])
 def add():
     if request.method == "POST":
-        data = getRequestData()
+        data = getRequestData(request)
 
         if not allElementsInList(ProblematicCase.attr, data):
             return {"error": "request is missing"}, 400
@@ -55,9 +55,9 @@ def add():
         probability = data['probability']
         controller_id = data['controller_id']
 
-        file = request.files['image']
-        if file.filename == '':
-            return {"error": "File is empty"}, 400
+        # file = request.files['image']
+        # if file.filename == '':
+            # return {"error": "File is empty"}, 400
         
         file_name = create_image_name()
         newProblematicCase = ProblematicCase(
@@ -71,11 +71,15 @@ def add():
         newProblematicCase.controller_number = controller_id
         db.session.add(newProblematicCase)
         db.session.commit()
-        file.save(os.path.join(
-            os.getcwd(), 
-            Config.UPLOAD_FOLDER, 
-            file_name + '.png',
-        ))
+
+        ttt = data['image']
+        file = create_image(ttt)
+        save_image_to_local(file, file_name)
+        # file.save(os.path.join(
+        #     os.getcwd(), 
+        #     Config.UPLOAD_FOLDER, 
+        #     file_name + '.png',
+        # ))
 
         return {"message": "saved problematic case succesfully"},202
     return {"error": "wrong request type"},404
@@ -83,25 +87,35 @@ def add():
 @bp.route('/edit/<id>', methods=["PUT"])
 def edit(id):
     if request.method == "PUT":
-        data = getRequestData()
+        data = getRequestData(request)
 
         if not allElementsInList(ProblematicCase.attr_edit, data):
             return {"error": "request is missing"}, 400
 
         if not validateRegistration(data['registration']):
             return{"error":"Wrong registration"}, 406
-        if not validateDate(data['administration_edit_time']):
-            return{"error":"Wrong administration edit time"}, 406
         if not validateId(id):
             return{"error":"Wrong id"}, 406
-
+        
         registration = data['registration']
-        administration_edit_time = data['administration_edit_time']
+        status = data['status']
 
         problematicCase = ProblematicCase.query.filter_by(id=id).first()
         if problematicCase:
             problematicCase.registration = registration
-            problematicCase.administration_edit_time = administration_edit_time
+            problematicCase.administration_edit_time = datetime.now()
+            ### 
+            # data from token
+            problematicCase.admin_number = 2
+            problematicCase.correction = True
+            ###
+            if status == 'not_possible_to_check':
+                problematicCase.status = Config.CHECKED_NOT_CONFIRMED
+            elif status == 'check_if_paid_again':
+                if(not checkIfPaid()):
+                    problematicCase.status = Config.CHECKED_TO_PAID
+                else:
+                    problematicCase.status = Config.CHECKED_OK
             db.session.commit()
 
             return {'message': 'saved problematic case sucessfully'},200
@@ -109,38 +123,37 @@ def edit(id):
     return {"error": "wrong request type"},404
 
 #TODO sposób przekazywania statusu - jeszcze nie wiem jak dokładnie będzie
-@bp.route('/correction/<id>', methods=["PUT"])
-def correctToNotPaid(id):
-    if request.method == "PUT":
-        data = getRequestData()
+# @bp.route('/correction/<id>', methods=["PUT"])
+# def correctToNotPaid(id):
+#     if request.method == "PUT":
+#         data = getRequestData(request)
 
-        if not allElementsInList(ProblematicCase.attr_change, data):
-            return {"error": "request is missing"},400
+#         if not allElementsInList(ProblematicCase.attr_change, data):
+#             return {"error": "request is missing"},400
         
-        # if not validateStatus(status):
-        #    return{"error":"Wrong status"},406
-        if not validateId(id):
-            return{"error":"Wrong id"},406
-        # if not validateId(admin_id):
-            # return{"error":"Wrong admin id"},406
+#         # if not validateStatus(status):
+#         #    return{"error":"Wrong status"},406
+#         if not validateId(id):
+#             return{"error":"Wrong id"},406
+#         # if not validateId(admin_id):
+#             # return{"error":"Wrong admin id"},406
         
-        status = data['status']
 
-        problematicCase = ProblematicCase.query.filter_by(id=id).first()
-        if not problematicCase:
-            return {"error": "problematic case with given id not exist"},404
+#         problematicCase = ProblematicCase.query.filter_by(id=id).first()
+#         if not problematicCase:
+#             return {"error": "problematic case with given id not exist"},404
 
-        # from require token
-        problematicCase.admin_number = 1
-        problematicCase.correction = True
+#         # from require token
+#         problematicCase.admin_number = 2
+#         problematicCase.correction = True
 
-        if status == 'not_possible_to_check':
-            problematicCase.status = Config.CHECKED_NOT_CONFIRMED
-        elif status == 'check_if_paid_again':
-            if(not checkIfPaid()):
-                problematicCase.status = Config.CHECKED_TO_PAID
-            else:
-                problematicCase.status = Config.CHECKED_OK
-            return {'message': 'saved problematic case sucessfully'},200
-        return {"error": "wrong status type"},404
-    return {"error": "wrong request type"},404
+#         if status == 'not_possible_to_check':
+#             problematicCase.status = Config.CHECKED_NOT_CONFIRMED
+#         elif status == 'check_if_paid_again':
+#             if(not checkIfPaid()):
+#                 problematicCase.status = Config.CHECKED_TO_PAID
+#             else:
+#                 problematicCase.status = Config.CHECKED_OK
+#             return {'message': 'saved problematic case sucessfully'},200
+#         return {"error": "wrong status type"},404
+#     return {"error": "wrong request type"},404

@@ -15,7 +15,7 @@ if __name__ == "__main__":
     if len(sys.argv) != 2:
         message()
 
-    context = ('keys/apiCert.crt', 'keys/apiPrivateKey.key')
+    context = (Config.CERT_FILE, Config.KEY_FILE)
     mode = sys.argv[1]
 
     if mode == '-p':
@@ -26,6 +26,7 @@ if __name__ == "__main__":
         Config.SQLALCHEMY_DATABASE_URI = DBConfig.SQLALCHEMY_DATABASE_URI_DEV
         from app import app
         app.run(ssl_context=context, host='0.0.0.0', debug=True)
+        # app.run(host='0.0.0.0', debug=True)
     elif mode == '-db-c':
         from app.db import createDb
         from app import app
@@ -37,8 +38,8 @@ if __name__ == "__main__":
         with app.app_context():
             deleteDB()
     elif mode == '-keys-g':
-        from keys.generateKeys import generateKeys
-        generateKeys()
+        from keys.generateKeys import generate_self_signed_certificate
+        generate_self_signed_certificate(Config.CERT_FILE, Config.KEY_FILE)
     else:
         message()
     exit()

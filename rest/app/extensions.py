@@ -36,7 +36,7 @@ def refresh_token(jwt_token,refresh_token, lifetime=None):
         return [jwt_token_new,refresh_token]
 
 def getRequestData(request):
-    return request.form
+    return request.get_json()
 
 def getDataFromToken(token):
     return jwt.decode(token, Config.SECRET_KEY, algorithms=["HS256"])
@@ -78,21 +78,21 @@ def allElementsInList(elements, lst):
 
 def checkIfPaid(registration, detection_time):
     # here will be created element which will check if element was paid or not 
-    r = random.random()
-    print(r)
-    if r > 0.5:
-        return False
-    return True
-    # payload = {
-    #     'registration_plate': registration,
-    #     'datetime_to_check': detection_time
-    # }
-    # res = requests.post("http://172.29.82.240:5050/car/check", json=payload)
-    # res = res.json()
-    # if('is_within' in res):
-    #     if (res['is_within']):
-    #         return True
-    # return False
+    # r = random.random()
+    # print(r)
+    # if r > 0.5:
+    #     return False
+    # return True
+    payload = {
+        'registration_plate': registration,
+        'datetime_to_check': detection_time
+    }
+    res = requests.post("http://localhost:5050/car/check", json=payload)
+    res = res.json()
+    if('is_within' in res):
+        if (res['is_within']):
+            return True
+    return False
 
 def create_image(base64encoded):
     return base64.b64decode(base64encoded)

@@ -14,8 +14,7 @@ class ProblematicCase(db.Model):
     correction = db.Column(db.Boolean, unique=False, nullable=False)
 
     attr = ['register_plate', 'datetime', 'location', 'image', 'probability', 'controller_id']
-    attr_edit = ['registration', 'administration_edit_time', 'admin_id']
-    attr_change = ['status']
+    attr_edit = ['registration', 'status']
 
     def __init__(self, registration, creation_time, localization, image, probability, status):
         self.registration_plate = registration

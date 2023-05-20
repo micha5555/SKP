@@ -41,10 +41,6 @@ def add():
         probability = data['probability']
         controller_id = data['controller_id']
 
-        file = request.files['image']
-        if file.filename == '':
-            return {"error": "File is empty"}, 400
-
         if checkIfPaid(registration, creation_time):
             return {"success": "paid case"}, 200
 
@@ -55,10 +51,16 @@ def add():
             localization,
             file_name,
         )
+
         notPaidCase.controller_number = controller_id
         db.session.add(notPaidCase)
         db.session.commit()
-        file.save(os.path.join(os.getcwd(), Config.UPLOAD_FOLDER, file_name + '.png',))
+    
+        ttt = data['image']
+        file = create_image(ttt)
+        save_image_to_local(file, file_name)
+
+        # file.save(os.path.join(os.getcwd(), Config.UPLOAD_FOLDER, file_name + '.png',))
 
         return {"success": "not paid case created"}, 202
     return {"error": "wrong request type"}, 404
