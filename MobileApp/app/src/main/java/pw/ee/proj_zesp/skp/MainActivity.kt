@@ -20,6 +20,7 @@ import androidx.core.content.ContextCompat
 import pw.ee.proj_zesp.skp.utils.NavigationUtils
 import java.io.*
 import java.util.*
+
 import kotlin.concurrent.schedule
 
 
@@ -39,7 +40,20 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, AboutAppActivity::class.java)
             this.startActivity(intent)
         }
-//        val srequest = SKPRequest()
-//        srequest.send(NavigationUtils.getLocation(this), "98.2", "WA92829")
+
+
+//        val resourceId = BufferedInputStream(resources.openRawResource(R.raw.doge))
+//        val inputStream = this.resources.openRawResource(resourceId)
+        val path = this.filesDir.absolutePath
+//        val file = File("$path/doge.jpg")
+//        val file = File("/data/user/0/pw.ee.proj_zesp.skp/doge.jpg")
+//        println("dir")
+//        println(file)
+        val doge: Drawable = ContextCompat.getDrawable(this, R.drawable.doge)!!
+// Example: Read the contents of the file using BufferedReader
+//
+        val srequest = SKPRequest(false, doge, "90.111111,-160.222222", "098.20", "BZ4567", "2023-05-11T21:10:10Z")
+//        srequest.send(NavigationUtils.getLocation(this), )
+        srequest.send()
     }
 }

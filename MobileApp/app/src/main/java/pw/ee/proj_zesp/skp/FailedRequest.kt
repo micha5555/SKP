@@ -1,26 +1,37 @@
 package pw.ee.proj_zesp.skp
 
+import android.graphics.drawable.Drawable
 import java.util.*
 import kotlin.collections.ArrayList
 
-class FailedRequest(currentLocation: String?, probability: String?, registerPlate: String?, currentDate: String?) {
+class FailedRequest(isProblematic: Boolean, photo: Drawable, currentLocation: String, probability: String, registerPlate: String, currentDate: String) {
 
-    val currentLocation: String? = currentLocation
+    val isProblematic: Boolean = isProblematic
         get() {
             return field
         }
 
-    val probability: String? = probability
+    val photo: Drawable = photo
         get() {
             return field
         }
 
-    val registerPlate: String? = registerPlate
+    val currentLocation: String = currentLocation
         get() {
             return field
         }
 
-    val currentDate: String? = registerPlate
+    val probability: String = probability
+        get() {
+            return field
+        }
+
+    val registerPlate: String = registerPlate
+        get() {
+            return field
+        }
+
+    val currentDate: String = registerPlate
         get() {
             return field
         }
@@ -45,7 +56,7 @@ class FailedRequest(currentLocation: String?, probability: String?, registerPlat
 
         fun resendFailedRequests() {
             for (request in failedRequests) {
-                val skpRequest: SKPRequest  = SKPRequest(request.currentLocation, request.probability, request.registerPlate, request.currentDate)
+                val skpRequest: SKPRequest  = SKPRequest(request.isProblematic, request.photo, request.currentLocation, request.probability, request.registerPlate, request.currentDate)
                 try {
                     skpRequest.send()
                     failedRequests.remove(request)
