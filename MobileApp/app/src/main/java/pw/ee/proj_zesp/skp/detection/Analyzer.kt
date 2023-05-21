@@ -10,11 +10,19 @@ import android.os.SystemClock
 import android.util.Log
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
+import org.opencv.android.Utils
+import org.opencv.core.Mat
+import org.opencv.core.MatOfByte
+import org.opencv.core.MatOfFloat
+import org.opencv.core.MatOfPoint2f
+import org.opencv.core.Point
+import org.opencv.video.Video
 import pw.ee.proj_zesp.skp.utils.addBoxToListIfNewOrBetter
 import pw.ee.proj_zesp.skp.utils.preProcess
 import pw.ee.proj_zesp.skp.utils.rotate
 import pw.ee.proj_zesp.skp.utils.toBitmap
 import java.util.*
+
 
 internal data class Result_Yolo_v8(
     var number_of_boxes: Int = 0,
@@ -35,14 +43,25 @@ internal class ORTAnalyzer(
     private var originImage : Bitmap? = null
 
     private var frameCount: Int = 0
+    private var previousFrameCount: Int = 0
     private var currentFPS = 0.0
     private var canBeClose = false
 
+    private var lastResult: Result_Yolo_v8? = null
+
+    private var previousMatImage: Mat? = null;
+    private var currentMatImage: Mat? = null;
 
     // Patameters
-    private val CurrentThreshold = 0.5
-    private val desiredFps = 50
+    private val currentThreshold = 0.5
+    private val desiredFps = 1000
     private var sizeOfImage : Long = 320
+
+    private var detectionEveryXFrame: Int = 3
+    private var checkFPSEveryXFrame: Int = 5
+
+    private var factorOfProbabilityInOpticalFlow: Float = 0.9F
+
 
     //TODO: Probably need to be reworked
     val processingTimer = object : CountDownTimer(Long.MAX_VALUE, (1000 / desiredFps).toLong()) {
@@ -50,22 +69,20 @@ internal class ORTAnalyzer(
 //            Log.println(Log.INFO,"INFO", "In realAnalyze")
 //            realAnalyze()
 //            Log.println(Log.INFO, "Frame" ,frameCount.toString())
+            val currentFrame = frameCount - previousFrameCount;
 
-            if(frameCount == desiredFps){
+            if(currentFrame == checkFPSEveryXFrame){
                 endTime = SystemClock.uptimeMillis()
-                currentFPS = (desiredFps*1000).toDouble()/(endTime - startTime).toDouble()
+                currentFPS = (checkFPSEveryXFrame*1000).toDouble()/(endTime - startTime).toDouble()
                 Log.println(Log.INFO, "FPS" ,currentFPS.toString())
-                frameCount=0
+                previousFrameCount = frameCount
                 startTime = endTime
             }
             if(canBeClose){
                 imageProxy?.close()
                 canBeClose=false
             }
-
-
         }
-
         override fun onFinish() {}
     }.apply { start() }
 
@@ -74,9 +91,116 @@ internal class ORTAnalyzer(
         val bitmap = imagePreparation(image);
         canBeClose = true
 
-        if(bitmap != null)
-            realAnalyze(bitmap)
+        if(bitmap == null)
+            return
 
+        if(frameCount % detectionEveryXFrame == 0 || lastResult == null)
+            realAnalyze(bitmap)
+        else
+            opticalFlow(bitmap)
+
+        previousMatImage = currentMatImage;
+    }
+
+    private fun opticalFlow(bitmap: Bitmap) {
+        if (previousMatImage == null || currentMatImage == null)
+            return
+        if(lastResult == null)
+            return
+        if(lastResult!!.boxes.isEmpty())
+        {
+            callBack(Result_Yolo_v8(0, emptyList(),currentFPS,originImage!!))
+            return
+        }
+
+
+        val resultPoints = MatOfPoint2f()
+        val status = MatOfByte()
+        val err = MatOfFloat()
+        Video.calcOpticalFlowPyrLK(
+            previousMatImage, currentMatImage,
+            calcMatPointsFromResults(lastResult!!),
+            resultPoints, status, err)
+
+        val result = calcResultsFromMatPoints(resultPoints, status, lastResult!! )
+        lastResult = result
+
+        callBack(result)
+    }
+
+    private fun calcMatFromBitmap(bitmap: Bitmap) : Mat
+    {
+        val mat = Mat()
+        val bmp32: Bitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true)
+        Utils.bitmapToMat(bmp32, mat)
+        return mat
+    }
+
+    private fun calcResultsFromMatPoints(points: MatOfPoint2f, status: MatOfByte, prevResult: Result_Yolo_v8) : Result_Yolo_v8
+    {
+        val newBoxes: MutableList<YoloBox> = mutableListOf()
+        val statusArray = status.toArray()
+        val pointsArray = points.toArray()
+        for(i in 0 until prevResult.boxes.size)
+        {
+            var p1Index = i*2
+            var p2Index = i*2 + 1
+
+            //Status Mat - 1: Found, 0: Lost
+            if(statusArray[p1Index].toInt() == 0 || statusArray[p2Index].toInt() == 0)
+                continue;
+
+            val oldBoxProbability = prevResult.boxes[i].probability
+
+            val p1 = Point(
+                (pointsArray[p1Index].x.toFloat()/prevResult.bitmap_origin.width).toDouble(),
+                (pointsArray[p1Index].y.toFloat()/prevResult.bitmap_origin.height).toDouble())
+            val p2 = Point(
+                (pointsArray[p2Index].x.toFloat()/prevResult.bitmap_origin.width).toDouble(),
+                (pointsArray[p2Index].y.toFloat()/prevResult.bitmap_origin.height).toDouble())
+
+            val newWidth = p2.x - p1.x
+            val newHeight = p2.y - p1.y
+
+            val newBox = YoloBox(
+                p1.x.toFloat(), p1.y.toFloat(),
+                newWidth.toFloat(), newHeight.toFloat(),
+                oldBoxProbability)
+
+            newBoxes.add(newBox)
+        }
+
+        val result = Result_Yolo_v8(newBoxes.size, newBoxes, currentFPS, originImage!!)
+        return result
+    }
+
+    private fun calcMatPointsFromResults(result: Result_Yolo_v8) : MatOfPoint2f
+    {
+        //Currently we are taking only 2 points - maybe 4 are better?
+        //Left upper corner and right lower corner of box
+        val points: MutableList<Point> = mutableListOf()
+        for(oldBox in result.boxes)
+        {
+            val p1 = Point(oldBox.x.toDouble()*result.bitmap_origin.width, oldBox.y.toDouble()*result.bitmap_origin.height)
+            val p2 = Point((oldBox.x+oldBox.width).toDouble()*result.bitmap_origin.width, (oldBox.y + oldBox.height).toDouble()*result.bitmap_origin.height)
+
+            points.add(p1)
+            points.add(p2)
+
+//            val newProbability = oldBox.probability * factorOfProbabilityInOpticalFlow
+//            if(newProbability > currentThreshold)
+//            {
+//                val newBox = YoloBox(oldBox.x,oldBox.y, oldBox.width,oldBox.height,newProbability)
+//                newListOfBoxes.add(newBox)
+//            }
+
+//            val newBox = YoloBox(oldBox.x, oldBox.y, oldBox.width, oldBox.height, oldBox.probability)
+//            newListOfBoxes.add(newBox)
+        }
+//        val newResult = Result_Yolo_v8()
+        val matPoints = MatOfPoint2f()
+        matPoints.fromList(points)
+        return  matPoints
     }
 
     private fun realAnalyze(bitmap: Bitmap)
@@ -99,10 +223,11 @@ internal class ORTAnalyzer(
                 val output = ortSession?.run(Collections.singletonMap(inputName, tensor))
 
                 if (output != null) {
-                    result = mapToResult(output, CurrentThreshold, currentFPS, bitmap)
+                    result = mapToResult(output, currentThreshold, currentFPS, bitmap)
                 }
             }
         }
+        lastResult = result
         callBack(result)
     }
 
@@ -156,6 +281,7 @@ internal class ORTAnalyzer(
 
         val stepBitmap = imgBitmap?.let { Bitmap.createBitmap(it, startX, startY,dstSize,dstSize) }
         val bitBitmap = stepBitmap?.rotate(90.0F)
+        currentMatImage = bitBitmap?.let { calcMatFromBitmap(it) };
         originImage = bitBitmap
         val bitmap = bitBitmap?.let { Bitmap.createScaledBitmap(it, sizeOfImage.toInt(), sizeOfImage.toInt(), false) }
 //        val bitmap = rawBitmap?.rotate(90.0F)
