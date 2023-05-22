@@ -17,3 +17,5 @@ export const USER_EDIT_LINK = USER_LINK + '/edit/';
 
 export const REPORT_LINK = '/report';
 
+export const LOGIN_LINK = '/login';
+

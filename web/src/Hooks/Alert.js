@@ -7,15 +7,15 @@ export const SUCCESS = 'success';
 export const ctxAlert = createContext(); 
 
 export const useAlert = () => {
-    const [show, setShow] = useState(false);
+    const [show, setShow] = useState('');
     const [message, setMessage] = useState('');
     const [type, setType] = useState(INFO);
   
     const showAlert = (msg, alertType = INFO) => {
-      setShow(true);
+      setShow('show');
       setMessage(msg);
       setType(alertType);
-      setTimeout(() => setShow(false), 5000);
+      setTimeout(() => setShow(''), 5000);
     };
   
     return { show, message, type, showAlert };
@@ -26,11 +26,9 @@ const Alert = () => {
 
     return (
       <div>
-        {show && (
-          <div className={`alert alert-${type}`} role="alert">
-            {message}
-          </div>
-        )}
+        <div className={`alert_my ${show} alert alert-${type}`} role="alert">
+          {message}
+        </div>
       </div>
     );
 };

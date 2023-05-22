@@ -3,6 +3,7 @@ import { API_HOST, PUT_METHOD, USER_LINK } from "../../Config/MainConfig";
 import { SUCCESS, WARNING, ctxAlert, useAlert } from "../../Hooks/Alert";
 import { useContext, useEffect, useState } from "react";
 import { Button, Container, InputGroup, Form } from "react-bootstrap";
+import withAuthCheck from "../../Hooks/withAuthCheck";
 
 const EditUser = () => {
     const navigate = useNavigate();
@@ -35,6 +36,10 @@ const EditUser = () => {
     }, []);
 
     const safeUser = () => {
+        var safe = window.confirm("Czy na pewno chcesz zapisać zmiany.");
+        if ( !safe) {
+            return;
+        }
         const fd = new FormData();
         fd.append('first_name', first_name);
         fd.append('last_name', last_name);
@@ -64,11 +69,18 @@ const EditUser = () => {
     }
 
     const canel = () => {
+        var cancel = window.confirm("Czy na pewno chcesz anulować.");
+        if ( !cancel) {
+            return;
+        }
         navigate(USER_LINK);
     }
 
     return (
-        <Container>
+        <>
+        <h1 className="pageTitle container">Edytuj użytkownika</h1>
+        <div className="w-100 line"></div>
+        <Container className="mt-4 w-50">
             <InputGroup className="mb-3">
                 <InputGroup.Text>Imie i Nazwisko</InputGroup.Text>
                 <Form.Control
@@ -102,6 +114,7 @@ const EditUser = () => {
                     aria-label="Admin"
                     disabled
                     readOnly 
+                    className="borderDisable"
                 />
                 <InputGroup.Checkbox aria-label="Admin" checked={is_admin} onChange={(e) => setIsAdmin(!is_admin)}  />
                 <Form.Control
@@ -110,16 +123,18 @@ const EditUser = () => {
                     aria-label="Kontroler"
                     disabled
                     readOnly 
+                    className="borderDisable"
                 />
                 <InputGroup.Checkbox aria-label="Kontroler" checked={is_controller} onChange={(e) => setIsController(!is_controller)}  />
             </InputGroup>
 
-            <div className="d-flex">
-                <Button variant="danger" onClick={canel}>Anuluj</Button>
-                <Button variant="primary" onClick={safeUser}>Zapisz</Button>
+            <div className="d-flex justify-content-between">
+                <Button className="my_button" variant="danger" onClick={canel}>Anuluj</Button>
+                <Button className="my_button" variant="primary" onClick={safeUser}>Zapisz</Button>
             </div>
         </Container>
+        </>
     )
 }
 
-export default EditUser;
+export default withAuthCheck(EditUser);

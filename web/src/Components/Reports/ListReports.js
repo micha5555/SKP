@@ -4,6 +4,7 @@ import { WARNING, useAlert } from "../../Hooks/Alert";
 
 import { Container, Table } from "react-bootstrap";
 import { PencilSquare } from "react-bootstrap-icons";
+import withAuthCheck from "../../Hooks/withAuthCheck";
 
 const ReportsList = () => {
     const [list, setList] = useState([]);
@@ -24,7 +25,7 @@ const ReportsList = () => {
 
     return (
         <Container>
-        <Table>
+        <Table striped bordered hover variant="light">
             <thead>
                 <tr>
                     <th>Id</th>
@@ -48,4 +49,4 @@ const ReportsList = () => {
     )
 }
 
-export default ReportsList;
+export default withAuthCheck(ReportsList);

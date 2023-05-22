@@ -3,6 +3,7 @@ import { API_HOST, USER_LINK } from "../../Config/MainConfig";
 import { SUCCESS, WARNING, ctxAlert, useAlert } from "../../Hooks/Alert";
 import { useContext, useState } from "react";
 import { Button, Container, InputGroup, Form } from "react-bootstrap";
+import withAuthCheck from "../../Hooks/withAuthCheck";
 
 const AddUser = () => {
     const navigate = useNavigate();
@@ -17,6 +18,10 @@ const AddUser = () => {
     const [is_controller, setIsController] = useState(false);
 
     const addUser = async () => {
+        var userAdd = window.confirm("Czy na pewno chcesz zatwierdzić.");
+        if ( !userAdd) {
+            return;
+        }
         const fd = new FormData();
         fd.append('first_name', first_name);
         fd.append('last_name', last_name);
@@ -42,11 +47,18 @@ const AddUser = () => {
     }
 
     const canel = () => {
+        var cancel = window.confirm("Czy na pewno chcesz anulować.");
+        if ( !cancel) {
+            return;
+        }
         navigate(USER_LINK);
     }
 
     return (
-        <Container>
+        <>
+        <h1 className="pageTitle container">Dodaj użytkownika</h1>
+        <div className="w-100 line"></div>
+        <Container className="mt-4 w-50">
             <InputGroup className="mb-3">
                 <InputGroup.Text>Imie i Nazwisko</InputGroup.Text>
                 <Form.Control
@@ -98,6 +110,7 @@ const AddUser = () => {
                     aria-label="Admin"
                     disabled
                     readOnly 
+                    className="borderDisable"
                 />
                 <InputGroup.Checkbox aria-label="Admin" value={is_admin} onChange={(e) => setIsAdmin(!is_admin)}  />
                 <Form.Control
@@ -106,16 +119,18 @@ const AddUser = () => {
                     aria-label="Kontroler"
                     disabled
                     readOnly 
+                    className="borderDisable"
                 />
                 <InputGroup.Checkbox aria-label="Kontroler" value={is_controller} onChange={(e) => setIsController(!is_controller)}  />
             </InputGroup>
 
-            <div className="d-flex">
-                <Button variant="danger" onClick={canel}>Anuluj</Button>
-                <Button variant="primary" onClick={addUser}>Zatwierdź</Button>
+            <div className="d-flex justify-content-between">
+                <Button className="my_button" variant="danger" onClick={canel}>Anuluj</Button>
+                <Button className="my_button" variant="primary" onClick={addUser}>Zatwierdź</Button>
             </div>
         </Container>
+        </>
     )
 }
 
-export default AddUser;
+export default  withAuthCheck(AddUser);

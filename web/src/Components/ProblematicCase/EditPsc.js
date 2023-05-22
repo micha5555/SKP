@@ -1,8 +1,10 @@
 import { useContext, useEffect, useState } from "react";
-import { API_HOST, PSC_EDIT_LINK, PSC_LINK, PUT_METHOD } from "../../Config/MainConfig";
-import { isRouteErrorResponse, useNavigate, useParams } from "react-router-dom";
+import { API_HOST, PSC, PSC_LINK, PUT_METHOD } from "../../Config/MainConfig";
+import { useNavigate, useParams } from "react-router-dom";
 import { SUCCESS, WARNING, ctxAlert } from "../../Hooks/Alert";
 import { Container, InputGroup, Form, Button } from "react-bootstrap";
+import withAuthCheck from "../../Hooks/withAuthCheck";
+import ReactImageMagnify from "react-image-magnify";
 
 const NPC = 'not_possible_to_check';
 const CPA = 'check_if_paid_again';
@@ -20,10 +22,18 @@ const EditPsc = () => {
     const [probability, setProbability] = useState('');
 
     const handleCancel = () => {
+        var cancel = window.confirm("Czy na pewno chcesz anulować.");
+        if ( !cancel ) {
+            return;
+        }
         navigate(PSC_LINK);
     }
 
     const handleSave = (status) => {
+        var save = window.confirm("Czy na pewno chcesz zapisać.");
+        if ( !save) {
+            return;
+        }
         const fd = new FormData();
         fd.append('registration', register)
         fd.append('status', status)
@@ -69,11 +79,26 @@ const EditPsc = () => {
     }, [])
 
     return (
-        <Container>
+        <>
+        <h1 className="pageTitle container">Edytuj użytkownika</h1>
+        <div className="w-100 line"></div>
+        <Container className="mt-4 w-50">
 
-            <div>
-                image viewer
-                <img alt="" src="" />
+            {console.log(image)}
+            <div className="w-50 mb-3">
+                <ReactImageMagnify
+                {...{
+                    smallImage: {
+                        src: API_HOST + "/" + PSC + "/images/" + "f4936638-d44f-4db3-91ea-87de12b72ecf_20235m11_234542",
+                        isFluidWidth: true,
+                        className: "image"
+                    },
+                    largeImage: {
+                        src: API_HOST + "/" + PSC + "/images/" + "f4936638-d44f-4db3-91ea-87de12b72ecf_20235m11_234542",
+                        width: 600,
+                        height: 900,
+                    }
+                }} />
             </div>
 
             <InputGroup className="mb-3">
@@ -122,14 +147,15 @@ const EditPsc = () => {
                 />  
             </InputGroup>
 
-            <div className="d-flex">
-                <Button onClick={handleCancel} variant="danger">Anuluj</Button>
-                <Button onClick={() => handleSave(NPC)} variant="secondary">Nie możliwe potwierdzenie</Button>
-                <Button onClick={() => handleSave(CPA)} variant="primary">Zapisz poprawienie</Button>
+            <div className="d-flex justify-content-between">
+                <Button className="my_button" onClick={handleCancel} variant="danger">Anuluj</Button>
+                <Button  onClick={() => handleSave(NPC)} variant="secondary">Nie możliwe potwierdzenie</Button>
+                <Button className="my_button" onClick={() => handleSave(CPA)} variant="primary">Zapisz poprawienie</Button>
             </div>
 
         </Container>
+        </>
     )
 }
 
-export default EditPsc;
+export default withAuthCheck(EditPsc);

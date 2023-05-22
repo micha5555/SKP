@@ -11,7 +11,7 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import MainLayout from './Layouts/MainLayout';
-import { PSC, PSC_EDIT_LINK, PSC_LINK, REPORT, REPORT_LINK, USER, USER_ADD_LINK, USER_EDIT_LINK, USER_LINK } from './Config/MainConfig';
+import { LOGIN_LINK, PSC, PSC_EDIT_LINK, PSC_LINK, REPORT, REPORT_LINK, USER, USER_ADD_LINK, USER_EDIT_LINK, USER_LINK } from './Config/MainConfig';
 import UserList from './Components/User/ListUser';
 import PscList from './Components/ProblematicCase/ListPsc';
 import AddUser from './Components/User/AddUser';
@@ -19,6 +19,8 @@ import EditUser from './Components/User/EditUser';
 import { ctxAlert, useAlert } from './Hooks/Alert';
 import EditPsc from './Components/ProblematicCase/EditPsc';
 import ListPsc from './Components/ProblematicCase/ListPsc';
+import { useAuth, ctxAuth } from './Hooks/Auth';
+import Login from './Components/Login';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -32,6 +34,8 @@ const router = createBrowserRouter(
 
       {/* <Route path={REPORT_LINK} element={<MyTable data={REPORT} />} /> */}
 
+      <Route path={LOGIN_LINK} element={<Login />} />
+ 
       <Route index element={<PscList data={PSC} />} />
     </Route>
   )
@@ -39,11 +43,14 @@ const router = createBrowserRouter(
 
 const App = () => {
   const {show, message, type, showAlert} = useAlert();
+  const {auth, logging, loggout, checkIfLogged } = useAuth();
 
   return (
+    <ctxAuth.Provider value={{auth, logging, loggout, checkIfLogged}}>
     <ctxAlert.Provider value={{show, message, type, showAlert}}>
       <RouterProvider router={router} />  
     </ctxAlert.Provider>
+    </ctxAuth.Provider>
   )  
 }
 

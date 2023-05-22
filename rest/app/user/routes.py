@@ -12,16 +12,16 @@ def login():
         data = getRequestData(request)
 
         if not allElementsInList(data, User.loginAttr):
-            return {"error":"Request dont have all elements"}, 400
+            return "Request dont have all elements", 400
         if not validateLogin(data["login"]) or not validatePassword(data["password"]):
-            return {"error":"Login or password is not safe"}, 404
+            return "Login or password is not safe", 404
 
         login = data["login"]
         password = data['password']
 
         user = User.query.filter_by(login=login).first()
         if user is None:
-            return {"error":"User not found"}, 404
+            return "User not found", 404
         
         if(checkPassword(password, user.password)):
             session["id"]=user.id
@@ -32,7 +32,7 @@ def login():
             response.headers['Content-Type'] = 'application/json'
             return response,200
         else:
-            return {"error":"Incorrect password"}, 404
+            return "Incorrect password", 404
 
 @bp.route('/user', methods=["GET"])
 def getAll():
