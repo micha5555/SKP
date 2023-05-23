@@ -25,7 +25,7 @@ def get():
 
 
 @bp.route('/download/pdf/<id>')
-def download(id):
+def download_pdf(id):
     if not validateId(id):
         return "Plik o danym id nie istnieje", 404
     
@@ -39,7 +39,7 @@ def download(id):
     return send_file(path, as_attachment=True)
 
 @bp.route('/download/csv/<id>')
-def download(id):
+def download_csv(id):
     if not validateId(id):
         return "Plik o danym id nie istnieje", 404
     
