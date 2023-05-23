@@ -1,5 +1,5 @@
-from app.user import bp
 from flask import request,make_response,session
+from app.user import bp
 from app.models.userModel import User
 from app.validators import *
 from app.extensions import *
@@ -59,9 +59,7 @@ def get(id):
         if user is None:
             return {"error":"User not found"}, 404
         else:
-            for user in users:
-                users_json.append(user.json())
-            response_data =users_json
+            response_data = user.json()
             response = make_response(response_data)
             response.headers['Content-Type'] = 'application/json'
             return response, 200
