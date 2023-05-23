@@ -12,16 +12,16 @@ def login():
         data = getRequestData(request)
 
         if not allElementsInList(data, User.loginAttr):
-            return {"error":"Request dont have all elements"}, 400
+            return "Request dont have all elements", 400
         if not validateLogin(data["login"]) or not validatePassword(data["password"]):
-            return {"error":"Login or password is not safe"}, 404
+            return "Login or password is not safe", 404
 
         login = data["login"]
         password = data['password']
 
         user = User.query.filter_by(login=login).first()
         if user is None:
-            return {"error":"User not found"}, 404
+            return "User not found", 404
         
         if(checkPassword(password, user.password)):
             session["id"]=user.id
@@ -32,7 +32,7 @@ def login():
             response.headers['Content-Type'] = 'application/json'
             return response,200
         else:
-            return {"error":"Incorrect password"}, 401
+            return "Incorrect password", 401
 
 @bp.route('/user', methods=["GET"])
 def getAll():
@@ -58,10 +58,13 @@ def get(id):
         user = User.query.filter_by(id=id).first()
         if user is None:
             return {"error":"User not found"}, 404
-        response_data = user.json()
-        response = make_response(response_data)
-        response.headers['Content-Type'] = 'application/json'
-        return response, 200
+        else:
+            for user in users:
+                users_json.append(user.json())
+            response_data =users_json
+            response = make_response(response_data)
+            response.headers['Content-Type'] = 'application/json'
+            return response, 200
 
 @bp.route('/user/add', methods=["POST"])
 def create():
@@ -95,7 +98,6 @@ def create():
         db.session.commit()
         return {'message': "User created successfully"}, 200
 
-
 @bp.route('/user/edit/<id>', methods=["PUT"])
 def edit(id):
     if request.method == "PUT":
@@ -111,15 +113,14 @@ def edit(id):
             return {"error":"Login is incorrect"}, 404
         if not validateBoolean(data["is_admin"]) or not validateBoolean(data["is_controller"]):
             return {"error":"Boolean is not correct"}, 404
-        else:  #teb else tu nie potzrebny 
-            user = User.query.filter_by(id=id).first()
-            user.first_name = data["first_name"]
-            user.last_name = data["last_name"]
-            # Czy walidacja do boolean nie powinna być w wyżej a nie tu?
-            user.is_admin = toBoolean(data["is_admin"])
-            user.is_controller = toBoolean(data["is_controller"])
-            db.session.commit()
-            return {"message":"User changed successfully"}, 200
+        
+        user = User.query.filter_by(id=id).first()
+        user.first_name = data["first_name"]
+        user.last_name = data["last_name"]
+        user.is_admin = toBoolean(data["is_admin"])
+        user.is_controller = toBoolean(data["is_controller"])
+        db.session.commit()
+        return {"message":"User changed successfully"}, 200
 
 
 @bp.route('/user/del/<id>', methods=["DELETE"])

@@ -40,7 +40,7 @@ def download(id):
 @bp.route('/add', methods=["POST"])
 def create():
     if request.method == "POST":
-        data = getRequestData()
+        data = getRequestData(request)
         if data is None:
             return {"error": "request is null"}, 404
 
@@ -60,10 +60,10 @@ def create():
             ProblematicCase.detect_time <= end_peroid
         ).all()
 
-        filename = start_peroid.strftime("%d%m%Y")+"-"+end_peroid.strftime("%d%m%Y")
+        filename = start_peroid.strftime("%Y%m%d")+"-"+end_peroid.strftime("%Y%m%d")
         description = data['start_peroid']+":"+data['end_peroid']
         report = Report(filename, description)
-
+        
         pdfFilename = filename+'.pdf'
         generatePDF()
 

@@ -26,10 +26,11 @@ class ProblematicCase(db.Model):
         self.correction = False
 
     def json(self):
+        creation_time_formatted = self.detect_time.strftime('%Y-%m-%d %H:%M:%S')
         return {
 			'id': self.id,
             'registration': self.registration_plate,
-            'creation_time': self.detect_time ,
+            'creation_time': creation_time_formatted,
             'localization': self.localization,
             'image': self.image,
             'probability': self.probability,

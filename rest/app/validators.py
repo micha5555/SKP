@@ -28,8 +28,7 @@ def validateBoolean(param):
         return True
     elif isinstance(param, str) and param.lower() in ['true', 'false','0','1']:
         return True
-    else:
-        return False
+    return False
 
 def validateDate(date):
     pattern = r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$'
