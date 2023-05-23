@@ -16,7 +16,7 @@ def createDb():
         if os.path.isfile(file_path):
             os.remove(file_path)
     db.create_all() 
-    user = User("test", "test", "test", "test", True, True)
+    user = User("test", "test", "Test1234", "Test1234", True, True)
     db.session.add(user)
     db.session.commit()
     

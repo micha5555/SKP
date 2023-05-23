@@ -7,7 +7,7 @@ from flask import request, make_response, send_file
 from app.validators import *
 from app.extensions import *
 from datetime import datetime
-from app.report.generators import *
+from app.generators import *
 from config import Config
 
 
