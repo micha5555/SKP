@@ -37,7 +37,6 @@ def refresh_token(jwt_token,refresh_token, lifetime=None):
 
 def getRequestData(request):
     return request.form
-    # return request.get_json()
 
 def getDataFromToken(token):
     return jwt.decode(token, Config.SECRET_KEY, algorithms=["HS256"])

@@ -19,18 +19,16 @@ def validateName(name):
     return False
 
 def validateId(id):
-    if re.fullmatch(r'[\d]', id):
+    if re.match(r'\d+', id):
         return True
     return False
 
 def validateBoolean(param):
-    if isinstance(param, bool):
+    if isinstance(param, bool) or param in [0, 1]:
         return True
-    # jak to działa?
-    elif isinstance(param, str) and param.lower() in ['true', 'false']:
+    elif isinstance(param, str) and param.lower() in ['true', 'false','0','1']:
         return True
-    else:
-        return False
+    return False
 
 def validateDate(date):
     pattern = r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$'

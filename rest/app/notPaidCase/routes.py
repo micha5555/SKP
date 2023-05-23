@@ -48,6 +48,7 @@ def add():
         if file.filename == '':
             return {"error": "File is empty"}, 400
 
+
         file_name = create_image_name()
         notPaidCase = NotPaidCase(
             registration,

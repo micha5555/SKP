@@ -7,8 +7,7 @@ from flask import request, make_response, send_file
 from app.validators import *
 from app.extensions import *
 from datetime import datetime
-from fpdf import FPDF
-import xlsxwriter
+from app.generators import *
 from config import Config
 
 
@@ -32,16 +31,21 @@ def download(id):
     if not validateId(id):
         return {"error": "Element does not exists"}, 404
     report = Report.query.filter_by(id=id).first()
-    return send_file(report.file_name, as_attachment=True)
+    path=os.path.join(
+            os.getcwd(), 
+            Config.REPORT_FOLDER,report.file_name,"pdf")
+    return send_file(path, as_attachment=True) #poprawiłam ścieżke ale czy my to chcemy zipować? albo potrzebujemy 2 routów 
 
 
 @bp.route('/add', methods=["POST"])
 def create():
     if request.method == "POST":
-        # walidacja dat i jakie nazwy na razie daje start_peroid i end_peroid i datetime z tego trzeba utworzyć
-        data = getRequestData()
+        data = getRequestData(request)
         if data is None:
             return {"error": "request is null"}, 404
+
+        if not validateDate(data['start_peroid']) and not validateDate(data['end_peroid']):
+            return {"error": "dates not accepted"}, 404
         
         start_peroid = datetime.strptime(data['start_peroid'], '%Y-%m-%dT%H:%M:%SZ')
         end_peroid = datetime.strptime(data['end_peroid'], '%Y-%m-%dT%H:%M:%SZ')
@@ -56,66 +60,14 @@ def create():
             ProblematicCase.detect_time <= end_peroid
         ).all()
 
-        filename = start_peroid.strftime("%d%m%Y")+"-"+end_peroid.strftime("%d%m%Y")# Pewnie zmiana filename
+        filename = start_peroid.strftime("%Y%m%d")+"-"+end_peroid.strftime("%Y%m%d")
         description = data['start_peroid']+":"+data['end_peroid']
         report = Report(filename, description)
-
-        # generowanie PDF
-        pdf = FPDF()
-        pdf.add_page()
+        
         pdfFilename = filename+'.pdf'
-        pdf.set_font('Arial', '', 16)
-        txt = "Number of not paid cases: "+str(len(notPaidCases))
-        pdf.cell(w=0, h=10, txt=txt, ln=1)
-        txt = "Number of problematic cases: "+str(len(problematicCases))
-        pdf.cell(w=0, h=10, txt=txt, ln=1)
-        pdfDest='reports/'+pdfFilename
-        pdf.output(pdfDest,'F')
+        generatePDF()
 
-        # generowanie XLSX
-        print("generate xlsx")
         xlsxFilename = filename+'.xlsx'
-        xlsxDest='reports/'+xlsxFilename
-        xlsx = xlsxwriter.Workbook(xlsxDest)
-        worksheet = xlsx.add_worksheet("Not paid cases")
-        row = 0
-        col = 0
-        worksheet.write(row, col, "id")
-        worksheet.write(row, col+1, "registration")
-        worksheet.write(row, col+2, "detect time")
-        worksheet.write(row, col+3, "localization")
-        worksheet.write(row, col+4, "image name")
-        row+=1
-        for notPaid in notPaidCases:
-            worksheet.write(row, col, notPaid.id)
-            worksheet.write(row, col+1, notPaid.registration_plate)
-            worksheet.write(row, col+2, notPaid.detect_time)
-            worksheet.write(row, col+3, notPaid.localization)
-            worksheet.write(row, col+4, notPaid.image)
-            row += 1
-        worksheet = xlsx.add_worksheet("Problematic cases")
-        row = 0
-        col = 0
-        worksheet.write(row, col, "id")
-        worksheet.write(row, col+1, "registration")
-        worksheet.write(row, col+2, "detect time")
-        worksheet.write(row, col+3, "localization")
-        worksheet.write(row, col+4, "image name")
-        worksheet.write(row, col+5, "edit time")
-        worksheet.write(row, col+6, "probability")
-        worksheet.write(row, col+7, "status")
-        worksheet.write(row, col+8, "correction")
-        row+=1
-        for problematic in problematicCases:
-            worksheet.write(row, col, problematic.id)
-            worksheet.write(row, col+1, problematic.registration_plate)
-            worksheet.write(row, col+2, problematic.detect_time)
-            worksheet.write(row, col+3, problematic.localization)
-            worksheet.write(row, col+4, problematic.image)
-            worksheet.write(row, col+5, problematic.administration_edit_time)
-            worksheet.write(row, col+6, problematic.probability)
-            worksheet.write(row, col+7, problematic.status)
-            worksheet.write(row, col+8, problematic.correction)
-            row += 1
-        xlsx.close()
+        generateXLSX(filename, notPaidCases, problematicCases)
+        
         return {"xslx_name": xlsxFilename, "pdf_name": pdfFilename}, 200

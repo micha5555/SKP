@@ -89,7 +89,7 @@ def add():
             return{"error":"Wrong probability"}, 406
         if not validateId(data['controller_id']):
             return{"error":"Wrong id"}, 406
-        
+       
         registration = data['register_plate']
         creation_time = data['datetime']
         localization = data['location']
@@ -162,39 +162,3 @@ def edit(id):
             return {'message': 'saved problematic case sucessfully'},200
         return {"error": "problematic case with given id not exist"},404
     return {"error": "wrong request type"},404
-
-#TODO sposób przekazywania statusu - jeszcze nie wiem jak dokładnie będzie  
-# @bp.route('/correction/<id>', methods=["PUT"])    
-# def correctToNotPaid(id): 
-#     if request.method == "PUT":   
-#         data = getRequestData(request)    
-    
-#         if not allElementsInList(ProblematicCase.attr_change, data):  
-#             return {"error": "request is missing"},400    
-        
-#         # if not validateStatus(status):
-#         #    return{"error":"Wrong status"},406
-#         if not validateId(id):
-#             return{"error":"Wrong id"},406
-#         # if not validateId(admin_id):
-#             # return{"error":"Wrong admin id"},406
-        
-
-#         problematicCase = ProblematicCase.query.filter_by(id=id).first()
-#         if not problematicCase:
-#             return {"error": "problematic case with given id not exist"},404
-
-#         # from require token
-#         problematicCase.admin_number = 2
-#         problematicCase.correction = True
-
-#         if status == 'not_possible_to_check':
-#             problematicCase.status = Config.CHECKED_NOT_CONFIRMED
-#         elif status == 'check_if_paid_again':
-#             if(not checkIfPaid()):
-#                 problematicCase.status = Config.CHECKED_TO_PAID
-#             else:
-#                 problematicCase.status = Config.CHECKED_OK
-#             return {'message': 'saved problematic case sucessfully'},200
-#         return {"error": "wrong status type"},404
-#     return {"error": "wrong request type"},404
