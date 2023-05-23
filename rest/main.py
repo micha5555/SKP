@@ -1,4 +1,5 @@
 import sys
+import os
 from config import Config, DBConfig
 
 def message():
@@ -16,7 +17,11 @@ if __name__ == "__main__":
         message()
 
     context = (Config.CERT_FILE, Config.KEY_FILE)
+    folders = [Config.REPORT_FOLDER, Config.UPLOAD_FOLDER]
     mode = sys.argv[1]
+
+    for folder_name in folders:
+        os.makedirs(folder_name, exist_ok=True)
 
     if mode == '-p':
         Config.SQLALCHEMY_DATABASE_URI = DBConfig.SQLALCHEMY_DATABASE_URI_PROD

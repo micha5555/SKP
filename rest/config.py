@@ -3,8 +3,12 @@ class Config:
   SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:root@172.23.23.23:3306/skp_test'
   SQLALCHEMY_TRACK_MODIFICATIONS = False
   UPLOAD_FOLDER = 'upload'
+  REPORT_FOLDER = 'reports'
   STATIC_URL_PATH = ''
   STATIC_FOLDER = 'static'
+
+  REQUEST_METHOD_TYPE = "form"
+  # REQUEST_METHOD_TYPE = "json"
 
   # state of problematic case
   NOT_CHECKED = 'NCH' # waiting to checked
