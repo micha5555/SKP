@@ -5,7 +5,7 @@ import base64
 import datetime
 import requests
 import random
-from flask import g,session
+from flask import g, session, make_response
 from datetime import datetime, timezone, timedelta
 from PIL import Image
 from io import BytesIO
@@ -17,6 +17,11 @@ def tokenAdminRequire():
 
 def tokenControlerRequire():
     pass
+
+def makeResponse(response_data, code):
+    response = make_response(response_data)
+    response.headers['Content-Type'] = 'application/json'
+    return response, code
 
 def createToken(payload, lifetime=None):
     payload['exp'] = datetime.now() + timedelta(minutes=lifetime)
@@ -36,7 +41,10 @@ def refresh_token(jwt_token,refresh_token, lifetime=None):
         return [jwt_token_new,refresh_token]
 
 def getRequestData(request):
-    return request.form
+    if (Config.REQUEST_METHOD_TYPE == "form"):
+        return request.form
+    else:
+        return request.get_json()
 
 def getDataFromToken(token):
     return jwt.decode(token, Config.SECRET_KEY, algorithms=["HS256"])
@@ -97,12 +105,23 @@ def checkIfPaid(registration, detection_time):
 def create_image(base64encoded):
     return base64.b64decode(base64encoded)
 
+def getUuid():
+    return str(uuid.uuid4())[:6]
+
 def create_image_name():
-    file_uuid = uuid.uuid4()
+    file_uuid = getUuid()
     now = datetime.now()
     return f"{file_uuid}_{now.strftime('%Y5m%d_%H%M%S')}"
 
-def save_image_to_local(image, file_name):
-    with BytesIO(image) as f:
-        save_image = Image.open(f)
-        save_image.save(os.path.join(os.getcwd(), Config.UPLOAD_FOLDER, file_name + '.png',), format="PNG")
+def save_image_to_local(file, file_name):
+    if Config.REQUEST_METHOD_TYPE == "form":
+        file.save(os.path.join(
+            os.getcwd(), 
+            Config.UPLOAD_FOLDER, 
+            file_name + '.png',
+        ))
+    else:
+        # nie testowałem jeszcze 
+        with BytesIO(create_image(file)) as f:
+            save_image = Image.open(f)
+            save_image.save(os.path.join(os.getcwd(), Config.UPLOAD_FOLDER, file_name + '.png',), format="PNG")
