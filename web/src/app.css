@@ -36,6 +36,7 @@ body, .height100 {
   text-decoration: none;
   color: #acacac;
   transition: .2s;
+  
 }
 
 .link:hover {
@@ -114,4 +115,18 @@ table {
 
 .disable {
   display: none;
+}
+
+.loginlogout {
+  flex-grow: 21;
+  text-align: right;
+  flex-direction: row;
+}
+
+.loginlogout > p {
+  display: block;
+}
+
+.nav {
+  flex-grow: 1;
 }

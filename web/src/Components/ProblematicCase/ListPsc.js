@@ -81,7 +81,6 @@ const ListPsc = () => {
                         <Dropdown.Item onClick={() => handlesorter('id', 'Id')} >Id</Dropdown.Item>
                         <Dropdown.Item onClick={() => handlesorter('registration', 'Rejestracja')}>Rejestracja</Dropdown.Item>
                         <Dropdown.Item onClick={() => handlesorter('creation_time', 'Data utworzenia')}>Data utworzenia</Dropdown.Item>
-                        <Dropdown.Item onClick={() => handlesorter('localization', 'Lokalizajca')}>Lokalizajca</Dropdown.Item>
                         <Dropdown.Item onClick={() => handlesorter('probability', 'Prawdopodobieństwo')}>Prawdopodobieństwo</Dropdown.Item>
                     </DropdownButton>
                     <DropdownButton
@@ -120,7 +119,7 @@ const ListPsc = () => {
                         <Dropdown.Item onClick={() => handleFilter('creation_time', 'Data utworzenia')}>Data utworzenia</Dropdown.Item>
                         <Dropdown.Item onClick={() => handleFilter('probability', 'Prawdopodobieństwo')}>Prawdopodobieństwo</Dropdown.Item>
                     </DropdownButton>
-                    <Form.Control aria-label="Example text with two button addons" />
+                    <Form.Control aria-label="Example text with two button addons" value={filterSearch} onChange={(e) => setFilterSearch(e.target.value)} />
                 </InputGroup>
             </div>
 
