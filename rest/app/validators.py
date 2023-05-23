@@ -1,9 +1,9 @@
 import re
 from datetime import datetime
-
+polish_chars = 'AaĄąBbCcĆćDdEeĘęFfGgHhIiJjKkLlŁłMmNnŃńOoÓóPpRrSsŚśTtUuWwYyZzŹźŻż'
 
 def validateLogin(login):
-    if re.fullmatch(r'[A-Za-z0-9]{6,40}',login):
+    if re.fullmatch(r'[A-Za-z0-9]{6,40}', login):
         return True
     return False
 
@@ -14,19 +14,19 @@ def validatePassword(password):
     return False
 
 def validateName(name):
-    if re.fullmatch(r'[A-Za-z]{1,40}',name):
+    if re.fullmatch(r'[A-Za-zAaĄąBbCcĆćDdEeĘęFfGgHhIiJjKkLlŁłMmNnŃńOoÓóPpRrSsŚśTtUuWwYyZzŹźŻż]{1,40}', name):
         return True
     return False
 
 def validateId(id):
-    if isinstance(id, int):
+    if re.match(r'\d+', id):
         return True
     return False
 
 def validateBoolean(param):
-    if isinstance(param, bool):
+    if isinstance(param, bool) or param in [0, 1]:
         return True
-    elif isinstance(param, str) and param.lower() in ['true', 'false']:
+    elif isinstance(param, str) and param.lower() in ['true', 'false','0','1']:
         return True
     else:
         return False
@@ -38,17 +38,16 @@ def validateDate(date):
     return False
 
 def validateLocalization(localization):
-    pattern = "^[-]?\d{1,2}\.\d{6},[-]?\d{1,3}\.\d{6}$"
-    if not re.match(pattern, location):
+    pattern = r'^[-]?\d{1,2}\.\d{6},[-]?\d{1,3}\.\d{6}$'
+    if not re.match(pattern, localization):
         return False
     
-    lat, lon = location.split(",")
-    lat_range = range(-90, 91)
-    lon_range = range(-180, 181)
-    if float(lat) not in lat_range or float(lon) not in lon_range:
-        return False
-    return True
-    
+    lat, lon = localization.split(",")
+    lat = float(lat)
+    lon = float(lon)
+    if lat < 91 and lat > -90 and -180 < lon and lon < 181:
+        return True
+    return False
 
 def validateRegistration(register_plate):
     pattern = "^[A-Z]{1,3}[0-9A-Z]{2,9}$"
@@ -57,7 +56,7 @@ def validateRegistration(register_plate):
     return False
 
 def validateProbability(probability):
-    pattern = "^(100(\.00)?|[0-9]{1,2}(\.[0-9]{1,2})?)$"
+    pattern = "^(100(\.00)?|[0-9]{1,3}(\.[0-9]{1,2})?)$"
     if re.match(pattern, str(probability)):
         return True
     return False

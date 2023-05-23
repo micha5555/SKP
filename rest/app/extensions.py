@@ -4,7 +4,7 @@ import uuid
 import base64
 import datetime
 import requests
-import functools
+import random
 from flask import g,session
 from datetime import datetime, timezone, timedelta
 from PIL import Image
@@ -35,6 +35,9 @@ def refresh_token(jwt_token,refresh_token, lifetime=None):
         jwt_token_new= jwt.encode(jwt, Config.SECRET_KEY, algorithm="HS256")
         return [jwt_token_new,refresh_token]
 
+def getRequestData(request):
+    return request.form
+
 def getDataFromToken(token):
     return jwt.decode(token, Config.SECRET_KEY, algorithms=["HS256"])
 
@@ -47,7 +50,7 @@ def checkLoginData(data):
     return False
 
 def checkAllData(data):
-    if all(key in data for key in user.attr):
+    if all(key in data for key in User.attr):
         return True
     return False
 
@@ -71,15 +74,20 @@ def getDatetimeNow():
     return dt_local
 
 def allElementsInList(elements, lst):
-    return all(element in lst for element in elements)
+    return all(element in elements for element in lst)
 
 def checkIfPaid(registration, detection_time):
     # here will be created element which will check if element was paid or not 
+    # r = random.random()
+    # print(r)
+    # if r > 0.5:
+    #     return False
+    # return True
     payload = {
         'registration_plate': registration,
         'datetime_to_check': detection_time
     }
-    res = requests.post("http://172.29.82.240:5050/car/check", json=payload)
+    res = requests.post("http://localhost:5050/car/check", json=payload)
     res = res.json()
     if('is_within' in res):
         if (res['is_within']):

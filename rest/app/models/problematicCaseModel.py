@@ -14,8 +14,7 @@ class ProblematicCase(db.Model):
     correction = db.Column(db.Boolean, unique=False, nullable=False)
 
     attr = ['register_plate', 'datetime', 'location', 'image', 'probability', 'controller_id']
-    attr_edit = ['id', 'registration', 'administration_edit_time', 'admin_id']
-    attr_change = ['id', 'status']
+    attr_edit = ['registration', 'status']
 
     def __init__(self, registration, creation_time, localization, image, probability, status):
         self.registration_plate = registration
@@ -29,8 +28,8 @@ class ProblematicCase(db.Model):
     def json(self):
         return {
 			'id': self.id,
-            'registration': self.registration,
-            'creation_time': self.creation_time,
+            'registration': self.registration_plate,
+            'creation_time': self.detect_time ,
             'localization': self.localization,
             'image': self.image,
             'probability': self.probability,

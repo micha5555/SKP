@@ -1,58 +1,63 @@
-from flask import request
+from flask import request, make_response
 from app.problematicCase import bp
 from app.db import db
 from app.models.problematicCaseModel import ProblematicCase
-from app.extensions import \
-    allElementsInList,\
-    create_image,\
-    create_image_name,\
-    save_image_to_local,\
-    checkIfPaid
+from app.extensions import *
+from app.validators import *
 from config import Config
-from app.validators import validateId,validateDate,validateLocalization
 
 @bp.route('/', methods=["GET"])
 def get():
     if request.method == "GET":
-        return ProblematicCase.query\
+        data = ProblematicCase.query\
             .filter_by(status=Config.NOT_CHECKED)\
-            .order_by(ProblematicCase.creation_time.asc())\
+            .order_by(ProblematicCase.detect_time.asc())\
             .all()
+        resonse_data = [x.json() for x in data]
+        response = make_response(resonse_data)
+        response.headers['Content-Type'] = 'application/json'
+        return response, 200
 
-@bp.route('/<int:id>', methods=["GET"])
-def get_id(id_p):
+@bp.route('/<id>', methods=["GET"])
+def get_id(id):
     if request.method == "GET":
+        if not validateId(id):
+            return {"error": "Id is not numeric"}, 400
+
         return ProblematicCase.query\
-            .filter(id=id_p)\
-            .filter(status=Config.NOT_CHECKED)\
-            .order_by(ProblematicCase.creation_time.asc())\
-            .first()
+            .filter(ProblematicCase.id==id)\
+            .filter(ProblematicCase.status==Config.NOT_CHECKED)\
+            .order_by(ProblematicCase.detect_time.asc())\
+            .first().json()
 
 @bp.route('/add', methods=["POST"])
 def add():
     if request.method == "POST":
-        data = request.get_json()
-        if not allElementsInList(ProblematicCase.attr, data):
-            return {"error": "request is missing"},400
-        
-        registration = data.get('register_plate')
-        creation_time = data.get('datetime')
-        localization = data.get('location')
-        image = create_image(data.get('image'))
-        probability = data.get('probability')
-        controller_id = data.get('controller_id')
+        data = getRequestData(request)
 
-        # validators 
-        if not validateRegistration(registration):
-            return{"error":"Wrong registration"},406
-        if not validateDate(creation_time):
-            return{"error":"Wrong creation time"},406
-        if not validateLocalization(localization):
-            return{"error":"Wrong creation time"},406
-        if not validateProbability(probability):
-            return{"error":"Wrong probability"},406
-        if not validateId(controller_id):
-            return{"error":"Wrong id"},406
+        if not allElementsInList(ProblematicCase.attr, data):
+            return {"error": "request is missing"}, 400
+        
+        if not validateRegistration(data['register_plate']):
+            return{"error":"Wrong registration"}, 406
+        if not validateDate(data['datetime']):
+            return{"error":"Wrong creation time"}, 406
+        if not validateLocalization(data['location']):
+            return{"error":"Wrong creation time"}, 406
+        if not validateProbability(data['probability']):
+            return{"error":"Wrong probability"}, 406
+        if not validateId(data['controller_id']):
+            return{"error":"Wrong id"}, 406
+        
+        registration = data['register_plate']
+        creation_time = data['datetime']
+        localization = data['location']
+        probability = data['probability']
+        controller_id = data['controller_id']
+
+        # file = request.files['image']
+        # if file.filename == '':
+            # return {"error": "File is empty"}, 400
         
         file_name = create_image_name()
         newProblematicCase = ProblematicCase(
@@ -66,68 +71,89 @@ def add():
         newProblematicCase.controller_number = controller_id
         db.session.add(newProblematicCase)
         db.session.commit()
-        save_image_to_local(image, file_name + '.png')
+
+        ttt = data['image']
+        file = create_image(ttt)
+        save_image_to_local(file, file_name)
+        # file.save(os.path.join(
+        #     os.getcwd(), 
+        #     Config.UPLOAD_FOLDER, 
+        #     file_name + '.png',
+        # ))
 
         return {"message": "saved problematic case succesfully"},202
     return {"error": "wrong request type"},404
 
-@bp.route('/edit', methods=["PUT"])
-def edit():
+@bp.route('/edit/<id>', methods=["PUT"])
+def edit(id):
     if request.method == "PUT":
-        if not allElementsInList(ProblematicCase.attr_edit, request.form):
-            return {"error": "request is missing"},400
-        id = request.form['id']
-        registration = request.form['registration']
-        administration_edit_time = request.form['administration_edit_time']
+        data = getRequestData(request)
 
-        if not validateRegistration(registration):
-            return{"error":"Wrong registration"},406
-        if not validateDate(administration_edit_time):
-            return{"error":"Wrong administration edit time"},406
+        if not allElementsInList(ProblematicCase.attr_edit, data):
+            return {"error": "request is missing"}, 400
+
+        if not validateRegistration(data['registration']):
+            return{"error":"Wrong registration"}, 406
         if not validateId(id):
-            return{"error":"Wrong id"},406
+            return{"error":"Wrong id"}, 406
+        
+        registration = data['registration']
+        status = data['status']
 
         problematicCase = ProblematicCase.query.filter_by(id=id).first()
         if problematicCase:
             problematicCase.registration = registration
-            problematicCase.administration_edit_time = administration_edit_time
+            problematicCase.administration_edit_time = datetime.now()
+            ### 
+            # data from token
+            problematicCase.admin_number = 2
+            problematicCase.correction = True
+            ###
+            if status == 'not_possible_to_check':
+                problematicCase.status = Config.CHECKED_NOT_CONFIRMED
+            elif status == 'check_if_paid_again':
+                if(not checkIfPaid()):
+                    problematicCase.status = Config.CHECKED_TO_PAID
+                else:
+                    problematicCase.status = Config.CHECKED_OK
             db.session.commit()
 
             return {'message': 'saved problematic case sucessfully'},200
         return {"error": "problematic case with given id not exist"},404
     return {"error": "wrong request type"},404
 
-@bp.route('/correction', methods=["PUT"])
-def correctToNotPaid():
-    if request.method == "PUT":
-        if not allElementsInList(ProblematicCase.attr_change, request.form):
-            return {"error": "request is missing"},400
-        id = request.form['id']
-        status = request.form['status']
-        admin_id = request.form['admin_id']
-        #TODO
-        #if not validateStatus(status):
-           # return{"error":"Wrong status"},406
-        if not validateId(id):
-            return{"error":"Wrong id"},406
-        if not validateId(admin_id):
-            return{"error":"Wrong admin id"},406
-        
-        problematicCase = ProblematicCase.query.filter_by(id=id).first()
-        if not problematicCase:
-            return {"error": "problematic case with given id not exist"},404
+#TODO sposób przekazywania statusu - jeszcze nie wiem jak dokładnie będzie
+# @bp.route('/correction/<id>', methods=["PUT"])
+# def correctToNotPaid(id):
+#     if request.method == "PUT":
+#         data = getRequestData(request)
 
-        problematicCase.admin_number = admin_id
-        problematicCase.correction = True
-        if status == 'not_possible_to_check':
-            problematicCase.status = Config.CHECKED_NOT_CONFIRMED
-        elif status == 'check_if_paid_again':
-            if(not checkIfPaid()):
-                problematicCase.status = Config.CHECKED_TO_PAID
-            else:
-                problematicCase.status = Config.CHECKED_OK
-            return {'message': 'saved problematic case sucessfully'},200
-        else:
-            return {"error": "wrong status type"},404
-        return {"error": "wrong request"},404    
-    return {"error": "wrong request type"},404
+#         if not allElementsInList(ProblematicCase.attr_change, data):
+#             return {"error": "request is missing"},400
+        
+#         # if not validateStatus(status):
+#         #    return{"error":"Wrong status"},406
+#         if not validateId(id):
+#             return{"error":"Wrong id"},406
+#         # if not validateId(admin_id):
+#             # return{"error":"Wrong admin id"},406
+        
+
+#         problematicCase = ProblematicCase.query.filter_by(id=id).first()
+#         if not problematicCase:
+#             return {"error": "problematic case with given id not exist"},404
+
+#         # from require token
+#         problematicCase.admin_number = 2
+#         problematicCase.correction = True
+
+#         if status == 'not_possible_to_check':
+#             problematicCase.status = Config.CHECKED_NOT_CONFIRMED
+#         elif status == 'check_if_paid_again':
+#             if(not checkIfPaid()):
+#                 problematicCase.status = Config.CHECKED_TO_PAID
+#             else:
+#                 problematicCase.status = Config.CHECKED_OK
+#             return {'message': 'saved problematic case sucessfully'},200
+#         return {"error": "wrong status type"},404
+#     return {"error": "wrong request type"},404
