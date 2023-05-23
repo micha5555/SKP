@@ -13,7 +13,7 @@ class ProblematicCase(db.Model):
     status = db.Column(db.String(4), unique=False, nullable=False)
     correction = db.Column(db.Boolean, unique=False, nullable=False)
 
-    attr = ['register_plate', 'datetime', 'location', 'image', 'probability', 'controller_id']
+    attr = ['register_plate', 'datetime', 'location', 'probability', 'controller_id']
     attr_edit = ['registration', 'status']
 
     def __init__(self, registration, creation_time, localization, image, probability, status):
