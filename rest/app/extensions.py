@@ -5,54 +5,26 @@ import base64
 import datetime
 import requests
 import random
-from flask import g,session
+from flask import g, session, make_response
 from datetime import datetime, timezone, timedelta
 from PIL import Image
 from io import BytesIO
 from werkzeug.security import check_password_hash
 from config import Config
 
-def tokenAdminRequire():
-    pass
-
-def tokenControlerRequire():
-    pass
-
-def createToken(payload, lifetime=None):
-    payload['exp'] = datetime.now() + timedelta(minutes=lifetime)
-    jwt_token= jwt.encode(payload, Config.SECRET_KEY, algorithm="HS256")
-    refresh_payload={'session_id':session.get("session_id"),
-                     'exp':datetime.now() + timedelta(days=1)
-                     }
-    refresh_token= jwt.encode(refresh_payload,  Config.SECRET_KEY, algorithm="HS256")
-    return [jwt_token,refresh_token]
-
-def refresh_token(jwt_token,refresh_token, lifetime=None):
-    token=getDataFromToken(refresh_token)
-    if token['session_id']==session.get("session_id"):
-        jwt=getDataFromToken(jwt_token)
-        jwt['exp']= datetime.now() + timedelta(minutes=lifetime)
-        jwt_token_new= jwt.encode(jwt, Config.SECRET_KEY, algorithm="HS256")
-        return [jwt_token_new,refresh_token]
+def makeResponse(response_data, code):
+    response = make_response(response_data)
+    response.headers['Content-Type'] = 'application/json'
+    return response, code
 
 def getRequestData(request):
-    return request.form
-
-def getDataFromToken(token):
-    return jwt.decode(token, Config.SECRET_KEY, algorithms=["HS256"])
+    if (Config.REQUEST_METHOD_TYPE == "form"):
+        return request.form
+    else:
+        return request.get_json()
 
 def checkPassword(password,pwhash):
     return check_password_hash(pwhash,password)
-
-def checkLoginData(data):
-    if all(key in data for key in User.loginAttr):
-        return True
-    return False
-
-def checkAllData(data):
-    if all(key in data for key in User.attr):
-        return True
-    return False
 
 def toBoolean(is_boolean):
     if is_boolean.lower() in( 'true' ,'1'):
@@ -97,12 +69,23 @@ def checkIfPaid(registration, detection_time):
 def create_image(base64encoded):
     return base64.b64decode(base64encoded)
 
-def create_image_name():
-    file_uuid = uuid.uuid4()
-    now = datetime.now()
-    return f"{file_uuid}_{now.strftime('%Y5m%d_%H%M%S')}"
+def getUuid():
+    return str(uuid.uuid4())[:6]
 
-def save_image_to_local(image, file_name):
-    with BytesIO(image) as f:
-        save_image = Image.open(f)
-        save_image.save(os.path.join(os.getcwd(), Config.UPLOAD_FOLDER, file_name + '.png',), format="PNG")
+def create_image_name():
+    file_uuid = getUuid()
+    now = datetime.now()
+    return f"{file_uuid}_{now.strftime('%Y%m%d_%H%M%S')}"
+
+def save_image_to_local(file, file_name):
+    if Config.REQUEST_METHOD_TYPE == "form":
+        file.save(os.path.join(
+            os.getcwd(), 
+            Config.UPLOAD_FOLDER, 
+            file_name + '.png',
+        ))
+    else:
+        # nie testowałem jeszcze 
+        with BytesIO(create_image(file)) as f:
+            save_image = Image.open(f)
+            save_image.save(os.path.join(os.getcwd(), Config.UPLOAD_FOLDER, file_name + '.png',), format="PNG")

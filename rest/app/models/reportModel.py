@@ -1,22 +1,27 @@
 from app.db import db
+from datetime import datetime
 
 class Report(db.Model):
     __tablename__ = 'report'
     id = db.Column(db.Integer, primary_key=True)
-    date = db.Column(db.DateTime, server_default=db.func.now())
+    creation_date = db.Column(db.DateTime, server_default=db.func.now())
     start_period = db.Column(db.DateTime)
-    stop_period = db.Column(db.DateTime)
+    end_period = db.Column(db.DateTime)
     filename = db.Column(db.String(120), unique=False, nullable=False)
-    description = db.Column(db.Text, unique=False, nullable=False) # description from when to when 
     
-    def __init__(self, filename, description):
+    attr = ["start_period", "end_period"]
+
+    def __init__(self, start_period, end_period, filename):
+        self.creation_date = datetime.now()
+        self.start_period = start_period
+        self.end_period = end_period
         self.filename = filename
-        self.description = description
         
     def json(self):
         return {
 			'id': self.id,
-			'date': self.date,
+			'creation_date': self.creation_date,
+            'start_period': self.start_period,
+            'end_period': self.end_period,
 			'filename': self.filename,
-			'description': self.description
 		}
