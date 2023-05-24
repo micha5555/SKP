@@ -12,33 +12,10 @@ from io import BytesIO
 from werkzeug.security import check_password_hash
 from config import Config
 
-def tokenAdminRequire():
-    pass
-
-def tokenControlerRequire():
-    pass
-
 def makeResponse(response_data, code):
     response = make_response(response_data)
     response.headers['Content-Type'] = 'application/json'
     return response, code
-
-def createToken(payload, lifetime=None):
-    payload['exp'] = datetime.now() + timedelta(minutes=lifetime)
-    jwt_token= jwt.encode(payload, Config.SECRET_KEY, algorithm="HS256")
-    refresh_payload={'session_id':session.get("session_id"),
-                     'exp':datetime.now() + timedelta(days=1)
-                     }
-    refresh_token= jwt.encode(refresh_payload,  Config.SECRET_KEY, algorithm="HS256")
-    return [jwt_token,refresh_token]
-
-def refresh_token(jwt_token,refresh_token, lifetime=None):
-    token=getDataFromToken(refresh_token)
-    if token['session_id']==session.get("session_id"):
-        jwt=getDataFromToken(jwt_token)
-        jwt['exp']= datetime.now() + timedelta(minutes=lifetime)
-        jwt_token_new= jwt.encode(jwt, Config.SECRET_KEY, algorithm="HS256")
-        return [jwt_token_new,refresh_token]
 
 def getRequestData(request):
     if (Config.REQUEST_METHOD_TYPE == "form"):
@@ -46,21 +23,8 @@ def getRequestData(request):
     else:
         return request.get_json()
 
-def getDataFromToken(token):
-    return jwt.decode(token, Config.SECRET_KEY, algorithms=["HS256"])
-
 def checkPassword(password,pwhash):
     return check_password_hash(pwhash,password)
-
-def checkLoginData(data):
-    if all(key in data for key in User.loginAttr):
-        return True
-    return False
-
-def checkAllData(data):
-    if all(key in data for key in User.attr):
-        return True
-    return False
 
 def toBoolean(is_boolean):
     if is_boolean.lower() in( 'true' ,'1'):
@@ -111,7 +75,7 @@ def getUuid():
 def create_image_name():
     file_uuid = getUuid()
     now = datetime.now()
-    return f"{file_uuid}_{now.strftime('%Y5m%d_%H%M%S')}"
+    return f"{file_uuid}_{now.strftime('%Y%m%d_%H%M%S')}"
 
 def save_image_to_local(file, file_name):
     if Config.REQUEST_METHOD_TYPE == "form":
