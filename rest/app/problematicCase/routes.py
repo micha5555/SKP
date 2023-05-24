@@ -4,11 +4,13 @@ from app.db import db
 from app.models.problematicCaseModel import ProblematicCase
 from app.extensions import *
 from app.validators import *
+from app.auth import tokenAdminRequire, tokenUserRequire
 from sqlalchemy import or_
 from config import Config
 
 @bp.route('/', methods=["GET"])
-def get():
+@tokenAdminRequire
+def get(curr_user):
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 15, type=int)
     query = ProblematicCase.query
@@ -44,13 +46,12 @@ def get():
         query = query.order_by(ProblematicCase.probability.desc()) if order == 'desc' else query.order_by(ProblematicCase.probability.asc())
 
     problematic_cases = query.paginate(page=page, per_page=per_page)
-    resonse_data = [case.json() for case in problematic_cases]
-    response = make_response(resonse_data)
-    response.headers['Content-Type'] = 'application/json'
-    return response, 200
+    response_data = [case.json() for case in problematic_cases]
+    return makeResponse(response_data, 200)
 
 @bp.route('/<id>', methods=["GET"])
-def get_id(id):
+@tokenAdminRequire
+def get_id(curr_user, id):
     if not validateId(id):
         return "Podane id nie jest wartością numeryczną", 404
 
@@ -66,24 +67,21 @@ def get_id(id):
     return makeResponse(data.json())
 
 @bp.route('/images/<filename>', methods=["GET"])
-def get_image(filename):
+@tokenAdminRequire
+def get_image(curr_user, filename):
     image_folder = Config.UPLOAD_FOLDER 
 
     if not os.path.isfile(os.path.join(os.getcwd(), image_folder, filename + '.png')):
         return "Zdjęcie nie istnieje", 404
-    
     return send_from_directory(os.path.join(os.getcwd(), image_folder), filename + ".png")
 
 @bp.route('/add', methods=["POST"])
-def add():
+@tokenUserRequire
+def add(curr_user):
     data = getRequestData(request)
 
     if not allElementsInList(ProblematicCase.attr, data):
         return "W zapytaniu nie zawarto wszystkich wartości", 400
-    
-    # nie wiem czy nie będzie trzeba usunąć bo może być tak, że z tablicy odczyta tylko jedną literkę i wtedy to nie przejdzie 
-    # if not validateRegistration(data['register_plate']):
-        # return "Błędna rejestracja", 406
     
     if not validateDate(data['datetime']):
         return "Błądny format czasu", 406
@@ -92,15 +90,11 @@ def add():
     if not validateProbability(data['probability']):
         return "Błędny format prawdopodobieństwa", 406
     
-    # będziemy wyciągać z tokena
-    if not validateId(data['controller_id']):
-        return "Podane id nie jest wartością numeryczną", 406
-    
     registration = data['register_plate']
     creation_time = data['datetime']
     localization = data['location']
     probability = data['probability']
-    controller_id = data['controller_id']
+    controller_id = curr_user['id']
 
     file = request.files['image']
     if file == None:
@@ -120,10 +114,12 @@ def add():
     db.session.commit()
 
     save_image_to_local(file, file_name)
-    return {"message": "Zapisano problematyczny przypadek."}, 202
+    data = {"message": "Zapisano problematyczny przypadek."}
+    return makeResponse(data, 202)
 
 @bp.route('/edit/<id>', methods=["PUT"])
-def edit(id):
+@tokenAdminRequire
+def edit(curr_user, id):
     data = getRequestData(request)
 
     if not allElementsInList(ProblematicCase.attr_edit, data):
@@ -142,10 +138,8 @@ def edit(id):
         problematicCase.registration = registration
         problematicCase.administration_edit_time = datetime.now()
         problematicCase.correction = True
-        ### 
-        # data from token
-        problematicCase.admin_number = 2
-        ###
+        problematicCase.admin_number = curr_user['id']
+
         if status == 'not_possible_to_check':
             problematicCase.status = Config.CHECKED_NOT_CONFIRMED
         elif status == 'check_if_paid_again':

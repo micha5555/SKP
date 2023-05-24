@@ -3,6 +3,7 @@ from app.notPaidCase import bp
 from app.extensions import *
 from app.validators import *
 from app.models.notPaidCaseModel import NotPaidCase
+from app.auth import tokenUserRequire
 from app.db import db
 from config import Config
 
@@ -19,7 +20,8 @@ def get():
         return response,200
 
 @bp.route('/add', methods=["POST"])
-def add():
+@tokenUserRequire
+def add(curr_user):
     data = getRequestData(request)
 
     if not allElementsInList(NotPaidCase.attr, data):
@@ -28,21 +30,17 @@ def add():
     if not validateRegistration(data['register_plate']):
         return "Błędna rejestracja", 406    
     if not validateDate(data['datetime']):
-        return "Błądny format czasu", 406
+        return "Błądny format czasu", 407
     if not validateLocalization(data['location']):
-        return "Błędny format lokalizacji", 406
+        return "Błędny format lokalizacji", 408
     if not validateProbability(data['probability']):
-        return "Błędny format prawdopodobieństwa", 406
-    
-    # będziemy wyciągać z tokena
-    if not validateId(data['controller_id']):
-        return "Podane id nie jest wartością numeryczną", 406
+        return "Błędny format prawdopodobieństwa", 409
 
     registration = data['register_plate']
     creation_time = data['datetime']
     localization = data['location']
     probability = data['probability']
-    controller_id = data['controller_id']
+    controller_id = curr_user['id']
 
     if checkIfPaid(registration, creation_time):
         data = {'message': 'Opłacony'}
@@ -64,4 +62,5 @@ def add():
 
     save_image_to_local(file, file_name)
 
-    return {"message": "Nieopłacony przypadek zapisano poprawnie"}, 202
+    data = {"message": "Nieopłacony przypadek zapisano poprawnie"}
+    return makeResponse(data, 202)

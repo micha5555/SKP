@@ -3,6 +3,7 @@ from app.user import bp
 from app.models.userModel import User
 from app.validators import *
 from app.extensions import *
+from app.auth import *
 from app.db import db
 
 @bp.route('/login', methods=["POST"])
@@ -22,7 +23,7 @@ def login():
         return "User not found", 404
     
     if(checkPassword(password, user.password)):
-        session["id"]=user.id
+        session["user_id"] = user.id
         payload = user.generatePayload()
         auth_token = createToken(payload=payload, lifetime=60)
         response_data = {'auth_token': auth_token[0], 'refresh_token': auth_token[1]}
@@ -30,7 +31,8 @@ def login():
     return "Incorrect password", 401
 
 @bp.route('/user', methods=["GET"])
-def getAll():
+@tokenAdminRequire
+def getAll(curr_user):
     users = User.query.all()
     users_json=[]
 
@@ -43,7 +45,8 @@ def getAll():
     return makeResponse(response_data, 200)
 
 @bp.route('/user/<id>', methods=["GET"])
-def get(id):
+@tokenAdminRequire
+def get(curr_user, id):
     if not validateId(id):
         return "Podane id nie jest wartością numeryczną", 404
 
@@ -55,7 +58,8 @@ def get(id):
     return makeResponse(response_data, 200)
 
 @bp.route('/user/add', methods=["POST"])
-def create():
+@tokenAdminRequire
+def create(curr_user):
     data = getRequestData(request)
     
     if not allElementsInList(data, User.attr):
@@ -90,17 +94,16 @@ def create():
     return makeResponse(data, 202)
 
 @bp.route('/user/edit/<id>', methods=["PUT"])
-def edit(id):
+@tokenAdminRequire
+def edit(curr_user, id):
     data = getRequestData(request)
-    
+    print(data)
     if not validateId(id):
         return "Podane id nie jest wartością numeryczną", 404
-    if not allElementsInList(data, User.attr):
-        return "Podane id nie jest wartością numeryczną", 404
+    if not allElementsInList(data, User.attr_edit):
+        return "Zapytanie nie zawiera wszystkich elementów", 404
     if not validateLogin(data["login"]):
         return "Podany login jest zbyt słaby", 404 
-    if not validatePassword(data["password"]):
-        return "Podane hasło jest za słabe", 404
     if not validateName(data["first_name"]):
         return "Imię zawiera niedozwolone znaki", 404
     if not validateName(data["last_name"]):
@@ -109,25 +112,30 @@ def edit(id):
         return "Admin i kotroler przyjmują wartość true/false", 404
     
     user = User.query.filter_by(id=id).first()
+    if user is None:
+        return "Użytkownik nie istnieje", 404
+    
     user.first_name = data["first_name"]
     user.last_name = data["last_name"]
     user.is_admin = toBoolean(data["is_admin"])
     user.is_controller = toBoolean(data["is_controller"])
+    
     db.session.commit()
     data = {"message":"Użytkownik został zapisany."}
     return makeResponse(data, 201)
 
 
 @bp.route('/user/del/<id>', methods=["DELETE"])
-def delete(id):
+@tokenAdminRequire
+def delete(curr_user, id):
     if not validateId(id):
         return "Podane id nie jest wartością numeryczną", 404
     
     user = User.query.filter_by(id=id).first()
     if user is None:
         return "Użytkownik o podanym id nie istnieje", 404
-    else:
-        db.session.delete(user)
-        db.session.commit()
-        data = {"message":"Użytkownik został usunięty."}
-        return makeResponse(data, 200)
+    
+    db.session.delete(user)
+    db.session.commit()
+    data = {"message":"Użytkownik został usunięty."}
+    return makeResponse(data, 200)
