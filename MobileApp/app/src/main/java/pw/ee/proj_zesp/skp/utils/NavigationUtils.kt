@@ -16,7 +16,6 @@ import androidx.core.content.ContextCompat
 class NavigationUtils {
 
     companion object {
-
         public fun requestLocationPermissions(context: Context) {
             if (ContextCompat.checkSelfPermission(context,
                     Manifest.permission.ACCESS_FINE_LOCATION
@@ -91,6 +90,5 @@ class NavigationUtils {
             }
             return null
         }
-
     }
 }
