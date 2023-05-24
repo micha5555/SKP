@@ -5,7 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-
+    <ImageView
+        android:id="@+id/ttt"
+        android:layout_width="403dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 
     <ImageView
@@ -52,6 +58,7 @@
         tools:ignore="ContentDescription,MissingConstraints,ImageContrastCheck" />
 
     <ImageView
+        android:id="@+id/imageView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -65,8 +72,13 @@
 
     <ImageButton
         android:id="@+id/start_control_button_on_menuview"
+<<<<<<< HEAD
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+=======
         android:layout_width="0dp"
         android:layout_height="0dp"
+>>>>>>> mobile
         android:background="@android:color/transparent"
         app:layout_constraintBottom_toTopOf="@+id/guideline5"
         app:layout_constraintEnd_toStartOf="@+id/guideline11"
@@ -92,6 +104,8 @@
         app:layout_constraintTop_toTopOf="@+id/start_control_button_on_menuview" />
 
     <ImageButton
+        app:layout_constraintHeight_percent="0.07"
+        app:layout_constraintWidth_percent="0.7"
         android:id="@+id/about_system_button"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -104,8 +118,11 @@
         app:layout_constraintStart_toStartOf="@+id/guideline10"
         app:layout_constraintTop_toTopOf="@+id/imageView2"
 
+<<<<<<< HEAD
+=======
         app:layout_constraintVertical_bias="1.0"
         app:layout_constraintWidth_percent="0.7"
+>>>>>>> mobile
         app:srcCompat="@null"
         tools:ignore="ContentDescription,MissingConstraints,ImageContrastCheck,SpeakableTextPresentCheck" />
 
@@ -216,5 +233,19 @@
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.8515815" />
 
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_end="391dp" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="20dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
