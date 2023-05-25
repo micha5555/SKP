@@ -27,7 +27,13 @@ def deleteDB():
     from app.models.reportModel import Report
 
     folder = Config.UPLOAD_FOLDER
+    folder_reports = Config.REPORT_FOLDER
     file_list = os.listdir(folder)
+    for file_name in file_list:
+        file_path = os.path.join(folder, file_name)
+        if os.path.isfile(file_path):
+            os.remove(file_path)
+    file_list = os.listdir(folder_reports)
     for file_name in file_list:
         file_path = os.path.join(folder, file_name)
         if os.path.isfile(file_path):

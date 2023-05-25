@@ -9,13 +9,16 @@ class Report(db.Model):
     end_period = db.Column(db.DateTime)
     filename = db.Column(db.String(120), unique=False, nullable=False)
     
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
     attr = ["start_period", "end_period"]
 
-    def __init__(self, start_period, end_period, filename):
+    def __init__(self, start_period, end_period, filename, user_id):
         self.creation_date = datetime.now()
         self.start_period = start_period
         self.end_period = end_period
         self.filename = filename
+        self.user_id = user_id
         
     def json(self):
         return {

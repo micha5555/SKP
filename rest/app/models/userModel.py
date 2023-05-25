@@ -18,6 +18,7 @@ class User(db.Model):
 
     not_paid_cases = db.relationship('NotPaidCase', secondary=user_not_paid_case_association, backref='users')
     problematic_cases = db.relationship('ProblematicCase', secondary=user_problematic_case_association, backref='users')
+    reports = db.relationship("Report", backref="user")
 
     attr = ['first_name', 'last_name', 'login', 'password', 'is_admin', 'is_controller']
     attr_edit = ['first_name', 'last_name', 'login', 'is_admin', 'is_controller']
