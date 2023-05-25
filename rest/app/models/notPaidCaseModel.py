@@ -9,7 +9,7 @@ class NotPaidCase(db.Model):
     localization = db.Column(db.String(60), unique=False, nullable=False)
     image = db.Column(db.String(120), unique=False, nullable=False)
 
-    attr = ['register_plate', 'datetime', 'location', 'probability', 'controller_id']
+    attr = ['register_plate', 'datetime', 'location', 'probability']
 
     def __init__(self, registration, date, localization, filename):
         self.registration_plate = registration
