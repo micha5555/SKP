@@ -82,7 +82,7 @@ def create(curr_user):
     ).all()
 
     filename = start_period.strftime("%Y%m%d")+"-"+end_period.strftime("%Y%m%d")
-    report = Report(start_period, end_period, filename)
+    report = Report(start_period, end_period, filename, curr_user['id'])
     db.session.add(report)
     db.session.commit()
 
