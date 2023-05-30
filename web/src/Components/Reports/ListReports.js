@@ -1,17 +1,23 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { API_HOST } from "../../Config/MainConfig";
 import { WARNING, useAlert } from "../../Hooks/Alert";
 
 import { Container, Table } from "react-bootstrap";
 import { PencilSquare } from "react-bootstrap-icons";
 import withAuthCheck from "../../Hooks/withAuthCheck";
+import { ctxAuth } from "../../Hooks/Auth";
 
 const ReportsList = () => {
     const [list, setList] = useState([]);
     const {showAlert} = useAlert();
+    const {auth} = useContext(ctxAuth);
 
     useEffect(() => {
-        fetch(API_HOST + '/problematicCase/')
+        fetch(API_HOST + '/problematicCase/', {
+            headers: {
+                "Authorization": 'Bearer ' +  AuthService.getToken(),
+            },
+        })
         .then(res => {
             if(res.ok) {
                 return res.json()

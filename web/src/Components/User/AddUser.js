@@ -4,10 +4,12 @@ import { SUCCESS, WARNING, ctxAlert, useAlert } from "../../Hooks/Alert";
 import { useContext, useState } from "react";
 import { Button, Container, InputGroup, Form } from "react-bootstrap";
 import withAuthCheck from "../../Hooks/withAuthCheck";
+import { ctxAuth } from "../../Hooks/Auth";
 
 const AddUser = () => {
     const navigate = useNavigate();
     const {showAlert} = useContext(ctxAlert);
+    const {auth} = useContext(ctxAuth);
 
     const [first_name, setFirstName] = useState('');
     const [last_name, setLastName] = useState('');
@@ -31,6 +33,9 @@ const AddUser = () => {
         fd.append('is_controller', is_controller);
         fetch(API_HOST + '/user/add', {
             body: fd,
+            headers: {
+                "Authorization": 'Bearer ' +  AuthService.getToken(),
+            },
         })
         .then(res => {
             if (res.ok) {

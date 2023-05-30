@@ -6,11 +6,14 @@ import { Form, Button, Container, Dropdown, DropdownButton, InputGroup, Table } 
 import { PencilSquare } from "react-bootstrap-icons";
 import { useNavigate } from "react-router-dom";
 import withAuthCheck from "../../Hooks/withAuthCheck";
+import { ctxAuth, useAuth } from "../../Hooks/Auth";
+import AuthService from "../../Service/AuthService";
 
 const ListPsc = () => {
     const [list, setList] = useState([]);
     const {showAlert} = useAlert();
     const navigate = useNavigate();
+    // const {auth} = useAuth(ctxAuth);
 
     const [sorter, setsorter] = useState('id');
     const [sorterValue, setsorterValue] = useState('Id');
@@ -36,7 +39,11 @@ const ListPsc = () => {
         if (mode === 1) {
             url += buildURL();
         }
-        fetch(url)
+        fetch(url, {
+            headers: {
+                "Authorization": 'Bearer ' +  AuthService.getToken(),
+            },
+        })
         .then(res => {
             if(res.ok) {
                 return res.json()

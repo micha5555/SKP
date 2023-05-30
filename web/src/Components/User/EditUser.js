@@ -4,10 +4,12 @@ import { SUCCESS, WARNING, ctxAlert, useAlert } from "../../Hooks/Alert";
 import { useContext, useEffect, useState } from "react";
 import { Button, Container, InputGroup, Form } from "react-bootstrap";
 import withAuthCheck from "../../Hooks/withAuthCheck";
+import { ctxAuth } from "../../Hooks/Auth";
 
 const EditUser = () => {
     const navigate = useNavigate();
     const {showAlert} = useContext(ctxAlert);
+    const {auth} = useContext(ctxAuth);
 
     const {id} = useParams()
     const [first_name, setFirstName] = useState('');
@@ -17,7 +19,11 @@ const EditUser = () => {
     const [is_controller, setIsController] = useState(false);
 
     useEffect(() => {
-        fetch(API_HOST + '/user/' + id)
+        fetch(API_HOST + '/user/' + id, {
+            headers: {
+                "Authorization": 'Bearer ' +  AuthService.getToken(),
+            },
+        })
         .then(res => {
             if (res.ok) {
                 return res.json();
@@ -48,7 +54,10 @@ const EditUser = () => {
         fd.append('is_controller', is_controller);
         fetch(API_HOST + '/user/edit/' + id, {
             body: fd,
-            method: PUT_METHOD
+            method: PUT_METHOD,
+            headers: {
+                "Authorization": 'Bearer ' +  AuthService.getToken(),
+            },
         })
         .then(res => {
             console.log(res)

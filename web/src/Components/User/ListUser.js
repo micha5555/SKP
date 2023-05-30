@@ -5,10 +5,13 @@ import { CheckLg, PencilSquare, Trash3Fill, XLg } from "react-bootstrap-icons";
 import { Button, Container, Dropdown, Form, InputGroup, Table, SplitButton, DropdownButton } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import withAuthCheck from "../../Hooks/withAuthCheck";
+import { ctxAuth } from "../../Hooks/Auth";
 
 const UserList = () => {
     const [list, setList] = useState([]);
     const {showAlert} = useContext(ctxAlert);
+    const {auth} = useContext(ctxAuth);
+
     const [sorter, setsorter] = useState('id');
     const [sorterValue, setsorterValue] = useState('Id');
     const [type, setType] = useState('asc');
@@ -26,7 +29,10 @@ const UserList = () => {
             return;
         }
         fetch(API_HOST + '/user/del/' + id, {
-            method: DELETE_METHOD
+            method: DELETE_METHOD,
+            headers: {
+                "Authorization": 'Bearer ' +  AuthService.getToken(),
+            },
         })
         .then(res => {
             if (res.ok) {
@@ -64,7 +70,11 @@ const UserList = () => {
     }
 
     useEffect(() => {
-        fetch(API_HOST + '/user')
+        fetch(API_HOST + '/user', {
+            headers: {
+                "Authorization": 'Bearer ' +  AuthService.getToken(),
+            },
+        })
         .then(res => {
             if(res.ok) {
                 return res.json()

@@ -7,6 +7,7 @@ app = Flask(__name__)
 app.config.from_object(Config)
 db.init_app(app)
 CORS(app)
+app.config['CORS_ALLOW_ALL_ORIGINS'] = True
 
 from app.user import bp as user_bp
 app.register_blueprint(user_bp)

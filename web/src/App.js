@@ -43,10 +43,10 @@ const router = createBrowserRouter(
 
 const App = () => {
   const {show, message, type, showAlert} = useAlert();
-  const {auth, logging, loggout, checkIfLogged } = useAuth();
+  const {auth, setAuth, logging, loggout, checkIfLogged } = useAuth();
 
   return (
-    <ctxAuth.Provider value={{auth, logging, loggout, checkIfLogged}}>
+    <ctxAuth.Provider value={{auth, setAuth, logging, loggout, checkIfLogged}}>
     <ctxAlert.Provider value={{show, message, type, showAlert}}>
       <RouterProvider router={router} />  
     </ctxAlert.Provider>

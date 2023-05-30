@@ -8,7 +8,6 @@ class Config:
   STATIC_FOLDER = 'static'
 
   REQUEST_METHOD_TYPE = "form"
-  # REQUEST_METHOD_TYPE = "json"
 
   # state of problematic case
   NOT_CHECKED = 'NCH' # waiting to checked
