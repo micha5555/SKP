@@ -3,7 +3,7 @@ from datetime import datetime
 polish_chars = 'AaĄąBbCcĆćDdEeĘęFfGgHhIiJjKkLlŁłMmNnŃńOoÓóPpRrSsŚśTtUuWwYyZzŹźŻż'
 
 def validateLogin(login):
-    if re.fullmatch(r'[A-Za-z0-9]{6,40}', login):
+    if re.fullmatch(r'[A-Za-z0-9]{4,40}', login):
         return True
     return False
 
