@@ -29,7 +29,7 @@ def tokenUserRequire(view):
         if not 'Authorization' in request.headers:
             return "Brak uprawnień", 403
         
-        data = getDataFromToken(request.headers.get("Authorization"))
+        data = getDataFromToken(request.headers.get("Authorization")[7:])
         if not data['is_controller'] and not data['is_admin']:
             return "Brak uprawnień", 403
 
