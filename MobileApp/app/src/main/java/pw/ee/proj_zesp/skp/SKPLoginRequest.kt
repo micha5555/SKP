@@ -1,16 +1,7 @@
 package pw.ee.proj_zesp.skp
 
-import android.content.Context
 import android.util.Log
-import android.widget.Toast
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-//import com.fasterxml.jackson.databind.ObjectMapper
-//import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-//import com.fasterxml.jackson.module.kotlin.readValue
 import okhttp3.*
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
 import java.security.SecureRandom
