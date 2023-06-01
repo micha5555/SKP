@@ -7,7 +7,6 @@ import android.util.Log
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import java.io.ByteArrayOutputStream
-import java.io.File
 import java.io.IOException
 import java.security.SecureRandom
 import java.security.cert.X509Certificate
@@ -15,7 +14,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import javax.net.ssl.*
 
-
+val AUTHORIZATION_HEADER = "Authorization"
 class SKPRequest(isProblematic: Boolean, photo: Drawable, currentLocation: String, probability: String, registerPlate: String, currentDate: String) {
 
     val isProblematic: Boolean = isProblematic
@@ -67,6 +66,7 @@ class SKPRequest(isProblematic: Boolean, photo: Drawable, currentLocation: Strin
 
         val request = Request.Builder()
             .url(url)
+            .addHeader(AUTHORIZATION_HEADER, "Bearer " + User.loggedUser?.accessToken)
             .post(requestBody)
             .build()
         client.newCall(request).enqueue(object : Callback {
