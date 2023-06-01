@@ -44,6 +44,6 @@ class MainActivity : AppCompatActivity() {
 
         val srequest = SKPRequest(false, doge, "90.111111,-160.222222", "098.20", "BZ4567", "2023-05-11T21:10:10Z")
 //        srequest.send(NavigationUtils.getLocation(this), )
-        srequest.send()
+//        srequest.send()
     }
 }
