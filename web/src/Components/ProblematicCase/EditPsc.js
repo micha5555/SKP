@@ -50,7 +50,9 @@ const EditPsc = () => {
             if (res.ok) {
                 return res.json()
             } else {
-                throw new Error();
+                return res.text().then(errorMsg => {
+                    throw new Error(errorMsg);
+                });
             }
         })
         .then(res => {
@@ -58,7 +60,9 @@ const EditPsc = () => {
             navigate(PSC_LINK);
         })
         .catch(err => {
-            showAlert('Nie zapisano zmian', WARNING);
+            console.log(err.message)
+            showAlert(err.message, WARNING);
+            return false;
         })
     }
 
@@ -72,7 +76,9 @@ const EditPsc = () => {
             if (res.ok) {
                 return res.json()
             } else {
-                throw new Error();
+                return res.text().then(errorMsg => {
+                    throw new Error(errorMsg);
+                });
             }
         })
         .then(res => {
@@ -83,7 +89,9 @@ const EditPsc = () => {
             setProbability(res['probability'])
         })
         .catch(err => {
-            console.log('nie')
+            console.log(err.message)
+            showAlert(err.message, WARNING);
+            return false;
         })
     }, [])
 

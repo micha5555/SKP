@@ -13,13 +13,12 @@ const ListPsc = () => {
     const [list, setList] = useState([]);
     const {showAlert} = useAlert();
     const navigate = useNavigate();
-    // const {auth} = useAuth(ctxAuth);
 
     const [sorter, setsorter] = useState('id');
     const [sorterValue, setsorterValue] = useState('Id');
     const [type, setType] = useState('asc');
     const [typeValue, setTypeValue] = useState('Rosnąco');
-    const [filter, setFilter] = useState('');
+    const [filter, setFilter] = useState('id');
     const [filterValue, setFilterValue] = useState('Id');
     const [filterSearch, setFilterSearch] = useState('');
     const [onPage, setOnPage] = useState(15);
@@ -29,7 +28,6 @@ const ListPsc = () => {
         navigate(PSC_EDIT_LINK + id);
     }
 
-    // TODO zrobić zapytania do filtroeania
     useEffect(() => {
         handleExecution();
     }, [])
@@ -48,11 +46,17 @@ const ListPsc = () => {
             if(res.ok) {
                 return res.json()
             } else {
-                throw new Error('nie działa')
+                return res.text().then(errorMsg => {
+                    throw new Error(errorMsg);
+                });
             }
         })
         .then(res => setList([...res]))
-        .catch(err => showAlert(err, WARNING))
+        .catch(err => {
+            console.log(err.message)
+            showAlert(err.message, WARNING);
+            return false;
+        })
     } 
 
     const buildURL = () => `?filter=${filter}:${filterSearch}&sort_by=${sorter}&order=${type}&per_page=${onPage}&page=${page}`;

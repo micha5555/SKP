@@ -5,6 +5,7 @@ import { useContext, useEffect, useState } from "react";
 import { Button, Container, InputGroup, Form } from "react-bootstrap";
 import withAuthCheck from "../../Hooks/withAuthCheck";
 import { ctxAuth } from "../../Hooks/Auth";
+import AuthService from "../../Service/AuthService";
 
 const EditUser = () => {
     const navigate = useNavigate();
@@ -28,7 +29,9 @@ const EditUser = () => {
             if (res.ok) {
                 return res.json();
             } else {
-                throw new Error();
+                return res.text().then(errorMsg => {
+                    throw new Error(errorMsg);
+                });
             }
         }) 
         .then(res => {
@@ -38,6 +41,11 @@ const EditUser = () => {
             setIsAdmin(res['is_admin']);
 
             setIsController(res['is_controller']);
+        })
+        .catch(err => {
+            console.log(err.message)
+            showAlert(err.message, WARNING);
+            return false;
         })
     }, []);
 
@@ -64,7 +72,9 @@ const EditUser = () => {
             if (res.ok) {
                 return res.json();
             } else {
-                throw new Error(res.statusText)
+                return res.text().then(errorMsg => {
+                    throw new Error(errorMsg);
+                });
             }
         })
         .then(res => {
@@ -73,7 +83,9 @@ const EditUser = () => {
             navigate(USER_LINK);
         })
         .catch(err => {
-            showAlert('nie udało się zaktualizować', WARNING)
+            console.log(err.message)
+            showAlert(err.message, WARNING);
+            return false;
         })
     }
 

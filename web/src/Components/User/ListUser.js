@@ -6,6 +6,7 @@ import { Button, Container, Dropdown, Form, InputGroup, Table, SplitButton, Drop
 import { useNavigate } from "react-router-dom";
 import withAuthCheck from "../../Hooks/withAuthCheck";
 import { ctxAuth } from "../../Hooks/Auth";
+import AuthService from "../../Service/AuthService";
 
 const UserList = () => {
     const [list, setList] = useState([]);
@@ -38,7 +39,9 @@ const UserList = () => {
             if (res.ok) {
                 return res.json();
             } else {
-                throw new Error();
+                return res.text().then(errorMsg => {
+                    throw new Error(errorMsg);
+                });
             }
         })
         .then(res => {
@@ -46,7 +49,9 @@ const UserList = () => {
             showAlert('Usunięto użytkownika.', SUCCESS);
         })
         .catch(err => {
-            showAlert('Nie usunięto użytkownika.', WARNING);
+            console.log(err.message)
+            showAlert(err.message, WARNING);
+            return false;
         })
     }
 
@@ -79,12 +84,47 @@ const UserList = () => {
             if(res.ok) {
                 return res.json()
             } else {
-                throw new Error('nie działa')
+                return res.text().then(errorMsg => {
+                    throw new Error(errorMsg);
+                });
             }
         })
         .then(res => setList(res))
-        .catch(err => showAlert(err, WARNING))
+        .catch(err => {
+            console.log(err.message)
+            showAlert(err.message, WARNING);
+            return false;
+        })
     }, [])
+
+    const buildURL = () => `?filter=${filter}:${filterSearch}&sort_by=${sorter}&order=${type}&per_page=${onPage}&page=${page}`;
+
+    const handleExecution = (mode = 0) => {
+        var url = API_HOST + '/user';
+        if (mode === 1) {
+            url += buildURL();
+        }
+        fetch(url, {
+            headers: {
+                "Authorization": 'Bearer ' +  AuthService.getToken(),
+            },
+        })
+        .then(res => {
+            if(res.ok) {
+                return res.json()
+            } else {
+                return res.text().then(errorMsg => {
+                    throw new Error(errorMsg);
+                });
+            }
+        })
+        .then(res => setList(res))
+        .catch(err => {
+            console.log(err.message)
+            showAlert(err.message, WARNING);
+            return false;
+        })
+    }
 
     return (
         <>
@@ -141,11 +181,17 @@ const UserList = () => {
                     <Dropdown.Item onClick={() => handleFilter('first_name', 'Imie')}>Imie</Dropdown.Item>
                     <Dropdown.Item onClick={() => handleFilter('last_name', 'Nazwisko')}>Nazwisko</Dropdown.Item>
                     <Dropdown.Item onClick={() => handleFilter('login', 'Login')}>Login</Dropdown.Item>
-                    <Dropdown.Item onClick={() => handleFilter('is_admin', 'Admin')}>Admin</Dropdown.Item>
-                    <Dropdown.Item onClick={() => handleFilter('is_controller', 'Kontroler')}>Kontroler</Dropdown.Item>
                 </DropdownButton>
                 <Form.Control aria-label="Example text with two button addons" />
             </InputGroup>
+        </div>
+        <div className="d-flex">
+            <Button
+                variant="dark"
+                onClick={() => navigate(USER_ADD_LINK)}
+            >
+                Dodaj użytkownika
+            </Button>
         </div>
         <Table striped bordered hover variant="light">
             <thead>

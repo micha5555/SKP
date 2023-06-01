@@ -21,6 +21,7 @@ import EditPsc from './Components/ProblematicCase/EditPsc';
 import ListPsc from './Components/ProblematicCase/ListPsc';
 import { useAuth, ctxAuth } from './Hooks/Auth';
 import Login from './Components/Login';
+import ListReports from './Components/Reports/ListReports';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -32,7 +33,7 @@ const router = createBrowserRouter(
       <Route path={PSC_LINK} element={<ListPsc data={PSC} />} />
       <Route path={PSC_EDIT_LINK + ':id'} element={<EditPsc data={PSC} />} />
 
-      {/* <Route path={REPORT_LINK} element={<MyTable data={REPORT} />} /> */}
+      <Route path={REPORT_LINK} element={<ListReports data={REPORT} />} />
 
       <Route path={LOGIN_LINK} element={<Login />} />
  
