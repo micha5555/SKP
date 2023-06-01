@@ -3,13 +3,13 @@ import { Link, useNavigate } from "react-router-dom";
 import { LOGIN_LINK, PSC_LINK, REPORT_LINK, USER_LINK } from "../Config/MainConfig";
 import { useContext } from "react";
 import { ctxAuth } from "../Hooks/Auth";
+import AuthService from "../Service/AuthService";
 
 const MyNav = () => {
-    const { auth, loggout } = useContext(ctxAuth);
     const navigate = useNavigate();
 
     const handleClick = () => {
-      if(auth.isLogged) {
+      if(AuthService.isAuthenticated()) {
         var log = window.confirm("Czy na pewno chcesz się wylogować.");
         if ( !log) {
             return;
@@ -17,6 +17,10 @@ const MyNav = () => {
         loggout();
       }
       navigate(LOGIN_LINK);
+    }
+
+    const loggout = () => {
+      AuthService.removeToken();
     }
 
     return (
@@ -31,7 +35,7 @@ const MyNav = () => {
               <Link className="link" to={REPORT_LINK}>Raporty</Link>
               <div className="loginlogout">
                 {/* <p className="login">{auth.isLogged ? "Zalogowany jako " + auth.login : null}</p> */}
-                <Button variant="dark" onClick={handleClick}>{auth.isLogged ? "Wyloguj" : "Zaloguj"}</Button>
+                <Button variant="dark" onClick={handleClick}>{AuthService.isAuthenticated() ? "Wyloguj" : "Zaloguj"}</Button>
               </div>
             </Nav>
           </Navbar.Collapse>

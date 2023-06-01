@@ -4,10 +4,13 @@ import { SUCCESS, WARNING, ctxAlert, useAlert } from "../../Hooks/Alert";
 import { useContext, useEffect, useState } from "react";
 import { Button, Container, InputGroup, Form } from "react-bootstrap";
 import withAuthCheck from "../../Hooks/withAuthCheck";
+import { ctxAuth } from "../../Hooks/Auth";
+import AuthService from "../../Service/AuthService";
 
 const EditUser = () => {
     const navigate = useNavigate();
     const {showAlert} = useContext(ctxAlert);
+    const {auth} = useContext(ctxAuth);
 
     const {id} = useParams()
     const [first_name, setFirstName] = useState('');
@@ -17,12 +20,18 @@ const EditUser = () => {
     const [is_controller, setIsController] = useState(false);
 
     useEffect(() => {
-        fetch(API_HOST + '/user/' + id)
+        fetch(API_HOST + '/user/' + id, {
+            headers: {
+                "Authorization": 'Bearer ' +  AuthService.getToken(),
+            },
+        })
         .then(res => {
             if (res.ok) {
                 return res.json();
             } else {
-                throw new Error();
+                return res.text().then(errorMsg => {
+                    throw new Error(errorMsg);
+                });
             }
         }) 
         .then(res => {
@@ -32,6 +41,11 @@ const EditUser = () => {
             setIsAdmin(res['is_admin']);
 
             setIsController(res['is_controller']);
+        })
+        .catch(err => {
+            console.log(err.message)
+            showAlert(err.message, WARNING);
+            return false;
         })
     }, []);
 
@@ -48,14 +62,19 @@ const EditUser = () => {
         fd.append('is_controller', is_controller);
         fetch(API_HOST + '/user/edit/' + id, {
             body: fd,
-            method: PUT_METHOD
+            method: PUT_METHOD,
+            headers: {
+                "Authorization": 'Bearer ' +  AuthService.getToken(),
+            },
         })
         .then(res => {
             console.log(res)
             if (res.ok) {
                 return res.json();
             } else {
-                throw new Error(res.statusText)
+                return res.text().then(errorMsg => {
+                    throw new Error(errorMsg);
+                });
             }
         })
         .then(res => {
@@ -64,7 +83,9 @@ const EditUser = () => {
             navigate(USER_LINK);
         })
         .catch(err => {
-            showAlert('nie udało się zaktualizować', WARNING)
+            console.log(err.message)
+            showAlert(err.message, WARNING);
+            return false;
         })
     }
 

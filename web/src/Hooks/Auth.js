@@ -7,7 +7,7 @@ export const ctxAuth = createContext();
 
 export const useAuth = () => {
     const cookies = new Cookies();
-    const [auth, setAuth] = useState({
+    let [auth, setAuth] = useState({
         login: '',
         token: '',
         refreshToken: '',
@@ -32,12 +32,15 @@ export const useAuth = () => {
             }
         })
         .then(res => {
-            auth.login = login_par;
-            auth.isLogged = true;
-            auth.token = res['auth_token'];
-            auth.refreshToken = res['refresh_token'];
-            setAuth(auth);
-            cookies.set('auth', auth);
+            const updatedAuth = {
+                login: login_par,
+                isLogged: true,
+                token: res['auth_token'],
+                refreshToken: res['refresh_token'],
+            };
+            console.log(updatedAuth)
+            setAuth(updatedAuth);
+            cookies.set('auth', updatedAuth);
             return true;
         })
         .catch(err => {
@@ -67,6 +70,6 @@ export const useAuth = () => {
         return false;
     }
   
-    return { auth, logging, loggout, checkIfLogged };
+    return { auth, setAuth, logging, loggout, checkIfLogged };
 };
 

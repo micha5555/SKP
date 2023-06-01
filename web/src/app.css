@@ -130,3 +130,7 @@ table {
 .nav {
   flex-grow: 1;
 }
+
+.opacity {
+  opacity: 1 !important;
+}

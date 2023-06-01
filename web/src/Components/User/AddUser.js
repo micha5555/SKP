@@ -1,13 +1,16 @@
 import { useNavigate } from "react-router-dom";
-import { API_HOST, USER_LINK } from "../../Config/MainConfig";
+import { API_HOST, POST_METHOD, USER_LINK } from "../../Config/MainConfig";
 import { SUCCESS, WARNING, ctxAlert, useAlert } from "../../Hooks/Alert";
 import { useContext, useState } from "react";
 import { Button, Container, InputGroup, Form } from "react-bootstrap";
 import withAuthCheck from "../../Hooks/withAuthCheck";
+import { ctxAuth } from "../../Hooks/Auth";
+import AuthService from "../../Service/AuthService";
 
 const AddUser = () => {
     const navigate = useNavigate();
     const {showAlert} = useContext(ctxAlert);
+    const {auth} = useContext(ctxAuth);
 
     const [first_name, setFirstName] = useState('');
     const [last_name, setLastName] = useState('');
@@ -31,19 +34,29 @@ const AddUser = () => {
         fd.append('is_controller', is_controller);
         fetch(API_HOST + '/user/add', {
             body: fd,
+            method: POST_METHOD,
+            headers: {
+                "Authorization": 'Bearer ' +  AuthService.getToken(),
+            },
         })
         .then(res => {
             if (res.ok) {
                 return res.json();
             } else {
-                throw new Error(res.statusText)
+                return res.text().then(errorMsg => {
+                    throw new Error(errorMsg);
+                });
             }
         })
         .then(res => {
             showAlert('Użytkownik utworzony.', SUCCESS);
             navigate(USER_LINK);
         })
-        .catch(err => showAlert("nie utworzono", WARNING))
+        .catch(err => {
+            console.log(err.message)
+            showAlert(err.message, WARNING);
+            return false;
+        })
     }
 
     const canel = () => {

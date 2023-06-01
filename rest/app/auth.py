@@ -8,13 +8,14 @@ import functools
 def tokenAdminRequire(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):
-        if not 'Access-token' in request.headers:
+        if not 'Authorization' in request.headers:
             return "Brak uprawnień", 403
         
-        data = getDataFromToken(request.headers.get("Access-token"))
+        data = getDataFromToken(request.headers.get("Authorization")[7:])
         if not data['is_admin']:
             return "Brak uprawnień", 403
         
+
         user = User.query.filter_by(id=data['id']).first()
         if user is None:
             return "Brak uprawnień", 403
@@ -25,10 +26,10 @@ def tokenAdminRequire(view):
 def tokenUserRequire(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):
-        if not 'Access-token' in request.headers:
+        if not 'Authorization' in request.headers:
             return "Brak uprawnień", 403
         
-        data = getDataFromToken(request.headers.get("Access-token"))
+        data = getDataFromToken(request.headers.get("Authorization"))
         if not data['is_controller'] and not data['is_admin']:
             return "Brak uprawnień", 403
 

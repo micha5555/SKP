@@ -1,14 +1,10 @@
 import React, { useContext } from 'react';
-import { ctxAuth } from './Auth';
-import { useNavigate } from 'react-router-dom';
-import { LOGIN_LINK } from '../Config/MainConfig';
 import Login from '../Components/Login';
+import AuthService from '../Service/AuthService';
 
 const withAuthCheck = (WrappedComponent) => {
-  const AuthCheckComponent = (props) => {
-    const { auth, checkIfLogged } = useContext(ctxAuth);
-    
-    if (auth.isLogged || checkIfLogged()) {
+  const AuthCheckComponent = (props) => {    
+    if (AuthService.getToken() != null) {
       return <WrappedComponent {...props} />;
     } else {
       return <Login />;

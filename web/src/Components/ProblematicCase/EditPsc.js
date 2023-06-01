@@ -5,6 +5,8 @@ import { SUCCESS, WARNING, ctxAlert } from "../../Hooks/Alert";
 import { Container, InputGroup, Form, Button } from "react-bootstrap";
 import withAuthCheck from "../../Hooks/withAuthCheck";
 import ReactImageMagnify from "react-image-magnify";
+import { ctxAuth } from "../../Hooks/Auth";
+import AuthService from "../../Service/AuthService";
 
 const NPC = 'not_possible_to_check';
 const CPA = 'check_if_paid_again';
@@ -39,13 +41,18 @@ const EditPsc = () => {
         fd.append('status', status)
         fetch(API_HOST + '/problematicCase/edit/' + id, {
             method: PUT_METHOD,
+            headers: {
+                "Authorization": 'Bearer ' +  AuthService.getToken(),
+            },
             body: fd,
         })
         .then(res => {
             if (res.ok) {
                 return res.json()
             } else {
-                throw new Error();
+                return res.text().then(errorMsg => {
+                    throw new Error(errorMsg);
+                });
             }
         })
         .then(res => {
@@ -53,17 +60,25 @@ const EditPsc = () => {
             navigate(PSC_LINK);
         })
         .catch(err => {
-            showAlert('Nie zapisano zmian', WARNING);
+            console.log(err.message)
+            showAlert(err.message, WARNING);
+            return false;
         })
     }
 
     useEffect(() => {
-        fetch(API_HOST + '/problematicCase/' + id)
+        fetch(API_HOST + '/problematicCase/' + id, {
+            headers: {
+                "Authorization": 'Bearer ' +  AuthService.getToken(),
+            },
+        })
         .then(res => {
             if (res.ok) {
                 return res.json()
             } else {
-                throw new Error();
+                return res.text().then(errorMsg => {
+                    throw new Error(errorMsg);
+                });
             }
         })
         .then(res => {
@@ -74,7 +89,9 @@ const EditPsc = () => {
             setProbability(res['probability'])
         })
         .catch(err => {
-            console.log('nie')
+            console.log(err.message)
+            showAlert(err.message, WARNING);
+            return false;
         })
     }, [])
 
@@ -84,7 +101,6 @@ const EditPsc = () => {
         <div className="w-100 line"></div>
         <Container className="mt-4 w-50">
 
-            {console.log(image)}
             <div className="w-50 mb-3">
                 <ReactImageMagnify
                 {...{

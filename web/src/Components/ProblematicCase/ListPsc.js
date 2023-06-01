@@ -6,6 +6,8 @@ import { Form, Button, Container, Dropdown, DropdownButton, InputGroup, Table } 
 import { PencilSquare } from "react-bootstrap-icons";
 import { useNavigate } from "react-router-dom";
 import withAuthCheck from "../../Hooks/withAuthCheck";
+import { ctxAuth, useAuth } from "../../Hooks/Auth";
+import AuthService from "../../Service/AuthService";
 
 const ListPsc = () => {
     const [list, setList] = useState([]);
@@ -16,7 +18,7 @@ const ListPsc = () => {
     const [sorterValue, setsorterValue] = useState('Id');
     const [type, setType] = useState('asc');
     const [typeValue, setTypeValue] = useState('Rosnąco');
-    const [filter, setFilter] = useState('');
+    const [filter, setFilter] = useState('id');
     const [filterValue, setFilterValue] = useState('Id');
     const [filterSearch, setFilterSearch] = useState('');
     const [onPage, setOnPage] = useState(15);
@@ -26,7 +28,6 @@ const ListPsc = () => {
         navigate(PSC_EDIT_LINK + id);
     }
 
-    // TODO zrobić zapytania do filtroeania
     useEffect(() => {
         handleExecution();
     }, [])
@@ -36,16 +37,26 @@ const ListPsc = () => {
         if (mode === 1) {
             url += buildURL();
         }
-        fetch(url)
+        fetch(url, {
+            headers: {
+                "Authorization": 'Bearer ' +  AuthService.getToken(),
+            },
+        })
         .then(res => {
             if(res.ok) {
                 return res.json()
             } else {
-                throw new Error('nie działa')
+                return res.text().then(errorMsg => {
+                    throw new Error(errorMsg);
+                });
             }
         })
         .then(res => setList([...res]))
-        .catch(err => showAlert(err, WARNING))
+        .catch(err => {
+            console.log(err.message)
+            showAlert(err.message, WARNING);
+            return false;
+        })
     } 
 
     const buildURL = () => `?filter=${filter}:${filterSearch}&sort_by=${sorter}&order=${type}&per_page=${onPage}&page=${page}`;
