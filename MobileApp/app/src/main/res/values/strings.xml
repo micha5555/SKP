@@ -5,4 +5,7 @@
     <string name="hello_message">Witaj w \nsystemie \nkontroli \nparkowania</string>
     <string name="about_system_header">O systemie</string>
     <string name="start_control_button_text">Rozpocznij kontrolę</string>
+    <string name="login_button_text">Zaloguj</string>
+    <string name="login_text">Login</string>
+    <string name="password">Hasło</string>
 </resources>

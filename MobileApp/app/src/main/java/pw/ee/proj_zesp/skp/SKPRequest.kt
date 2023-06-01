@@ -62,7 +62,7 @@ class SKPRequest(isProblematic: Boolean, photo: Drawable, currentLocation: Strin
         }
 
         val photoAsByteArray: ByteArray = convertDrawableToByteArray(photo)
-        val requestBody = createMultipartRequestBody(currentDate, currentLocation, registerPlate, probability, "1", photoAsByteArray)
+        val requestBody = createMultipartRequestBody(currentDate, currentLocation, registerPlate, probability, photoAsByteArray)
         val client = createOkHttpClient()
 
         val request = Request.Builder()
@@ -84,14 +84,13 @@ class SKPRequest(isProblematic: Boolean, photo: Drawable, currentLocation: Strin
         })
     }
 
-    private fun createMultipartRequestBody(currentDate: String, currentLocation: String, registerPlate: String, probability: String, controllerId: String, photoAsByteArray: ByteArray): MultipartBody {
+    private fun createMultipartRequestBody(currentDate: String, currentLocation: String, registerPlate: String, probability: String, photoAsByteArray: ByteArray): MultipartBody {
         val requestBody = MultipartBody.Builder()
             .setType(MultipartBody.FORM)
             .addFormDataPart("datetime", currentDate!!)
             .addFormDataPart("location", currentLocation)
             .addFormDataPart("register_plate", registerPlate)
             .addFormDataPart("probability", probability)
-            .addFormDataPart("controller_id", controllerId)
             .addFormDataPart(
                 "image",
                 "n",
