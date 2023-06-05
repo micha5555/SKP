@@ -3,6 +3,7 @@ package pw.ee.proj_zesp.skp
 import android.util.Log
 import okhttp3.*
 import org.json.JSONObject
+import pw.ee.proj_zesp.skp.utils.CommonUtils
 import java.io.IOException
 import java.security.SecureRandom
 import java.security.cert.X509Certificate
@@ -17,7 +18,10 @@ class SKPLoginRequest {
     companion object{
         fun loginRequest(login: String, password: String): Boolean{
 //          TODO: różny adres ip w zależności czy emulator czy fizyczne urządzenie
-            var url = "https://10.0.2.2:5000/login"
+            var url = "https://172.25.0.1:5000/login"
+            if(CommonUtils.isEmulator()) {
+                url = "https://10.0.2.2:5000/login"
+            }
             var isSucces = false
 
             val requestBody = MultipartBody.Builder()

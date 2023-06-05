@@ -6,6 +6,7 @@ import android.graphics.drawable.Drawable
 import android.util.Log
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import pw.ee.proj_zesp.skp.utils.CommonUtils
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.security.SecureRandom
@@ -50,9 +51,15 @@ class SKPRequest(isProblematic: Boolean, photo: Drawable, currentLocation: Strin
     fun send() {
         var url: String? = null
         if(isProblematic) {
-            url = "https://10.0.2.2:5000/problematicCase/add"
+            url = "https://172.25.0.1:5000/problematicCase/add"
+            if(CommonUtils.isEmulator()) {
+                url = "https://10.0.2.2:5000/problematicCase/add"
+            }
         } else {
-            url = "https://10.0.2.2:5000/notPaidCase/add"
+            url = "https://172.25.0.1:5000/notPaidCase/add"
+            if(CommonUtils.isEmulator()) {
+                url = "https://10.0.2.2:5000/notPaidCase/add"
+            }
         }
 
         val sdf = SimpleDateFormat("yyyy-dd-MM hh:mm:ss")
