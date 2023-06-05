@@ -24,7 +24,7 @@ import pw.ee.proj_zesp.skp.utils.toBitmap
 import java.util.*
 
 
-internal data class Result_Yolo_v8(
+data class Result_Yolo_v8(
     var number_of_boxes: Int = 0,
     var boxes: List<YoloBox> = emptyList(),
     var currentFPS: Double = 0.0,
