@@ -4,14 +4,14 @@ import android.graphics.drawable.Drawable
 import java.util.*
 import kotlin.collections.ArrayList
 
-class FailedRequest(isProblematic: Boolean, photo: Drawable, currentLocation: String, probability: String, registerPlate: String, currentDate: String) {
+class FailedRequest(isProblematic: Boolean, photo: ByteArray, currentLocation: String, probability: String, registerPlate: String, currentDate: String) {
 
     val isProblematic: Boolean = isProblematic
         get() {
             return field
         }
 
-    val photo: Drawable = photo
+    val photo: ByteArray = photo
         get() {
             return field
         }
@@ -44,6 +44,11 @@ class FailedRequest(isProblematic: Boolean, photo: Drawable, currentLocation: St
         private var failedRequests: ArrayList<FailedRequest> = ArrayList()
         var timer : Timer = Timer()
 
+        // for development purpose only
+        fun printFailedRequests() {
+            println(failedRequests)
+        }
+
         object timerTask : TimerTask() {
             override fun run() {
                 if(failedRequests.size > 0) {
@@ -66,6 +71,7 @@ class FailedRequest(isProblematic: Boolean, photo: Drawable, currentLocation: St
             }
         }
 
+//        Use this method when detection is started
         fun startSendingFailedRequestsAtIntervals(intervalInMiliseconds: Long) {
             if(timer == null) {
                 timer = Timer()

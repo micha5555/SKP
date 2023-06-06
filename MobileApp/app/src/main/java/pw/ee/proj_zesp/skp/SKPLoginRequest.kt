@@ -17,7 +17,6 @@ class SKPLoginRequest {
 
     companion object{
         fun loginRequest(login: String, password: String): Boolean{
-//          TODO: różny adres ip w zależności czy emulator czy fizyczne urządzenie
             var url = "https://172.25.0.1:5000/login"
             if(CommonUtils.isEmulator()) {
                 url = "https://10.0.2.2:5000/login"
