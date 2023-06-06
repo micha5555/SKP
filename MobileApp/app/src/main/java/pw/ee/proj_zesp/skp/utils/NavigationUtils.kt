@@ -83,8 +83,22 @@ class NavigationUtils {
                 }
 
                 if (bestLocation != null) {
-                    val latitude = bestLocation.latitude
-                    val longitude = bestLocation.longitude
+                    var latitude = bestLocation.latitude.toString()
+                    if(latitude.length > 9) {
+                        latitude = latitude.substring(0, 9)
+                    } else if(latitude.length < 9) {
+                        for(i in 0..9-latitude.length) {
+                            latitude += "0"
+                        }
+                    }
+                    var longitude = bestLocation.longitude.toString()
+                    if(longitude.length > 9) {
+                        longitude = longitude.substring(0, 9)
+                    } else if(longitude.length < 9) {
+                        for(i in 0..9-longitude.length) {
+                            longitude += "0"
+                        }
+                    }
                     return "$latitude,$longitude"
                 }
             }

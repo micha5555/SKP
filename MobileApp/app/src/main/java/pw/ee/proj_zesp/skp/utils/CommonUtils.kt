@@ -1,6 +1,10 @@
 package pw.ee.proj_zesp.skp.utils
 
+import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.os.Build
+import java.io.ByteArrayOutputStream
 
 class CommonUtils {
 
@@ -23,6 +27,14 @@ class CommonUtils {
                     || Build.PRODUCT.contains("vbox86p")
                     || Build.PRODUCT.contains("emulator")
                     || Build.PRODUCT.contains("simulator");
+        }
+
+        fun convertDrawableToByteArray(drawable: Drawable): ByteArray {
+            val bitmap = (drawable as BitmapDrawable).bitmap
+            val stream = ByteArrayOutputStream()
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
+            val byteArray = stream.toByteArray()
+            return byteArray
         }
     }
 }

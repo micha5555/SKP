@@ -16,14 +16,14 @@ import java.util.*
 import javax.net.ssl.*
 
 val AUTHORIZATION_HEADER = "Authorization"
-class SKPRequest(isProblematic: Boolean, photo: Drawable, currentLocation: String, probability: String, registerPlate: String, currentDate: String) {
+class SKPRequest(isProblematic: Boolean, photo: ByteArray, currentLocation: String, probability: String, registerPlate: String, currentDate: String) {
 
     val isProblematic: Boolean = isProblematic
         get() {
             return field
         }
 
-    val photo: Drawable = photo
+    val photo: ByteArray = photo
         get() {
             return field
         }
@@ -61,14 +61,14 @@ class SKPRequest(isProblematic: Boolean, photo: Drawable, currentLocation: Strin
                 url = "https://10.0.2.2:5000/notPaidCase/add"
             }
         }
-
-        val sdf = SimpleDateFormat("yyyy-dd-MM hh:mm:ss")
-        if(currentDate == null) {
+        println("url")
+        println(url)
+        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
+        if(currentDate == null || currentDate.isEmpty()) {
             currentDate = sdf.format(Date())
         }
 
-        val photoAsByteArray: ByteArray = convertDrawableToByteArray(photo)
-        val requestBody = createMultipartRequestBody(currentDate, currentLocation, registerPlate, probability, photoAsByteArray)
+        val requestBody = createMultipartRequestBody(currentDate, currentLocation, registerPlate, probability, photo)
         val client = createOkHttpClient()
 
         val request = Request.Builder()
@@ -78,14 +78,18 @@ class SKPRequest(isProblematic: Boolean, photo: Drawable, currentLocation: Strin
             .build()
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-//                throw Exception("Request failed")
+                println("Request failed")
                 e.printStackTrace()
             }
 
             override fun onResponse(call: Call, response: Response) {
                 println(response)
                 println(response.message)
-
+                println(response.code)
+                if(response.code < 200 || response.code >= 300) {
+                    FailedRequest.addFailedRequest(FailedRequest(isProblematic, photo, currentLocation, probability, registerPlate, currentDate))
+                    FailedRequest.printFailedRequests()
+                }
                 Log.i("reesponse giiiit", "giiit")
             }
         })
@@ -131,11 +135,4 @@ class SKPRequest(isProblematic: Boolean, photo: Drawable, currentLocation: Strin
         )
     }
 
-    private fun convertDrawableToByteArray(drawable: Drawable): ByteArray {
-        val bitmap = (drawable as BitmapDrawable).bitmap
-        val stream = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
-        val byteArray = stream.toByteArray()
-        return byteArray
-    }
 }
