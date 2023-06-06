@@ -21,10 +21,13 @@ class Report(db.Model):
         self.user_id = user_id
         
     def json(self):
+        createion = self.creation_date.strftime('%Y-%m-%d %H:%M:%S')
+        start = self.start_period.strftime('%Y-%m-%d %H:%M:%S')
+        end = self.end_period.strftime('%Y-%m-%d %H:%M:%S')
         return {
 			'id': self.id,
-			'creation_date': self.creation_date,
-            'start_period': self.start_period,
-            'end_period': self.end_period,
+			'creation_date': createion,
+            'start_period': start,
+            'end_period': end,
 			'filename': self.filename,
 		}

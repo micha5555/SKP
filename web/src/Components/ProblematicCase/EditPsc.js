@@ -97,7 +97,7 @@ const EditPsc = () => {
 
     return (
         <>
-        <h1 className="pageTitle container">Edytuj użytkownika</h1>
+        <h1 className="pageTitle container">Edytuj przypadek</h1>
         <div className="w-100 line"></div>
         <Container className="mt-4 w-50">
 
@@ -139,7 +139,7 @@ const EditPsc = () => {
                 />  
             </InputGroup>
             
-            <InputGroup className="mb-3">
+            {/* <InputGroup className="mb-3">
                 <InputGroup.Text id="Lokalizajca">Lokalizajca</InputGroup.Text>
                 <Form.Control
                     placeholder="Lokalizajca"
@@ -149,9 +149,9 @@ const EditPsc = () => {
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
                 />  
-            </InputGroup>
+            </InputGroup> */}
 
-            <InputGroup className="mb-3">
+            {/* <InputGroup className="mb-3">
                 <InputGroup.Text id="Prawdopodobieństwo">Prawdopodobieństwo</InputGroup.Text>
                 <Form.Control
                     placeholder="Prawdopodobieństwo"
@@ -161,7 +161,7 @@ const EditPsc = () => {
                     value={probability}
                     onChange={(e) => setProbability(e.target.value)}
                 />  
-            </InputGroup>
+            </InputGroup> */}
 
             {
                 location != null 
