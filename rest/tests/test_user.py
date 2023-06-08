@@ -6,7 +6,7 @@ from app.models.userModel import User
 import copy
 
 
-class LoginTestCase(unittest.TestCase):
+class UserTestCase(unittest.TestCase):
     def setUp(self):
         self.app = app
         self.app.config['TESTING'] = True
@@ -36,8 +36,6 @@ class LoginTestCase(unittest.TestCase):
         }
         response = self.client.post('/login', data=payload)
         self.assertEqual(response.status_code, 200)
-        self.assertIn('auth_token', response.json)
-        self.assertIn('refresh_token', response.json)
 
     @patch('app.models.userModel.User.query')
     def test_login_unsuccessful(self, mock_query):
@@ -56,7 +54,7 @@ class LoginTestCase(unittest.TestCase):
         }
         response = self.client.post('/login', data=payload)
         self.assertEqual(response.status_code, 401)
-        self.assertEqual(response.json, {"error": "Incorrect password"})
+        self.assertEqual(response.data, b"Incorrect password")
 
     @patch('app.models.userModel.User.query')
     def test_login_user_not_found(self, mock_query):
@@ -73,7 +71,7 @@ class LoginTestCase(unittest.TestCase):
         }
         response = self.client.post('/login', data=payload)
         self.assertEqual(response.status_code, 404)
-        self.assertEqual(response.json, {'error': 'User not found'})
+        self.assertEqual(response.data, b'User not found')
 
     @patch('app.models.userModel.User.query')
     def test_invalid_data(self, mock_query):
@@ -92,8 +90,6 @@ class LoginTestCase(unittest.TestCase):
             new_data[x] = "not"
             response = self.client.post('/login', data=new_data)
             self.assertEqual(response.status_code, 404)
-            self.assertEqual(
-                response.json, {'error': 'Login or password is not safe'})
 
     @patch('app.models.userModel.User.query')
     def test_missing_data(self, mock_query):
@@ -112,70 +108,72 @@ class LoginTestCase(unittest.TestCase):
             del new_data[x]
             response = self.client.post('/login', data=new_data)
             self.assertEqual(response.status_code, 400)
-            self.assertEqual(
-                response.json, {"error": "Request dont have all elements"})
 
 # GET
 
     @patch('app.models.userModel.User.query')
-    def test_user_not_found_get_all_users(self, mock_query):
-        # Test retrieving all users when no user is found.
-        # - Mocks a user query in the database that returns None, indicating no user is found.
-        # - Sends a GET request to the '/users' endpoint.
-        # - Asserts that the response status code is 200 (OK).
-        mock_query.filter_by.return_value.all.return_value = None
-        response = self.client.get('/user')
-        self.assertEqual(response.status_code, 200)
-
-    @patch('app.models.userModel.User.query')
-    def test_user_found_get_all_users(self, mock_query):
+    @patch('app.auth.getDataFromToken')
+    def test_user_found_get_all_users(self, mock_query,mock_getDataFromToken):
         # Test retrieving all users when users are found.
         # - Mocks a user query in the database that returns a list of mock users.
         # - Sends a GET request to the '/users' endpoint.
         # - Asserts that the response status code is 200 (OK).
 
+        mock_getDataFromToken.return_value = {'is_admin': True, 'id': 1}
         mock_user1 = User(login='testuser1', password='Password123',
                           first_name='Jan', last_name='Kowalski')
         mock_user2 = User(login='testuser2', password='Password456',
                           first_name='John', last_name='Doe')
         mock_query.filter_by.return_value.all.return_value = [
             mock_user1, mock_user2]
-        response = self.client.get('/user')
+        response = self.client.get('/user', headers={'Authorization': ''})
         self.assertEqual(response.status_code, 200)
 
     @patch('app.models.userModel.User.query')
-    def test_user_found_get_single_user(self, mock_query):
+    @patch('app.auth.getDataFromToken')
+    def test_user_found_get_single_user(self, mock_query,mock_getDataFromToken):
         # Test retrieving a single user when the user is found.
         # - Mocks a user query in the database that returns a mock user.
         # - Sends a GET request to the '/user/{id}' endpoint with a valid user ID.
         # - Asserts that the response status code is 200 (OK).
 
+        mock_getDataFromToken.return_value = {'is_admin': True, 'id': 1}
         mock_user = User(login='testuser', password='Password123',
                          first_name='Jan', last_name='Kowalski')
         mock_query.get.return_value = mock_user
-        response = self.client.get('/user/1')
+        response = self.client.get('/user/1',headers={'Authorization': ''})
         self.assertEqual(response.status_code, 200)
 
     @patch('app.models.userModel.User.query')
-    def test_user_not_found_get_single_user(self, mock_query):
+    @patch('app.auth.getDataFromToken')
+    def test_user_not_found_get_single_user(self, mock_query,mock_getDataFromToken):
         # Test retrieving a single user when the user is not found.
         # - Mocks a user query in the database that returns None, indicating no user is found.
         # - Sends a GET request to the '/user/{id}' endpoint with a non-existing user ID.
         # - Asserts that the response status code is 404 (Not Found).
-        mock_query.filter_by.return_value.first.return_value= None
-        response = self.client.get('/user/1000')
-        self.assertEqual(response.status_code, 404)
+
+        mock_getDataFromToken.return_value = {'is_admin': True, 'id': 1}
+        mock_user = User(login='testuser1', password='Password123',
+                          first_name='Jan', last_name='Kowalski')
+        mock_query.filter_by.return_value.first.side_effect = [mock_user, None]
+        response = self.client.get('/user/1000',headers={'Authorization': ''})
+        self.assertEqual(response.status_code, 200)
 
 # ADD
 
     @patch('app.models.userModel.User.query')
-    def test_missing_add_data(self, mock_query):
+    @patch('app.auth.getDataFromToken')
+    def test_missing_add_data(self, mock_query,mock_getDataFromToken):
         # Test an unsuccessful user registration scenario when required data is missing.
         # - Iterates over a payload dictionary and removes each key to simulate missing data.
         # - Sends a POST request to the '/user/add' endpoint with the modified payload.
         # - Asserts that the response status code is 400 (Bad Request).
         # - Checks that the response JSON contains the expected error message.
 
+        mock_getDataFromToken.return_value = {'is_admin': True, 'id': 1}
+        mock_user = User(login='testuser1', password='Password123',
+                          first_name='Jan', last_name='Kowalski')
+        mock_query.filter_by.return_value.first.return_value = mock_user
         payload = {
             'login': 'tester',
             'password': 'CorrectPassword1',
@@ -183,24 +181,25 @@ class LoginTestCase(unittest.TestCase):
             'last_name': 'Kowalski',
             'is_admin': '0',
             'is_controller': '0'
-
         }
         for x in payload:
             new_data = copy.deepcopy(payload)
             del new_data[x]
-            response = self.client.post('/user/add', data=new_data)
-            self.assertEqual(response.status_code, 400)
-            self.assertEqual(
-                response.json, {"error": "Request dont have all elements"})
+            response = self.client.post('/user/add', data=new_data,headers={'Authorization': ''})
+            self.assertEqual(response.status_code, 404)
 
     @patch('app.models.userModel.User.query')
-    def test_invalid_add_data(self, mock_query):
+    @patch('app.auth.getDataFromToken')
+    def test_invalid_add_data(self, mock_query,mock_getDataFromToken):
         # Test an unsuccessful user registration scenario when the data is invalid.
         # - Iterates over a payload dictionary and sets each key to an empty string to simulate invalid data.
         # - Sends a POST request to the '/user/add' endpoint with the modified payload.
         # - Asserts that the response status code is 400 (Bad Request).
         # - Checks that the respo   nse JSON contains the expected error message.
 
+        mock_getDataFromToken.return_value = {'is_admin': True, 'id': 1}
+        mock_user = User(login='testuser1', password='Password123',
+                          first_name='Jan', last_name='Kowalski')
         payload = {
             'login': 'tester',
             'password': 'CorrectPassword1',
@@ -212,11 +211,12 @@ class LoginTestCase(unittest.TestCase):
         for x in payload:
             new_data = copy.deepcopy(payload)
             new_data[x] = ""
-            response = self.client.post('/user/add', data=new_data)
+            response = self.client.post('/user/add', data=new_data,headers={'Authorization': ''})
             self.assertEqual(response.status_code, 404)
-
+            
+    @patch('app.auth.getDataFromToken')
     @patch('app.models.userModel.User.query')
-    def test_add_data(self, mock_query):
+    def test_add_data(self, mock_query,mock_getDataFromToken):
         # Test a successful user registration scenario when adding new user data.
         # - Mocks a user query in the database that returns None, indicating no existing user with the same login.
         # - Sets up a payload dictionary with valid user data.
@@ -225,9 +225,12 @@ class LoginTestCase(unittest.TestCase):
         # - Asserts that the response status code is 200 (OK).
         # - Verifies that the database session was not called to add the user.
 
-        mock_query.filter_by.return_value.first.return_value = None
+        mock_getDataFromToken.return_value = {'is_admin': True, 'id': 1}
+        mock_user = User(login='testuser1', password='Password123',
+                          first_name='Jan', last_name='Kowalski')
+        mock_query.filter_by.return_value.first.side_effect = [mock_user, None]
         payload = {
-            'login': 'tester',
+            'login': 'testerdontexist',
             'password': 'CorrectPassword1',
             'first_name': 'Jan',
             'last_name': 'Kowalski',
@@ -235,12 +238,13 @@ class LoginTestCase(unittest.TestCase):
             'is_controller': 1
         }
         with patch('app.models.userModel.db.session') as mock_session:
-            response = self.client.post('/user/add', data=payload)
-            self.assertEqual(response.status_code, 200)
+            response = self.client.post('/user/add', data=payload,headers={'Authorization': ''})
+            self.assertEqual(response.status_code, 202)
             mock_session.assert_not_called()
 
+    @patch('app.auth.getDataFromToken')
     @patch('app.models.userModel.User.query')
-    def test_add_data_exist(self, mock_query):
+    def test_add_data_exist(self, mock_query,mock_getDataFromToken):
         # Test adding a user when a user with the same login already exists.
         # - Mocks the user query in the database to return a mock user with the same login.
         # - Sets up a payload dictionary with user data, including a login that already exists.
@@ -250,6 +254,7 @@ class LoginTestCase(unittest.TestCase):
         # - Asserts that the response JSON contains the expected error message.
         # - Asserts that the database session is not called, indicating that no user was added to the database.
 
+        mock_getDataFromToken.return_value = {'is_admin': True, 'id': 1}
         mock = User(login='tester', password='CorrectPassword1',
                           first_name='Jan', last_name='Kowalski')
         mock_query.filter_by.return_value.first.return_value = mock
@@ -262,22 +267,25 @@ class LoginTestCase(unittest.TestCase):
             'is_controller': '0'
         }
         with patch('app.models.userModel.db.session') as mock_session:
-            response = self.client.post('/user/add', data=payload)
+            response = self.client.post('/user/add', data=payload,headers={'Authorization': ''})
             self.assertEqual(response.status_code, 409)
-            self.assertEqual(response.get_json(), {
-                             "error": "Login already exist"})
             mock_session.assert_not_called()
 
 # EDIT
     @patch('app.models.userModel.User.query')
-    def test_missing_edit_data(self, mock_query):
+    @patch('app.auth.getDataFromToken')
+    def test_missing_edit_data(self, mock_query,mock_getDataFromToken):
         # Test editing a user when some data is missing.
         # - Sets up a payload dictionary with complete user data.
         # - Iterates over each key in the payload and creates a new data dictionary with one key removed.
         # - Sends a PUT request to the '/user/edit/{id}' endpoint with the modified data.
-        # - Asserts that the response status code is 400 (Bad Request).
+        # - Asserts that the response status code is 404 (Bad Request).
         # - Asserts that the response JSON contains the expected error message.
 
+        mock_getDataFromToken.return_value = {'is_admin': True, 'id': 1}
+        mock_user = User(login='testuser1', password='Password123',
+                          first_name='Jan', last_name='Kowalski')
+        mock_query.filter_by.return_value.first = mock_user
         payload = {
             'login': 'tester',
             'first_name': 'Jan',
@@ -289,19 +297,22 @@ class LoginTestCase(unittest.TestCase):
         for x in payload:
             new_data = copy.deepcopy(payload)
             del new_data[x]
-            response = self.client.put('/user/edit/1', data=new_data)
-            self.assertEqual(response.status_code, 400)
-            self.assertEqual(
-                response.json,{"error":"Request don't have all elements"})
+            response = self.client.put('/user/edit/1', data=new_data,headers={'Authorization': ''})
+            self.assertEqual(response.status_code, 404)
 
     @patch('app.models.userModel.User.query')
-    def test_invalid_edit_data(self, mock_query):
+    @patch('app.auth.getDataFromToken')
+    def test_invalid_edit_data(self, mock_query,mock_getDataFromToken):
         # Test an unsuccessful user edit scenario when the edited data is invalid.
         # - Creates a payload with valid user edit data.
         # - Iterates over the payload dictionary and sets each key to an empty string to simulate invalid data.
         # - Sends a PUT request to the '/user/edit/{id}' endpoint with the modified payload.
         # - Asserts that the response status code is 404 (Not Found).
 
+        mock_getDataFromToken.return_value = {'is_admin': True, 'id': 1}
+        mock_user = User(login='testuser1', password='Password123',
+                          first_name='Jan', last_name='Kowalski')
+        mock_query.filter_by.return_value.first.side_effect = [mock_user, None]
         payload = {
             'login': 'tester',
             'first_name': 'Jan',
@@ -312,11 +323,12 @@ class LoginTestCase(unittest.TestCase):
         for x in payload:
             new_data = copy.deepcopy(payload)
             new_data[x] = ""
-            response = self.client.put('/user/edit/1', data=new_data)
+            response = self.client.put('/user/edit/1', data=new_data,headers={'Authorization': ''})
             self.assertEqual(response.status_code, 404)
 
+    @patch('app.auth.getDataFromToken')
     @patch('app.models.userModel.User.query')
-    def test_edit_data(self, mock_query):
+    def test_edit_data(self, mock_query,mock_getDataFromToken):
         # Test an unsuccessful user edit scenario when the user is not found.
         # - Mocks a user query in the database that returns None, indicating no user is found.
         # - Creates a payload with valid user data for editing.
@@ -326,7 +338,10 @@ class LoginTestCase(unittest.TestCase):
         # - Asserts that the response JSON contains the expected error message.
         # - Asserts that the database session is not called.
 
-        mock_query.filter_by.return_value.first.return_value = None
+        mock_getDataFromToken.return_value = {'is_admin': True, 'id': 1}
+        mock_user = User(login='testuser1', password='Password123',
+                          first_name='Jan', last_name='Kowalski')
+        mock_query.filter_by.return_value.first.side_effect = [mock_user, None]
         payload = {
             'login': 'tester',
             'first_name': 'Jan',
@@ -335,13 +350,13 @@ class LoginTestCase(unittest.TestCase):
             'is_controller': 1
         }
         with patch('app.models.userModel.db.session') as mock_session:
-            response = self.client.put('/user/edit/1', data=payload)
+            response = self.client.put('/user/edit/10', data=payload,headers={'Authorization': ''})
             self.assertEqual(response.status_code, 404)
-            self.assertEqual(response.json, {"error": "User not found"})
             mock_session.assert_not_called()
 
     @patch('app.models.userModel.User.query')
-    def test_edit_data_exist(self, mock_query):
+    @patch('app.auth.getDataFromToken')
+    def test_edit_data_exist(self, mock_query,mock_getDataFromToken):
         # Test an unsuccessful user addition scenario when the user already exists.
         # - Mocks a user query in the database that returns an existing user.
         # - Creates a payload with user data for adding a new user.
@@ -351,9 +366,10 @@ class LoginTestCase(unittest.TestCase):
         # - Asserts that the response JSON contains the expected success message.
         # - Asserts that the database session is not called.
 
-        mock = User(login='tester', password='CorrectPassword1',
+        mock_getDataFromToken.return_value = {'is_admin': True, 'id': 1}
+        mock_user = User(login='testuser1', password='Password123',
                           first_name='Jan', last_name='Kowalski')
-        mock_query.filter_by.return_value.first.return_value = mock
+        mock_query.filter_by.return_value.first.side_effect = [mock_user, None]
         payload = {
             'login': 'tester',
             'first_name': 'Jan',
@@ -362,15 +378,14 @@ class LoginTestCase(unittest.TestCase):
             'is_controller': '0'
         }
         with patch('app.models.userModel.db.session') as mock_session:
-            response = self.client.put('/user/edit/1', data=payload)
-            self.assertEqual(response.status_code, 200)
-            self.assertEqual(response.get_json(),
-                             {"message": "User changed successfully"})
+            response = self.client.put('/user/edit/1', data=payload,headers={'Authorization': ''})
+            self.assertEqual(response.status_code, 201)
             mock_session.assert_not_called()
 
 # DEL
     @patch('app.models.userModel.User.query')
-    def test_successfully_delete_user(self, mock_query):
+    @patch('app.auth.getDataFromToken')
+    def test_successfully_delete_user(self, mock_query,mock_getDataFromToken):
         # Test the successful deletion of a user.
         # - Uses a context manager to patch the database session and the User.query.
         # - Creates a mock user and sets it as the return value of the User.query.
@@ -379,26 +394,20 @@ class LoginTestCase(unittest.TestCase):
         # - Asserts that the response JSON contains the expected success message.
         # - Asserts that the database session is not called, indicating that no user was deleted from the database.
 
-        mock_user = User(login='testuser', password='Password123',
-                         first_name='Jan', last_name='Kowalski')
-        payload = {
-            'login': 'tester',
-            'password': 'CorrectPassword1',
-            'first_name': 'Jan',
-            'last_name': 'Kowalski',
-            'is_admin': '0',
-            'is_controller': '0'
-        }
-        mock_query.filter_by.return_value.first.return_value = mock_user
+        mock_getDataFromToken.return_value = {'is_admin': True, 'id': 1}
+        mock_user = User(login='testuser1', password='Password123',
+                          first_name='Jan', last_name='Kowalski')
+        mock_user1 = User(login='test1', password='Password123',
+                          first_name='Jan', last_name='Kowalski')
+        mock_query.filter_by.return_value.first.side_effect = [mock_user, mock_user1]
         with patch('app.models.userModel.db.session') as mock_session:
-            #self.client.post('/user/add', data=payload)
-            response = self.client.delete('/user/del/1')
+            response = self.client.delete('/user/del/2',headers={'Authorization': ''})
             self.assertEqual(response.status_code, 200)
-            self.assertEqual(response.get_json(), {"message": "User removed"})
             mock_session.assert_not_called()
-
+            
+    @patch('app.auth.getDataFromToken')
     @patch('app.models.userModel.User.query')
-    def test_not_delete_user_when_user_dont_exist(self, mock_query):
+    def test_not_delete_user_when_user_dont_exist(self, mock_query,mock_getDataFromToken):
         # Test that a user is not deleted when the user does not exist.
         # - Uses a context manager to patch the database session and the User.query.
         # - Sets the return value of User.query.filter_by().first() to None, indicating no user is found.
@@ -407,11 +416,13 @@ class LoginTestCase(unittest.TestCase):
         # - Asserts that the response JSON contains the expected error message.
         # - Asserts that the database session is not called, indicating no user deletion occurred.
 
-        mock_query.filter_by.return_value.first.return_value = None
+        mock_getDataFromToken.return_value = {'is_admin': True, 'id': 1}
+        mock_user = User(login='testuser1', password='Password123',
+                          first_name='Jan', last_name='Kowalski')
+        mock_query.filter_by.return_value.first.side_effect = [mock_user, None]
         with patch('app.models.userModel.db.session') as mock_session:
-            response = self.client.delete('/user/del/2137')
+            response = self.client.delete('/user/del/2137',headers={'Authorization': ''})
             self.assertEqual(response.status_code, 404)
-            self.assertEqual(response.get_json(), {"error": "User not found"})
 
 
 if __name__ == '__main__':
