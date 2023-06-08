@@ -62,10 +62,10 @@ def download_csv(curr_user, id):
 def create(curr_user):
     data = getRequestData(request)
 
-    if not allElementsInList(Report.attr, data):
+    if not allElementsInList(data,Report.attr):
         return "Zapytanie nie zawiera wszystkich wymaganych wartości", 400
 
-    if not validateDate(data['start_period']) and not validateDate(data['end_period']):
+    if not validateDate(data['start_period']) or not validateDate(data['end_period']):
         return "Podane formaty dat nie są poprawne", 404
     
     start_period = datetime.strptime(data['start_period'], '%Y-%m-%dT%H:%M:%SZ')

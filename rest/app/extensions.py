@@ -50,21 +50,21 @@ def allElementsInList(elements, lst):
 
 def checkIfPaid(registration, detection_time):
     # here will be created element which will check if element was paid or not 
-    # r = random.random()
-    # print(r)
-    # if r > 0.5:
-    #     return False
-    # return True
-    payload = {
-        'registration_plate': registration,
-        'datetime_to_check': detection_time
-    }
-    res = requests.post("http://localhost:5050/car/check", json=payload)
-    res = res.json()
-    if('is_within' in res):
-        if (res['is_within']):
-            return True
-    return False
+    r = random.random()
+    #print(r)
+    if r > 0.5:
+        return False
+    return True
+    # payload = {
+        # 'registration_plate': registration,
+        # 'datetime_to_check': detection_time
+    # }
+    # res = requests.post("http://localhost:5050/car/check", json=payload)
+    # res = res.json()
+    # if('is_within' in res):
+        # if (res['is_within']):
+            # return True
+    # return False
 
 def create_image(base64encoded):
     return base64.b64decode(base64encoded)

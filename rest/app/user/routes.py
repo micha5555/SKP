@@ -97,7 +97,6 @@ def create(curr_user):
 @tokenAdminRequire
 def edit(curr_user, id):
     data = getRequestData(request)
-    print(data)
     if not validateId(id):
         return "Podane id nie jest wartością numeryczną", 404
     if not allElementsInList(data, User.attr_edit):
