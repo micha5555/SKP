@@ -8,6 +8,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.Rect
 import android.graphics.RectF
 import android.os.Build
 import android.os.Bundle
@@ -26,15 +27,31 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.text.TextRecognition
+import com.google.mlkit.vision.text.latin.TextRecognizerOptions
+import com.googlecode.tesseract.android.TessBaseAPI
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.opencv.android.Utils
+import org.opencv.core.Core
+import org.opencv.core.CvType
+import org.opencv.core.CvType.CV_32F
+import org.opencv.core.Mat
+import org.opencv.core.MatOfFloat
+import org.opencv.core.MatOfPoint
+import org.opencv.core.Scalar
+import org.opencv.imgproc.Imgproc
 import pw.ee.proj_zesp.skp.detection.ORTAnalyzer
 import pw.ee.proj_zesp.skp.detection.Result_Yolo_v8
+import pw.ee.proj_zesp.skp.ocr.TesseractUtil
+import pw.ee.proj_zesp.skp.utils.cropBoundingBox
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+
 
 class DetectionActivity : AppCompatActivity(){
     private val backgroundExecutor: ExecutorService by lazy { Executors.newSingleThreadExecutor() }
@@ -49,6 +66,11 @@ class DetectionActivity : AppCompatActivity(){
 
     private var newBackgroundView : ImageView? = null
     private var boxView : ImageView? = null
+
+    private lateinit var tess : TessBaseAPI
+
+    val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,6 +89,8 @@ class DetectionActivity : AppCompatActivity(){
         textBox = findViewById<TextView>(R.id.textView5)
         newBackgroundView = findViewById(R.id.newBackgroundView)
         boxView = findViewById(R.id.boxView)
+
+        tess = TesseractUtil.GetInitializedTesseractInstance(this);
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -186,6 +210,46 @@ class DetectionActivity : AppCompatActivity(){
 
                 val rect = RectF(left, top, right, bottom)
                 listRect.add(rect)
+
+                val cropped = cropBoundingBox(result.bitmap_origin, box);
+                var matSource = Mat()
+                Utils.bitmapToMat(cropped, matSource)
+
+                Imgproc.cvtColor(matSource,matSource,Imgproc.COLOR_RGB2GRAY)
+                var matDest = Mat()
+
+                matSource.convertTo(matDest, CV_32F, 1.0 / 255.0)
+
+                // Zastosowanie zmiany gamma
+                val gamma = 3.0 // Wartość gamma
+                Core.pow(matDest, gamma, matDest)
+
+                // Konwersja z powrotem na zakres 0-255
+                Core.multiply(matDest, Scalar(255.0), matDest)
+                matDest.convertTo(matDest, CvType.CV_8U)
+
+//
+                val bmp: Bitmap = Bitmap.createBitmap(cropped.width,cropped.height,Bitmap.Config.ARGB_8888)
+                Utils.matToBitmap(matDest, bmp);
+
+                newBackgroundView?.setImageBitmap(bmp)
+                val imageToMlKit = InputImage.fromBitmap(bmp,0)
+                val resultMlKit = recognizer.process(imageToMlKit).addOnSuccessListener { visionText ->
+                    if(visionText.textBlocks.size > 0 && visionText.textBlocks[0].lines.size > 0)
+                    {
+                        Log.println(Log.INFO, "CAR PLATE", "OCRed Text: " + visionText.textBlocks[0].lines[0].text + ", confidence: " + visionText.textBlocks[0].lines[0].confidence)
+//                    var line = visionText.textBlocks[0].lines[0]
+//                    for (group in line.elements)
+//                    {
+//                        for (character in group.symbols)
+//                        {
+//                            Log.println(Log.INFO, "PLATE Character", "For plate: " + line.text + ", character: " + character.text + ", confidence: " + character.confidence)
+//                        }
+//                    }
+                    }
+                }
+                matSource.release()
+                matDest.release()
             }
 
             Log.println(Log.INFO,"INFO", "Number of boxes: " + result.number_of_boxes)
