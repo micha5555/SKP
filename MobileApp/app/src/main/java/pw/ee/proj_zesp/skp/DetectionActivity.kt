@@ -47,7 +47,6 @@ import org.opencv.core.Scalar
 import org.opencv.imgproc.Imgproc
 import pw.ee.proj_zesp.skp.detection.ORTAnalyzer
 import pw.ee.proj_zesp.skp.detection.Result_Yolo_v8
-import pw.ee.proj_zesp.skp.ocr.TesseractUtil
 import pw.ee.proj_zesp.skp.utils.cropBoundingBox
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -90,7 +89,6 @@ class DetectionActivity : AppCompatActivity(){
         newBackgroundView = findViewById(R.id.newBackgroundView)
         boxView = findViewById(R.id.boxView)
 
-        tess = TesseractUtil.GetInitializedTesseractInstance(this);
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
