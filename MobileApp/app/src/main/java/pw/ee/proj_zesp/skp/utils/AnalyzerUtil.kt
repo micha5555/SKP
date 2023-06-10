@@ -1,5 +1,6 @@
 package pw.ee.proj_zesp.skp.utils
 
+import com.google.mlkit.vision.text.Text
 import pw.ee.proj_zesp.skp.detection.YoloBox
 
 fun addBoxToListIfNewOrBetter(listOfBoxes: MutableList<YoloBox>, newBox: YoloBox)
@@ -61,4 +62,45 @@ fun getBoxesInOrder(box1: YoloBox, box2: YoloBox) : Pair<YoloBox, YoloBox>
         boxB = box2
     }
     return Pair(boxA, boxB)
+}
+
+fun parseOCRResults(resultText : Text) : Pair<String, Double>?
+{
+    var registerPlate: String = ""
+    var cumulatedConfidence: Double = 0.0
+    var characterCount: Int = 0
+    val regex = Regex("[^A-Za-z0-9]")
+    val regexForSymbols = Regex("[A-Za-z0-9]+")
+    for(block in resultText.textBlocks)
+    {
+        for(line in block.lines)
+        {
+            val parsedLine = line.text.replace(regex, "")
+            if(parsedLine.length < 4 || parsedLine.length > 7)
+            {
+                continue
+            }
+            else
+            {
+                val elements = line.elements
+                for(element in elements)
+                {
+                    for(symbol in element.symbols)
+                    {
+                        val symbolText = symbol.text
+                        val matches = symbolText.matches(regexForSymbols)
+                        if(matches)
+                        {
+                            cumulatedConfidence += symbol.confidence
+                            characterCount++
+                            registerPlate += symbol.text
+                        }
+                    }
+                }
+                cumulatedConfidence /= characterCount
+                return Pair(registerPlate, cumulatedConfidence)
+            }
+        }
+    }
+    return null
 }
