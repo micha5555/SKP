@@ -234,7 +234,7 @@ class DetectionActivity : AppCompatActivity(){
                 val bmp: Bitmap = Bitmap.createBitmap(cropped.width,cropped.height,Bitmap.Config.ARGB_8888)
                 Utils.matToBitmap(matDest, bmp);
 
-                newBackgroundView?.setImageBitmap(bmp)
+//                newBackgroundView?.setImageBitmap(bmp)
                 val imageToMlKit = InputImage.fromBitmap(bmp,0)
                 val resultMlKit = recognizer.process(imageToMlKit).addOnSuccessListener { visionText ->
                     if(visionText.textBlocks.size > 0 && visionText.textBlocks[0].lines.size > 0 && parseOCRResults(visionText) != null)

@@ -44,7 +44,7 @@ dependencies {
     implementation "com.google.android.gms:play-services-location:19.0.1"
 
     //OpenCV
-    implementation 'com.quickbirdstudios:opencv:4.5.3.0'
+    implementation 'com.quickbirdstudios:opencv-contrib:4.5.3.0'
     //ONNX
     implementation 'com.microsoft.onnxruntime:onnxruntime-android:latest.release'
 

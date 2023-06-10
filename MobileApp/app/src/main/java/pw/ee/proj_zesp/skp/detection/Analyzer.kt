@@ -11,13 +11,24 @@ import android.util.Log
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import org.opencv.android.Utils
+import org.opencv.core.Algorithm
+import org.opencv.tracking.legacy_MultiTracker
 import org.opencv.core.Mat
 import org.opencv.core.MatOfByte
 import org.opencv.core.MatOfFloat
 import org.opencv.core.MatOfPoint2f
 import org.opencv.core.Point
+import org.opencv.core.Rect
+import org.opencv.core.Rect2d
+import org.opencv.tracking.TrackerKCF
+import org.opencv.tracking.legacy_TrackerKCF
+import org.opencv.video.Tracker
+import org.opencv.tracking.legacy_TrackerMedianFlow
 import org.opencv.video.Video
+import pw.ee.proj_zesp.skp.track.CustomMultiTracker
+//import org.opencv.core.Algorithm
 import pw.ee.proj_zesp.skp.utils.addBoxToListIfNewOrBetter
+import pw.ee.proj_zesp.skp.utils.isOverlaping
 import pw.ee.proj_zesp.skp.utils.preProcess
 import pw.ee.proj_zesp.skp.utils.rotate
 import pw.ee.proj_zesp.skp.utils.toBitmap
@@ -42,6 +53,9 @@ internal class ORTAnalyzer(
     private var imageProxy: ImageProxy? = null
     private var originImage : Bitmap? = null
 
+//    private var tracker = TrackerDaSiamRPN.create()
+    private var multiTracker: CustomMultiTracker = CustomMultiTracker()
+
     private var frameCount: Int = 0
     private var previousFrameCount: Int = 0
     private var currentFPS = 0.0
@@ -53,7 +67,7 @@ internal class ORTAnalyzer(
     private var currentMatImage: Mat? = null;
 
     // Patameters
-    private val currentThreshold = 0.5
+    private val currentThreshold = 0.6
     private val desiredFps = 1000
     private var sizeOfImage : Long = 320
 
@@ -89,17 +103,32 @@ internal class ORTAnalyzer(
     override fun analyze(image: ImageProxy) {
         frameCount++
         val bitmap = imagePreparation(image);
-        canBeClose = true
+        val originBitmap = originImage
+
 
         if(bitmap == null)
+            return
+        if(originImage == null)
+            return
+        if(originBitmap == null)
             return
 
         if(frameCount % detectionEveryXFrame == 0 || lastResult == null)
             realAnalyze(bitmap)
         else
-            opticalFlow(bitmap)
+        {
+            //            opticalFlow(bitmap)
+            multiTracker.update(originBitmap, originBitmap )
+            var result = multiTracker.generateResult()
+            callBack(result)
+        }
 
+        canBeClose = true
         previousMatImage = currentMatImage;
+    }
+
+    private fun trackingObjects(bitmap: Bitmap) {
+
     }
 
     private fun opticalFlow(bitmap: Bitmap) {
@@ -227,8 +256,10 @@ internal class ORTAnalyzer(
                 }
             }
         }
-        lastResult = result
-        callBack(result)
+        multiTracker.add(result, originImage!!)
+        val trackerResult = multiTracker.generateResult()
+        lastResult = trackerResult
+        callBack(trackerResult)
     }
 
     private fun mapToResult(rawOutput: OrtSession.Result, threshold: Double, currentFPS: Double, bitmap: Bitmap): Result_Yolo_v8 {

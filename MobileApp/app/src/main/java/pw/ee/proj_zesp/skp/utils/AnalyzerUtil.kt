@@ -1,6 +1,9 @@
 package pw.ee.proj_zesp.skp.utils
 
+<<<<<<< HEAD
 import android.util.Log
+=======
+>>>>>>> mobile.integrate_detection_with_app.tesseract
 import com.google.mlkit.vision.text.Text
 import pw.ee.proj_zesp.skp.detection.YoloBox
 
