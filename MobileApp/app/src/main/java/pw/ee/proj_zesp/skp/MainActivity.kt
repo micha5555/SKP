@@ -3,19 +3,25 @@ package pw.ee.proj_zesp.skp
 import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.ImageButton
+
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import pw.ee.proj_zesp.skp.utils.NavigationUtils
 import androidx.core.content.ContextCompat
 import org.opencv.android.OpenCVLoader
+import pw.ee.proj_zesp.skp.utils.CommonUtils
+import pw.ee.proj_zesp.skp.utils.NavigationUtils
 import java.io.*
+import java.text.SimpleDateFormat
+import java.util.*
+
+import kotlin.concurrent.schedule
+
 
 class MainActivity : AppCompatActivity() {
-
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         NavigationUtils.requestLocationPermissions(this)
@@ -39,10 +45,13 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, AboutAppActivity::class.java)
             this.startActivity(intent)
         }
-
         startControlButton.setOnClickListener {
             val intent = Intent(this, DetectionActivity::class.java)
             this.startActivity(intent)
         }
+//        Example sending to api
+//        val doge: ByteArray = CommonUtils.convertDrawableToByteArray(ContextCompat.getDrawable(this, R.drawable.doge)!!)
+//        val srequest = SKPRequest(false, doge, NavigationUtils.getLocation(this)!!, "098.20", "BZ4567", "")
+//        srequest.send()
     }
 }
