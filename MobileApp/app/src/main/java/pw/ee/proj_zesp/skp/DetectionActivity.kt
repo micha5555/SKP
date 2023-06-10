@@ -231,21 +231,21 @@ class DetectionActivity : AppCompatActivity(){
                 Utils.matToBitmap(matDest, bmp);
 
 //                newBackgroundView?.setImageBitmap(bmp)
-//                val imageToMlKit = InputImage.fromBitmap(bmp,0)
-//                val resultMlKit = recognizer.process(imageToMlKit).addOnSuccessListener { visionText ->
-//                    if(visionText.textBlocks.size > 0 && visionText.textBlocks[0].lines.size > 0)
+                val imageToMlKit = InputImage.fromBitmap(bmp,0)
+                val resultMlKit = recognizer.process(imageToMlKit).addOnSuccessListener { visionText ->
+                    if(visionText.textBlocks.size > 0 && visionText.textBlocks[0].lines.size > 0)
+                    {
+                        Log.println(Log.INFO, "CAR PLATE", "OCRed Text: " + visionText.textBlocks[0].lines[0].text + ", confidence: " + visionText.textBlocks[0].lines[0].confidence)
+//                    var line = visionText.textBlocks[0].lines[0]
+//                    for (group in line.elements)
 //                    {
-//                        Log.println(Log.INFO, "CAR PLATE", "OCRed Text: " + visionText.textBlocks[0].lines[0].text + ", confidence: " + visionText.textBlocks[0].lines[0].confidence)
-////                    var line = visionText.textBlocks[0].lines[0]
-////                    for (group in line.elements)
-////                    {
-////                        for (character in group.symbols)
-////                        {
-////                            Log.println(Log.INFO, "PLATE Character", "For plate: " + line.text + ", character: " + character.text + ", confidence: " + character.confidence)
-////                        }
-////                    }
+//                        for (character in group.symbols)
+//                        {
+//                            Log.println(Log.INFO, "PLATE Character", "For plate: " + line.text + ", character: " + character.text + ", confidence: " + character.confidence)
+//                        }
 //                    }
-//                }
+                    }
+                }
                 matSource.release()
                 matDest.release()
             }
