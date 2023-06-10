@@ -230,22 +230,22 @@ class DetectionActivity : AppCompatActivity(){
                 val bmp: Bitmap = Bitmap.createBitmap(cropped.width,cropped.height,Bitmap.Config.ARGB_8888)
                 Utils.matToBitmap(matDest, bmp);
 
-                newBackgroundView?.setImageBitmap(bmp)
-                val imageToMlKit = InputImage.fromBitmap(bmp,0)
-                val resultMlKit = recognizer.process(imageToMlKit).addOnSuccessListener { visionText ->
-                    if(visionText.textBlocks.size > 0 && visionText.textBlocks[0].lines.size > 0)
-                    {
-                        Log.println(Log.INFO, "CAR PLATE", "OCRed Text: " + visionText.textBlocks[0].lines[0].text + ", confidence: " + visionText.textBlocks[0].lines[0].confidence)
-//                    var line = visionText.textBlocks[0].lines[0]
-//                    for (group in line.elements)
+//                newBackgroundView?.setImageBitmap(bmp)
+//                val imageToMlKit = InputImage.fromBitmap(bmp,0)
+//                val resultMlKit = recognizer.process(imageToMlKit).addOnSuccessListener { visionText ->
+//                    if(visionText.textBlocks.size > 0 && visionText.textBlocks[0].lines.size > 0)
 //                    {
-//                        for (character in group.symbols)
-//                        {
-//                            Log.println(Log.INFO, "PLATE Character", "For plate: " + line.text + ", character: " + character.text + ", confidence: " + character.confidence)
-//                        }
+//                        Log.println(Log.INFO, "CAR PLATE", "OCRed Text: " + visionText.textBlocks[0].lines[0].text + ", confidence: " + visionText.textBlocks[0].lines[0].confidence)
+////                    var line = visionText.textBlocks[0].lines[0]
+////                    for (group in line.elements)
+////                    {
+////                        for (character in group.symbols)
+////                        {
+////                            Log.println(Log.INFO, "PLATE Character", "For plate: " + line.text + ", character: " + character.text + ", confidence: " + character.confidence)
+////                        }
+////                    }
 //                    }
-                    }
-                }
+//                }
                 matSource.release()
                 matDest.release()
             }
