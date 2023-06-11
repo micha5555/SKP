@@ -47,9 +47,7 @@ import org.opencv.core.Scalar
 import org.opencv.imgproc.Imgproc
 import pw.ee.proj_zesp.skp.detection.ORTAnalyzer
 import pw.ee.proj_zesp.skp.detection.Result_Yolo_v8
-import pw.ee.proj_zesp.skp.utils.checkBoxProportions
-import pw.ee.proj_zesp.skp.utils.cropBoundingBox
-import pw.ee.proj_zesp.skp.utils.parseOCRResults
+import pw.ee.proj_zesp.skp.utils.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -250,8 +248,16 @@ class DetectionActivity : AppCompatActivity(){
                                 Log.println(Log.INFO, "CAR PLATE", "OCRed Text: " + line.text + ", confidence: " + line.confidence)
                             }
                         }
-                        Log.println(Log.INFO, "CAR_PLATE", "OCRed Text final " + parseOCRResults(visionText))
-
+                        val parsed = parseOCRResults(visionText)
+                        Log.println(Log.INFO, "CAR_PLATE", "OCRed Text final " + parsed)
+                        if(parsed != null && parsed.second > 0.75) {
+                            Log.println(Log.INFO, "CAR_PLATE", "OCRed Text sending to API")
+                            val image: ByteArray = CommonUtils.convertBitmapToByteArray(result.bitmap_origin)
+                            val srequest = SKPRequest(false, image, NavigationUtils.getLocation(this)!!,
+                                                        CommonUtils.parseProbabilityToRequestFormat(parsed.second),
+                                                        parsed.first, "")
+                            srequest.send()
+                        }
 
 //                        Log.println(Log.INFO, "CAR PLATE", "OCRed Text: " + visionText.textBlocks[0].lines[0].text + ", confidence: " + visionText.textBlocks[0].lines[0].confidence)
                     }

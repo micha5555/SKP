@@ -36,5 +36,31 @@ class CommonUtils {
             val byteArray = stream.toByteArray()
             return byteArray
         }
+
+        fun convertBitmapToByteArray(bitmap: Bitmap): ByteArray {
+            val stream = ByteArrayOutputStream()
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
+            return stream.toByteArray()
+        }
+
+        fun parseProbabilityToRequestFormat(probability: Double): String {
+            var probabilityDouble = probability * 100
+            var probabilityString = probabilityDouble.toString()
+            if(probabilityDouble >= 10 && probabilityDouble < 100) {
+                probabilityString = "0$probabilityString"
+            } else if(probabilityDouble < 10) {
+                probabilityString = "00$probabilityString"
+            }
+
+            if(probabilityString.length < 6) {
+                for(i in 1..6-probabilityString.length) {
+                    probabilityString += "0"
+                }
+            } else if(probabilityString.length > 6) {
+                probabilityString = probabilityString.substring(0, 6)
+            }
+
+            return probabilityString
+        }
     }
 }
