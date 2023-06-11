@@ -47,7 +47,9 @@ import org.opencv.core.Scalar
 import org.opencv.imgproc.Imgproc
 import pw.ee.proj_zesp.skp.detection.ORTAnalyzer
 import pw.ee.proj_zesp.skp.detection.Result_Yolo_v8
+import pw.ee.proj_zesp.skp.utils.checkBoxProportions
 import pw.ee.proj_zesp.skp.utils.cropBoundingBox
+import pw.ee.proj_zesp.skp.utils.parseOCRResults
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -200,6 +202,8 @@ class DetectionActivity : AppCompatActivity(){
                 var right = box.getX2() * dstSize
                 var bottom = box.getY2() * dstSize
 
+
+
                 Log.println(Log.INFO, "Caught box", "x = ${box.x}, y = ${box.y}, width = ${box.width}, height = ${box.height}, probability = ${box.probability}")
 
                 Log.println(Log.INFO, "INFO",
@@ -233,17 +237,23 @@ class DetectionActivity : AppCompatActivity(){
 //                newBackgroundView?.setImageBitmap(bmp)
                 val imageToMlKit = InputImage.fromBitmap(bmp,0)
                 val resultMlKit = recognizer.process(imageToMlKit).addOnSuccessListener { visionText ->
-                    if(visionText.textBlocks.size > 0 && visionText.textBlocks[0].lines.size > 0)
+                    if(visionText.textBlocks.size > 0 && visionText.textBlocks[0].lines.size > 0 && parseOCRResults(visionText) != null)
                     {
-                        Log.println(Log.INFO, "CAR PLATE", "OCRed Text: " + visionText.textBlocks[0].lines[0].text + ", confidence: " + visionText.textBlocks[0].lines[0].confidence)
-//                    var line = visionText.textBlocks[0].lines[0]
-//                    for (group in line.elements)
-//                    {
-//                        for (character in group.symbols)
-//                        {
-//                            Log.println(Log.INFO, "PLATE Character", "For plate: " + line.text + ", character: " + character.text + ", confidence: " + character.confidence)
-//                        }
-//                    }
+                        Log.println(Log.INFO, "CAR_PLATE", "OCRed Text ----------------- " + visionText.textBlocks.toString())
+                        checkBoxProportions(left.toDouble(), right.toDouble(), top.toDouble(), bottom.toDouble())
+//                        Log.println(Log.INFO, "CAR_PLATE", "OCRed Text_ml_text: " + visionText.textBlocks.toString())
+                        Log.println(Log.INFO, "CAR_PLATE", "OCRed Text_text_blocks_size: " + visionText.textBlocks.size)
+
+                        for(textBlock in visionText.textBlocks) {
+                            Log.println(Log.INFO, "CAR_PLATE", "OCRed Text_text_lines_size: " + textBlock.lines.size)
+                            for(line in textBlock.lines) {
+                                Log.println(Log.INFO, "CAR PLATE", "OCRed Text: " + line.text + ", confidence: " + line.confidence)
+                            }
+                        }
+                        Log.println(Log.INFO, "CAR_PLATE", "OCRed Text final " + parseOCRResults(visionText))
+
+
+//                        Log.println(Log.INFO, "CAR PLATE", "OCRed Text: " + visionText.textBlocks[0].lines[0].text + ", confidence: " + visionText.textBlocks[0].lines[0].confidence)
                     }
                 }
                 matSource.release()

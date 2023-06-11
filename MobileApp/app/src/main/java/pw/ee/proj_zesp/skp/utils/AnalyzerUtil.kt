@@ -1,5 +1,6 @@
 package pw.ee.proj_zesp.skp.utils
 
+import android.util.Log
 import com.google.mlkit.vision.text.Text
 import pw.ee.proj_zesp.skp.detection.YoloBox
 
@@ -103,4 +104,24 @@ fun parseOCRResults(resultText : Text) : Pair<String, Double>?
         }
     }
     return null
+}
+
+// register plate in Poland has proportion 4.561 : 1
+fun checkBoxProportions(left: Double, right: Double, top: Double, bottom: Double) : Boolean
+{
+    val width = Math.abs(right - left)
+    val height = Math.abs(bottom - top)
+    val proportions = width / height
+//    Log.println(Log.INFO, "CAR PLATE", "OCRed Text: proprtion plate " + proportions)
+    return proportions in 2.1..5.0
+}
+
+fun checkBoxProportions(width: Double, height: Double) : Boolean
+{
+    if(height == 0.0)
+    {
+        return false
+    }
+    val proportions: Double = Math.abs(width / height)
+    return proportions in 2.1..5.0
 }
