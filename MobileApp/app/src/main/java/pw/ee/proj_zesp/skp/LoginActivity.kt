@@ -33,6 +33,9 @@ class LoginActivity : AppCompatActivity() {
             SKPLoginRequest.loginRequest(login, password)
 
             Thread.sleep(2000)
+//            When you need token for api requests
+            println("user token")
+            println(User.loggedUser?.accessToken)
             if(User.loggedUser != null && User.loggedUser?.accessToken != null) {
                 val intent = Intent(this, MainActivity::class.java)
                 this.startActivity(intent)

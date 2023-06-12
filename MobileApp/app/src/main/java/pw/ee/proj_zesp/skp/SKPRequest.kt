@@ -16,7 +16,7 @@ import java.util.*
 import javax.net.ssl.*
 
 val AUTHORIZATION_HEADER = "Authorization"
-class SKPRequest(isProblematic: Boolean, photo: ByteArray, currentLocation: String, probability: String, registerPlate: String, currentDate: String) {
+class SKPRequest(isProblematic: Boolean, photo: ByteArray, currentLocation: String, probability: String, registerPlate: String, currentDate: String): Thread() {
 
     val isProblematic: Boolean = isProblematic
         get() {
@@ -48,7 +48,7 @@ class SKPRequest(isProblematic: Boolean, photo: ByteArray, currentLocation: Stri
             return field
         }
 
-    fun send() {
+    public override fun run() {
         var url: String? = null
         if(isProblematic) {
             url = "https://172.25.0.1:5000/problematicCase/add"
@@ -93,6 +93,9 @@ class SKPRequest(isProblematic: Boolean, photo: ByteArray, currentLocation: Stri
                 Log.i("reesponse giiiit", "giiit")
             }
         })
+    }
+    fun send() {
+
     }
 
     private fun createMultipartRequestBody(currentDate: String, currentLocation: String, registerPlate: String, probability: String, photoAsByteArray: ByteArray): MultipartBody {
