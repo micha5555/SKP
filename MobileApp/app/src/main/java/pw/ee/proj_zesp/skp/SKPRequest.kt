@@ -94,9 +94,6 @@ class SKPRequest(isProblematic: Boolean, photo: ByteArray, currentLocation: Stri
             }
         })
     }
-    fun send() {
-
-    }
 
     private fun createMultipartRequestBody(currentDate: String, currentLocation: String, registerPlate: String, probability: String, photoAsByteArray: ByteArray): MultipartBody {
         val requestBody = MultipartBody.Builder()

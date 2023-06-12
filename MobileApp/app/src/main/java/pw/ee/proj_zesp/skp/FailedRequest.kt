@@ -63,7 +63,7 @@ class FailedRequest(isProblematic: Boolean, photo: ByteArray, currentLocation: S
             for (request in failedRequests) {
                 val skpRequest: SKPRequest  = SKPRequest(request.isProblematic, request.photo, request.currentLocation, request.probability, request.registerPlate, request.currentDate)
                 try {
-                    skpRequest.send()
+                    skpRequest.start()
                     failedRequests.remove(request)
                 } catch (e: Exception){
                     e.printStackTrace()

@@ -33,6 +33,7 @@ import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import com.googlecode.tesseract.android.TessBaseAPI
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -248,17 +249,21 @@ class DetectionActivity : AppCompatActivity(){
                                 Log.println(Log.INFO, "CAR PLATE", "OCRed Text: " + line.text + ", confidence: " + line.confidence)
                             }
                         }
-                        val parsed = parseOCRResults(visionText)
-                        Log.println(Log.INFO, "CAR_PLATE", "OCRed Text final " + parsed)
-                        if(parsed != null && parsed.second > 0.75) {
-                            Log.println(Log.INFO, "CAR_PLATE", "OCRed Text sending to API")
-                            val image: ByteArray = CommonUtils.convertBitmapToByteArray(result.bitmap_origin)
-                            val srequest = SKPRequest(false, image, NavigationUtils.getLocation(this)!!,
-                                                        CommonUtils.parseProbabilityToRequestFormat(parsed.second),
-                                                        parsed.first, "")
-                            srequest.send()
-                        }
 
+                        val nav = NavigationUtils.getLocation(this)
+
+                        CoroutineScope(IO).launch {
+                            val parsed = parseOCRResults(visionText)
+                            Log.println(Log.INFO, "CAR_PLATE", "OCRed Text final " + parsed)
+                            if(parsed != null && parsed.second > 0.75) {
+                                Log.println(Log.INFO, "CAR_PLATE", "OCRed Text sending to API")
+                                val image: ByteArray = CommonUtils.convertBitmapToByteArray(result.bitmap_origin)
+                                val srequest = SKPRequest(false, image, nav!!,
+                                    CommonUtils.parseProbabilityToRequestFormat(parsed.second),
+                                    parsed.first, "")
+                                srequest.start()
+                            }
+                        }
 //                        Log.println(Log.INFO, "CAR PLATE", "OCRed Text: " + visionText.textBlocks[0].lines[0].text + ", confidence: " + visionText.textBlocks[0].lines[0].confidence)
                     }
                 }
