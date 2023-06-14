@@ -13,9 +13,33 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
-class NavigationUtils {
+class NavigationUtils(val context: Context) {
 
-    companion object {
+        public fun requestLocationPermissions() {
+            if (ContextCompat.checkSelfPermission(context,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) !==
+                PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(
+                        context as Activity,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    )) {
+                    ActivityCompat.requestPermissions(context,
+                        arrayOf(
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION
+                        ), 1)
+                } else {
+                    ActivityCompat.requestPermissions(context,
+                        arrayOf(
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION
+                        ), 1)
+                }
+            }
+        }
+
+    companion object{
         public fun requestLocationPermissions(context: Context) {
             if (ContextCompat.checkSelfPermission(context,
                     Manifest.permission.ACCESS_FINE_LOCATION
@@ -39,8 +63,9 @@ class NavigationUtils {
                 }
             }
         }
+    }
         @SuppressLint("MissingPermission")
-        fun getLocation(context: Context): String? {
+        fun getLocation(): String? {
             // Get the location manager and check if location services are enabled
             val locationManager =
                 context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
@@ -49,7 +74,6 @@ class NavigationUtils {
                 override fun onLocationChanged(location: Location) {
                     // Handle updated location data here
                 }
-
                 override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
 
                 override fun onProviderEnabled(provider: String) {}
@@ -104,5 +128,4 @@ class NavigationUtils {
             }
             return null
         }
-    }
 }
