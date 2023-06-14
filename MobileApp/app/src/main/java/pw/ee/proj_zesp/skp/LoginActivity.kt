@@ -22,14 +22,18 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.login_layout)
 
+
         val loginButton: ImageButton = findViewById<ImageButton>(R.id.login_button)
         val button: Drawable = ContextCompat.getDrawable(this, R.drawable.button_shape)!!
         loginButton.setBackgroundDrawable(button)
         loginButton.setOnClickListener {
             loginTextField = findViewById(R.id.login_text_field)
             passwordTextField = findViewById(R.id.password_text_field)
+            loginTextField.setText("Test1234")
+            passwordTextField.setText("Test1234")
             val login: String = loginTextField.text.toString()
             val password: String = passwordTextField.text.toString()
+            
             SKPLoginRequest.loginRequest(login, password)
 
             Thread.sleep(2000)

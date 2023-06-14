@@ -48,6 +48,9 @@ import org.opencv.core.Scalar
 import org.opencv.imgproc.Imgproc
 import pw.ee.proj_zesp.skp.detection.ORTAnalyzer
 import pw.ee.proj_zesp.skp.detection.Result_Yolo_v8
+import pw.ee.proj_zesp.skp.ocr.OCR_util
+import pw.ee.proj_zesp.skp.ocr.OCR_util.Companion.checkBoxProportions
+import pw.ee.proj_zesp.skp.ocr.OCR_util.Companion.parseOCRResults
 import pw.ee.proj_zesp.skp.utils.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -68,6 +71,7 @@ class DetectionActivity : AppCompatActivity(){
     private var boxView : ImageView? = null
 
     private lateinit var tess : TessBaseAPI
+    private var startTime = System.currentTimeMillis()
 
     val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
 
@@ -77,6 +81,8 @@ class DetectionActivity : AppCompatActivity(){
         super.onCreate(savedInstanceState)
         setContentView(R.layout.detection_window)
         ortEnv = OrtEnvironment.getEnvironment()
+
+        Navigation.navigation = NavigationUtils(this)
 
         // Request Camera permission
         if (allPermissionsGranted()) {
@@ -173,7 +179,10 @@ class DetectionActivity : AppCompatActivity(){
     @RequiresApi(Build.VERSION_CODES.O)
     private fun updateUI(result: Result_Yolo_v8) {
         runOnUiThread{
-            textBox?.text = "FPS: "+ result.currentFPS.toString();
+            var timeNow = System.currentTimeMillis()
+            var fps = 1.0/((timeNow - startTime).toDouble()/1000.0)
+            startTime = timeNow
+            textBox?.text = "FPS: "+ fps
 //            val imageBitmap = viewFinder.bitmap ?: return@runOnUiThread
             val bitmapDrawable = result.bitmap_origin.copy(Bitmap.Config.ARGB_8888, true)
             val boxBitmap = Bitmap.createBitmap(bitmapDrawable.width, bitmapDrawable.height, Bitmap.Config.ARGB_8888, true);
@@ -211,64 +220,6 @@ class DetectionActivity : AppCompatActivity(){
 
                 val rect = RectF(left, top, right, bottom)
                 listRect.add(rect)
-
-                val cropped = cropBoundingBox(result.bitmap_origin, box);
-                var matSource = Mat()
-                Utils.bitmapToMat(cropped, matSource)
-
-                Imgproc.cvtColor(matSource,matSource,Imgproc.COLOR_RGB2GRAY)
-                var matDest = Mat()
-
-                matSource.convertTo(matDest, CV_32F, 1.0 / 255.0)
-
-                // Zastosowanie zmiany gamma
-                val gamma = 3.0 // Wartość gamma
-                Core.pow(matDest, gamma, matDest)
-
-                // Konwersja z powrotem na zakres 0-255
-                Core.multiply(matDest, Scalar(255.0), matDest)
-                matDest.convertTo(matDest, CvType.CV_8U)
-
-//
-                val bmp: Bitmap = Bitmap.createBitmap(cropped.width,cropped.height,Bitmap.Config.ARGB_8888)
-                Utils.matToBitmap(matDest, bmp);
-
-//                newBackgroundView?.setImageBitmap(bmp)
-                val imageToMlKit = InputImage.fromBitmap(bmp,0)
-                val resultMlKit = recognizer.process(imageToMlKit).addOnSuccessListener { visionText ->
-                    if(visionText.textBlocks.size > 0 && visionText.textBlocks[0].lines.size > 0 && parseOCRResults(visionText) != null)
-                    {
-                        Log.println(Log.INFO, "CAR_PLATE", "OCRed Text ----------------- " + visionText.textBlocks.toString())
-                        checkBoxProportions(left.toDouble(), right.toDouble(), top.toDouble(), bottom.toDouble())
-//                        Log.println(Log.INFO, "CAR_PLATE", "OCRed Text_ml_text: " + visionText.textBlocks.toString())
-                        Log.println(Log.INFO, "CAR_PLATE", "OCRed Text_text_blocks_size: " + visionText.textBlocks.size)
-
-                        for(textBlock in visionText.textBlocks) {
-                            Log.println(Log.INFO, "CAR_PLATE", "OCRed Text_text_lines_size: " + textBlock.lines.size)
-                            for(line in textBlock.lines) {
-                                Log.println(Log.INFO, "CAR PLATE", "OCRed Text: " + line.text + ", confidence: " + line.confidence)
-                            }
-                        }
-
-                        val nav = NavigationUtils.getLocation(this)
-
-                        CoroutineScope(IO).launch {
-                            val parsed = parseOCRResults(visionText)
-                            Log.println(Log.INFO, "CAR_PLATE", "OCRed Text final " + parsed)
-                            if(parsed != null && parsed.second > 0.75) {
-                                Log.println(Log.INFO, "CAR_PLATE", "OCRed Text sending to API")
-                                val image: ByteArray = CommonUtils.convertBitmapToByteArray(result.bitmap_origin)
-                                val srequest = SKPRequest(false, image, nav!!,
-                                    CommonUtils.parseProbabilityToRequestFormat(parsed.second),
-                                    parsed.first, "")
-                                srequest.start()
-                            }
-                        }
-//                        Log.println(Log.INFO, "CAR PLATE", "OCRed Text: " + visionText.textBlocks[0].lines[0].text + ", confidence: " + visionText.textBlocks[0].lines[0].confidence)
-                    }
-                }
-                matSource.release()
-                matDest.release()
             }
 
             Log.println(Log.INFO,"INFO", "Number of boxes: " + result.number_of_boxes)

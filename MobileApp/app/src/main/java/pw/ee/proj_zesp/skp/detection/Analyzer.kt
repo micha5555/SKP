@@ -10,6 +10,9 @@ import android.os.SystemClock
 import android.util.Log
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.Default
+import kotlinx.coroutines.launch
 import org.opencv.android.Utils
 import org.opencv.core.Algorithm
 import org.opencv.tracking.legacy_MultiTracker
@@ -53,7 +56,6 @@ internal class ORTAnalyzer(
     private var imageProxy: ImageProxy? = null
     private var originImage : Bitmap? = null
 
-//    private var tracker = TrackerDaSiamRPN.create()
     private var multiTracker: CustomMultiTracker = CustomMultiTracker()
 
     private var frameCount: Int = 0
@@ -114,7 +116,11 @@ internal class ORTAnalyzer(
             return
 
         if(frameCount % detectionEveryXFrame == 0 || lastResult == null)
-            realAnalyze(bitmap)
+        {
+//            CoroutineScope(Default).launch {
+                realAnalyze(bitmap)
+//            }
+        }
         else
         {
             //            opticalFlow(bitmap)

@@ -1,12 +1,10 @@
 package pw.ee.proj_zesp.skp.track
 
 import android.graphics.Bitmap
-import org.opencv.core.Mat
-import org.opencv.core.Rect
 import pw.ee.proj_zesp.skp.detection.Result_Yolo_v8
 import pw.ee.proj_zesp.skp.detection.YoloBox
 import pw.ee.proj_zesp.skp.detection.calcMatFromBitmap
-import pw.ee.proj_zesp.skp.utils.cropBoundingBox
+import pw.ee.proj_zesp.skp.ocr.OCR_util.Companion.checkBoxProportions
 import pw.ee.proj_zesp.skp.utils.isOverlaping
 import java.lang.Exception
 
@@ -24,36 +22,30 @@ class CustomMultiTracker {
 
         for (box in result.boxes)
         {
-
             var isTracked = false
 
             for (track in Tracks) {
-                val trackYoloBox = YoloBox(track.Box.left.toFloat()/workingBitmap.width.toFloat(), track.Box.top.toFloat()/workingBitmap.width.toFloat(), (track.Box.right - track.Box.left).toFloat()/workingBitmap.width.toFloat(), (track.Box.bot - track.Box.top).toFloat()/workingBitmap.width.toFloat(), track.Probability)
+                val trackYoloBox = track.generateYoloBox(result.bitmap_origin.width, result.bitmap_origin.height)
 
                 if (isOverlaping(box, trackYoloBox)) {
                     isTracked = true
-                    if(box.probability > trackYoloBox.probability)
-                    {
-                        var cropped = cropBoundingBox(result.bitmap_origin, box)
-                        val trackBox = TrackBox(cropped, (box.x*result.bitmap_origin.width).toInt(), (box.y*result.bitmap_origin.height).toInt())
-                        Tracks.add(Track(box.probability, trackBox))
-                        Tracks.remove(track)
+                    if(box.probability > trackYoloBox.probability ) {
+                        track.replaceBox(result.bitmap_origin, box)
                     }
                     break
                 }
             }
 
-            if (!isTracked) {
-                var cropped = cropBoundingBox(result.bitmap_origin, box)
-                val trackBox = TrackBox(cropped, (box.x*result.bitmap_origin.width).toInt(), (box.y*result.bitmap_origin.height).toInt())
-                Tracks.add(Track(box.probability, trackBox))
+            if (!isTracked && checkBoxProportions(box.width.toDouble(), box.height.toDouble())) {
+                Tracks.add(Track.createTrack(result.bitmap_origin, box))
             }
 
         }
     }
 
-    private fun update(imageMat: Mat)
+    private fun update(workingBitmap: Bitmap)
     {
+        val imageMat = calcMatFromBitmap(workingBitmap)
         if(LastWorkingBitmap == null)
             return
         var prevMat = calcMatFromBitmap(LastWorkingBitmap!!)
@@ -67,16 +59,18 @@ class CustomMultiTracker {
                 track.Probability *= ProbabilityMultiplier;
                 if(track.Probability < ProbabilityThreshold)
                 {
+                    track.lost()
                     Tracks.remove(track)
                     i--
                 }
                 else
                 {
-                    track.Box.generateBoundingBox()
+                    track.update(workingBitmap)
                 }
             }
             else
             {
+                track.lost()
                 Tracks.remove(track)
                 i--
             }
@@ -86,7 +80,7 @@ class CustomMultiTracker {
 
     public fun update(bitmap: Bitmap, workingBitmap: Bitmap)
     {
-        update(calcMatFromBitmap(workingBitmap))
+        update(workingBitmap)
         LastWorkingBitmap = workingBitmap
         LastBitmap = bitmap
     }
@@ -104,8 +98,7 @@ class CustomMultiTracker {
 
         for(track in Tracks)
         {
-            var box = YoloBox(track.Box.left.toFloat()/workingBitmap.width.toFloat(), track.Box.top.toFloat()/workingBitmap.width.toFloat(), (track.Box.right - track.Box.left).toFloat()/workingBitmap.width.toFloat(), (track.Box.bot - track.Box.top).toFloat()/workingBitmap.width.toFloat(), track.Probability)
-            result.add(box)
+            result.add(track.generateYoloBox(workingBitmap.width, workingBitmap.height))
         }
 
         return result

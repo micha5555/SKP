@@ -11,7 +11,9 @@ import org.opencv.core.MatOfPoint2f
 import org.opencv.core.Point
 import org.opencv.imgproc.Imgproc
 import org.opencv.video.Video
+import pw.ee.proj_zesp.skp.detection.YoloBox
 import pw.ee.proj_zesp.skp.detection.calcMatFromBitmap
+import pw.ee.proj_zesp.skp.utils.cropBoundingBox
 
 class TrackBox(cropped: Bitmap, xCropped: Int, yCropped: Int) {
     var Points = mutableListOf<TrackPoint>()
@@ -28,6 +30,22 @@ class TrackBox(cropped: Bitmap, xCropped: Int, yCropped: Int) {
         bot = yCropped.toDouble() + cropped.height
         generatePoints(cropped, xCropped, yCropped)
         OriginalNumberOfPoints = Points.size
+    }
+
+//    constructor(bitmap: Bitmap, box: YoloBox) : this() {
+//        left = box.x*bitmap.width.toDouble()
+//        right = (box.x + box.width)*bitmap.width.toDouble()
+//        top = box.y*bitmap.height.toDouble()
+//        bot = (box.y + box.height)*bitmap.height.toDouble()
+//        generatePoints(cropBoundingBox(bitmap, box), left.toInt(), top.toInt())
+//        OriginalNumberOfPoints = Points.size
+//    }
+    public fun getWidth() : Double{
+        return right - left
+    }
+
+    public fun getHeight() : Double{
+        return bot - top
     }
 
     public fun generatePoints(cropped: Bitmap, xCropped: Int, yCropped: Int)
