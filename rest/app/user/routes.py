@@ -41,7 +41,7 @@ def getAll(curr_user):
     
     for user in users:
         users_json.append(user.json())
-    response_data =users_json
+    response_data = users_json
     return makeResponse(response_data, 200)
 
 @bp.route('/user/<id>', methods=["GET"])
