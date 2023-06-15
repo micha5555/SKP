@@ -1,12 +1,12 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { API_HOST, PSC, PSC_LINK, PUT_METHOD } from "../../Config/MainConfig";
 import { useNavigate, useParams } from "react-router-dom";
 import { SUCCESS, WARNING, ctxAlert } from "../../Hooks/Alert";
 import { Container, InputGroup, Form, Button } from "react-bootstrap";
 import withAuthCheck from "../../Hooks/withAuthCheck";
 import ReactImageMagnify from "react-image-magnify";
-import { ctxAuth } from "../../Hooks/Auth";
 import AuthService from "../../Service/AuthService";
+import Map from "../GoogleApiWrapper";
 
 const NPC = 'not_possible_to_check';
 const CPA = 'check_if_paid_again';
@@ -19,7 +19,7 @@ const EditPsc = () => {
 
     const [register, setRegister] = useState('');
     const [date, setDate] = useState('');
-    const [location, setLocation] = useState('');
+    const [location, setLocation] = useState(null);
     const [image, setImage] = useState('');
     const [probability, setProbability] = useState('');
 
@@ -97,7 +97,7 @@ const EditPsc = () => {
 
     return (
         <>
-        <h1 className="pageTitle container">Edytuj użytkownika</h1>
+        <h1 className="pageTitle container">Edytuj przypadek</h1>
         <div className="w-100 line"></div>
         <Container className="mt-4 w-50">
 
@@ -105,14 +105,14 @@ const EditPsc = () => {
                 <ReactImageMagnify
                 {...{
                     smallImage: {
-                        src: API_HOST + "/" + PSC + "/images/" + "f4936638-d44f-4db3-91ea-87de12b72ecf_20235m11_234542",
+                        src: API_HOST + "/" + PSC + "/images/" + image,
                         isFluidWidth: true,
                         className: "image"
                     },
                     largeImage: {
-                        src: API_HOST + "/" + PSC + "/images/" + "f4936638-d44f-4db3-91ea-87de12b72ecf_20235m11_234542",
+                        src: API_HOST + "/" + PSC + "/images/" + image,
                         width: 600,
-                        height: 900,
+                        height: 600,
                     }
                 }} />
             </div>
@@ -139,7 +139,7 @@ const EditPsc = () => {
                 />  
             </InputGroup>
             
-            <InputGroup className="mb-3">
+            {/* <InputGroup className="mb-3">
                 <InputGroup.Text id="Lokalizajca">Lokalizajca</InputGroup.Text>
                 <Form.Control
                     placeholder="Lokalizajca"
@@ -149,9 +149,9 @@ const EditPsc = () => {
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
                 />  
-            </InputGroup>
+            </InputGroup> */}
 
-            <InputGroup className="mb-3">
+            {/* <InputGroup className="mb-3">
                 <InputGroup.Text id="Prawdopodobieństwo">Prawdopodobieństwo</InputGroup.Text>
                 <Form.Control
                     placeholder="Prawdopodobieństwo"
@@ -161,9 +161,15 @@ const EditPsc = () => {
                     value={probability}
                     onChange={(e) => setProbability(e.target.value)}
                 />  
-            </InputGroup>
+            </InputGroup> */}
 
-            <div className="d-flex justify-content-between">
+            {
+                location != null 
+                ? <Map center={location.split(',').map(p => parseFloat(p))} />
+                : null
+            }
+
+            <div className="d-flex mb-3 justify-content-between">
                 <Button className="my_button" onClick={handleCancel} variant="danger">Anuluj</Button>
                 <Button  onClick={() => handleSave(NPC)} variant="secondary">Nie możliwe potwierdzenie</Button>
                 <Button className="my_button" onClick={() => handleSave(CPA)} variant="primary">Zapisz poprawienie</Button>
