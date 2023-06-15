@@ -10,7 +10,6 @@ from app.auth import tokenAdminRequire
 from datetime import datetime
 from app.generators import *
 from config import Config
-import zipfile
 
 
 @bp.route('/', methods=["GET"])
