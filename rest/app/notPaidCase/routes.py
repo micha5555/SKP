@@ -7,7 +7,6 @@ from app.auth import tokenUserRequire
 from app.db import db
 from config import Config
 
-# tego oficjalnie nie ma 
 @bp.route('/', methods=["GET"])
 def get():
     if request.method == "GET":
@@ -24,7 +23,7 @@ def get():
 def add(curr_user):
     data = getRequestData(request)
 
-    if not allElementsInList(NotPaidCase.attr, data):
+    if not allElementsInList(data,NotPaidCase.attr):
         return "W zapytaniu nie zawarto wszystkich wartości", 400
     
     if not validateRegistration(data['register_plate']):
