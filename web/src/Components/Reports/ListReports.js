@@ -1,17 +1,35 @@
 import { useContext, useEffect, useState } from "react";
-import { API_HOST } from "../../Config/MainConfig";
-import { WARNING, useAlert } from "../../Hooks/Alert";
+import { API_HOST, POST_METHOD } from "../../Config/MainConfig";
+import { INFO, SUCCESS, WARNING, ctxAlert, useAlert } from "../../Hooks/Alert";
 
 import { Button, Container, Dropdown, DropdownButton, Form, InputGroup, Table } from "react-bootstrap";
 import { Download, PencilSquare, Trash3Fill } from "react-bootstrap-icons";
 import withAuthCheck from "../../Hooks/withAuthCheck";
 import AuthService from "../../Service/AuthService";
 
+const downloadBlob = (blob, filename) => {
+    // Create a temporary URL for the Blob
+    const url = URL.createObjectURL(blob);
+    
+    // Create a link element
+    const link = document.createElement('a');
+    
+    // Set the link's properties
+    link.href = url;
+    link.download = filename;
+    
+    // Programmatically click the link to trigger the download
+    link.click();
+    
+    // Clean up the temporary URL
+    URL.revokeObjectURL(url);
+  }
+
 const ReportsList = () => {
     const [list, setList] = useState([]);
     const [fromDate, setFromDate] = useState('');
     const [toDate, setToDate] = useState('');
-    const {showAlert} = useAlert();
+    const {showAlert} = useContext(ctxAlert);
 
     const [sorter, setsorter] = useState('id');
     const [sorterValue, setsorterValue] = useState('Id');
@@ -59,6 +77,69 @@ const ReportsList = () => {
     const handleType = (type, value) => {
         setType(type);
         setTypeValue(value);
+    }
+
+    const handleDelete = (id) => {
+
+    }
+
+    const handleDownload = (id, type, filename) => {
+        fetch(API_HOST + '/report/download/' + type + "/" + id, {
+            headers: {
+                "Authorization": 'Bearer ' +  AuthService.getToken(),
+            },
+        })
+        .then(res => {
+            if(res.ok) {
+                return res.blob()
+            } else {
+                return res.text().then(errorMsg => {
+                    throw new Error(errorMsg);
+                });
+            }
+        })
+        .then(res => {
+            downloadBlob(res, filename);
+            showAlert("Pobrano.", INFO);
+            return true;
+        })
+        .catch(err => {
+            console.log(err.message)
+            showAlert(err.message, WARNING);
+            return false;
+        })
+    }
+
+    const handleCreate = () => {
+        const fd = new FormData();
+        fd.append('start_period', fromDate);
+        fd.append('end_period', toDate);
+        fetch(API_HOST + '/report/add', {
+            headers: {
+                "Authorization": 'Bearer ' +  AuthService.getToken(),
+            },
+            method: POST_METHOD,
+            body: fd,
+        })
+        .then(res => {
+            if(res.ok) {
+                return res.json()
+            } else {
+                return res.text().then(errorMsg => {
+                    throw new Error(errorMsg);
+                });
+            }
+        })
+        .then(res => {
+            showAlert("Raport utworzono pomyślnie", SUCCESS);
+            return true;
+        })
+        .catch(err => {
+            console.log(err.message)
+            showAlert(err.message, WARNING);
+            console.log('kekk');
+            return false;
+        })
     }
 
     return (
@@ -121,6 +202,7 @@ const ReportsList = () => {
         <div className="d-flex justify-content-between">
             <Button
                 variant="dark"
+                onClick={handleCreate}
             >
                 Stwórz raport
             </Button>
@@ -158,8 +240,9 @@ const ReportsList = () => {
                     <th>Data utworzenia</th>
                     <th>Od</th>
                     <th>Do</th>
-                    <th>Pobierz</th>
-                    <th>Usuń</th>
+                    <th>Pdf</th>
+                    <th>Xlsx</th>
+                    {/* <th>Usuń</th> */}
                 </tr>
             </thead>
             <tbody>
@@ -168,8 +251,9 @@ const ReportsList = () => {
                     <td>{elem['creation_date']}</td>
                     <td>{elem['start_period']}</td>
                     <td>{elem['end_period']}</td>
-                    <td><Download /></td>
-                    <td><Trash3Fill /></td>
+                    <td onClick={() => handleDownload(elem['id'], 'pdf', elem['filename'])}><Download /></td>
+                    <td onClick={() => handleDownload(elem['id'], 'xlsx', elem['filename'])}><Download /></td>
+                    {/* <td onClick={() => handleDelete(elem['id'])}><Trash3Fill /></td> */}
                 </tr>)}
             </tbody>
         </Table>

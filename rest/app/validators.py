@@ -31,7 +31,7 @@ def validateBoolean(param):
     return False
 
 def validateDate(date):
-    pattern = r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$'
+    pattern = r'^\d{4}-\d{2}-\d{2}'
     if re.match(pattern, date):
         return True
     return False

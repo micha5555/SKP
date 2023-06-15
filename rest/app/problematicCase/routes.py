@@ -63,12 +63,10 @@ def get_id(curr_user, id):
 
     if data == None:
         return "Przypadek o podanym id nie istnieje", 400
-    
-    return makeResponse(data.json(),200)
+    return makeResponse(data.json(), 200)
 
 @bp.route('/images/<filename>', methods=["GET"])
-@tokenAdminRequire
-def get_image(curr_user, filename):
+def get_image(filename):
     image_folder = Config.UPLOAD_FOLDER 
 
     if not os.path.isfile(os.path.join(os.getcwd(), image_folder, filename + '.png')):
