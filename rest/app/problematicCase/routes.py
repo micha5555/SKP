@@ -63,7 +63,6 @@ def get_id(curr_user, id):
 
     if data == None:
         return "Przypadek o podanym id nie istnieje", 400
-    
     return makeResponse(data.json(), 200)
 
 @bp.route('/images/<filename>', methods=["GET"])
@@ -79,7 +78,7 @@ def get_image(filename):
 def add(curr_user):
     data = getRequestData(request)
 
-    if not allElementsInList(ProblematicCase.attr, data):
+    if not allElementsInList(data,ProblematicCase.attr):
         return "W zapytaniu nie zawarto wszystkich wartości", 400
     
     if not validateDate(data['datetime']):
