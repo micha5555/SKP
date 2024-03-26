@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">SKP</string>
+    <string name="about_app_text">Tutaj będzie bardzo mądre opisanie naszej aplikacji. Będą pościgi i wybuchy, kontroler będzie jeździć i obserwować i będzie fenomenalnie ogólnie</string>
+    <string name="back">Wstecz</string>
+    <string name="hello_message">Witaj w \nsystemie \nkontroli \nparkowania</string>
+    <string name="about_system_header">O systemie</string>
+    <string name="start_control_button_text">Rozpocznij kontrolę</string>
+    <string name="login_button_text">Zaloguj</string>
+    <string name="login_text">Login</string>
+    <string name="password">Hasło</string>
+</resources>
